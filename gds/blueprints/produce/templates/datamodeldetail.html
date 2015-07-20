@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block precss %}
+    <style type="text/css">
+    </style>
+{% endblock %}
+{% block prejs %}
+    <script type="text/javascript">
+    </script>
+{% endblock %}
+{% block content %}
+    <table>
+        {% for row in rows %}
+            <tr>
+                <td>{{row}}:</td><td colspan="{{colspan}}">{{rowvals[row]}}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            {% for col in cols %}
+            <td>{{col}}</td>
+            {% endfor %}
+        </tr>
+        {% for colval in colvals %}
+        <tr>
+            {% for col in cols %}
+            <td>{{colval[col]}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    {% for col in datamodel %}
+    <div>
+    </div>
+    {% endfor %}
+{% endblock %}

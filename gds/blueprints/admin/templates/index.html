@@ -1,0 +1,76 @@
+<!DOCTYPE>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+    <meta name="format-detection" content="teleusername=no"/>
+    <meta name="format-detection" content="address=no"/>
+    <title>首页</title>
+    <link rel="stylesheet" type="text/css" href="/assist/static/css/base.css">
+    <style type="text/css">
+        body {
+            background-color: #343434; font-size:14px; color:#ffffff;
+        }
+        .login{
+            width:92.6%;
+            height:45px;
+            line-height:45px;
+            font-size:18px;
+            margin:0 auto;
+            margin-top:60px;
+            border-radius:4px 4px 4px/4px 4px;
+            text-align:center;
+            filter: progid:dximagetransform.microsoft.gradient(gradienttype=0,startcolorstr=#130c0e,endcolorstr=#000000); /*ie*/
+            background:-moz-linear-gradient(top,#130c0e,#000000); /*火狐*/
+            background:-webkit-gradient(linear, 0% 0%, 0% 100%,from(#130c0e), to(#000000)); /*谷歌*/
+            background-image: -webkit-gradient(linear,left bottom,left top,color-start(0, #130c0e),color-stop(1, #000000)); /* safari & chrome*/
+            filter:progid:dximagetransform.microsoft.gradient(gradienttype=0,startcolorstr='#130c0e', endcolorstr='#000000'); /*ie6 & ie7*/
+            -ms-filter: progid:dximagetransform.microsoft.gradient(gradienttype=0,startcolorstr='#130c0e', endcolorstr='#000000'); /* ie8 */  
+        }
+        .msg{
+            width:92.6%;
+            margin:0 auto;
+            overflow-x:hidden;
+            margin-top:36px;
+            border-radius: 4px 4px 4px/4px 4px;
+            background-color:#fff2fa;
+        }
+        .msg > div{
+            width:100%;
+            height:45px;
+        }
+        .inputline {
+            border-bottom:#d8d8d8 1px solid;
+        }
+        .inputfield {
+            position:relative;
+        }
+        .password{
+            position:absolute;
+            width:100px;
+            height:23px;
+            text-align:center;
+            line-height:23px;
+            top:11px;
+            right:5px;
+            padding-left:5px;
+            padding-right:5px;
+            background-color:#0079ff;
+            color:#fff2fa;
+            font-size:18px;
+        }
+    </style>
+    <script type="text/javascript">
+    </script>
+</head>
+<body>
+    <div class="msg">
+        <div class="inputline"><input id="username" type="text" style="width:100%;height:45px;font-size:15px;padding-left:5px;background:none;border:none;" onfocus="forinput()" placeholder="输入帐号" value=""/></div>
+        <div class="inputfield"><input id="password" type="password" style="width:100%;height:45px;font-size:15px;padding-left:5px;background:none;border:none;" onfocus="forinput()" placeholder="输入密码" value=""/><!-- <div id="sendsms" class="password">获取验证码</div> --></div>
+    </div>
+    <div class="login">立即领取</div>
+    <div id="space" style="width:100%; height:300px; display:none;">
+</body>
+</html>

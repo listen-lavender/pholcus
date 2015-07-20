@@ -1,0 +1,34 @@
+<!DOCTYPE>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+    <meta name="format-detection" content="teleusername=no"/>
+    <meta name="format-detection" content="address=no"/>
+    <title>task unit</title>
+    <link rel="stylesheet" type="text/css" href="/gds/static/css/bootstrap-3.2.0.min.css">
+    <style type="text/css">
+    </style>
+    <script type="text/javascript" src="/gds/static/js/require.js" data-main="/gds/static/js/main.js"></script>
+    <script type="text/javascript">
+    </script>
+</head>
+<body ng-app>
+    <video src='http://7xk8hz.media1.z0.glb.clouddn.com/IMG_1200.mp4' controls="controls"  autoplay="true"></video>
+    <div>
+        Your name: <input type="text" ng-model="yourname" placeholder="World">
+        <hr>
+        Hello {{yourname || 'World'}}!
+    </div>
+    <table>
+        <tr><th>row number</th></tr>
+        <tr ng-repeat="i in [0, 1, 2, 3, 4, 5, 6, 7]"><td>{{i+1}}</td></tr>
+    </table>
+    <!-- <ul ng-controller="PhoneListCtrl">
+        <li ng-repeat="phones">
+        </li>
+    </ul> -->
+</body>
+</html>
