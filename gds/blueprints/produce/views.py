@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # coding=utf8
-from dbm.mysql.suit import withMysql, dbpc, RDB, WDB
+from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
+from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template
 
 produce = Blueprint('produce', __name__, template_folder='templates')
@@ -13,32 +14,23 @@ def modellist():
     datamodels = dbpc.handler.queryAll(""" select * from grabtask_datamodel; """)
     return render_template('datamodellist.html')
 
-@produce.route('/datamodel/detail/<dm>', methods=['GET'])
-@withMysql(RDB, resutype='DICT')
-def modeldetail(dm):
-    if model:
-        pass
-    else:
-        model['rows'] = 
-    rows = ['id','table_name', 'table_comment', 'auto_create', 'is_created', 'status']
-    cols = ['id','name','ddl','default','comment','nullable','unique']
-    adds = ['ditype','ddl']
-    rowvals = dbpc.handler.queryOne(""" select %s from grabtask_datamodel where id = %s """, (','.join(''.join(('`', one, '`')) for one in rows), dmid or '')) or dict(zip(rows, ['' for one in rows]))
-    colvals = dbpc.handler.queryAll(""" select %s from grabtask_dataitem where dmid = %s; """, (','.join(''.join(('`', one, '`')) for one in cols), rowvals['id']))
-    for col in colvals:
-        colvals[col]['datatypes'] = dbpc.handler.queryAll(""" select %s from grabtask_datatype where diid = %s; """, (','.join(''.join(('`', one, '`')) for one in adds), colvals[col]['id']))
-        del colvals[col]['id']
-    del rowvals['id']
-    return render_template('datamodeldetail.html', rows=rows, cols=cols, rowvals=rowvals, colvals=colvals, colspan=len(cols)-1)
-
 @produce.route('/datamodel/detail/<dmid>', methods=['GET'])
 @withMysql(RDB, resutype='DICT')
 def modeldetail(dmid):
-    rows = ['name','comment','autocreate','iscreated','status','extra','creator','updator','create_time','update_time']
-    cols = ['column_name', 'column_type', 'column_length', 'column_default', 'column_comment', 'is_nullable', 'is_autoincrement', 'is_primary', 'is_unique']
-    rowvals = dbpc.handler.queryOne(""" select * from grabtask_datamodel where table_name = %s """, (','.join(''.join(('`', one, '`')) for one in rows), dm or '')) or dict(zip(rows, ['' for one in rows]))
-    colvals = dbpc.handler.queryAll(""" select %s from grabtask_datamodel where table_name = %s; """, (','.join(''.join(('`', one, '`')) for one in cols), dm or ''))
-    return render_template('datamodeldetail.html', rows=rows, cols=cols, rowvals=rowvals, colvals=colvals, colspan=len(cols)-1)
+    rows = ['id', 'name', 'autocreate', 'iscreated', 'status', 'extra', 'creator', 'updator', 'create_time', 'update_time']
+    cols = ['id', 'dmid', 'name', 'default', 'nullable', 'unique']
+    # rows = ['id', 'name', 'comment', 'autocreate', 'iscreated', 'status', 'extra', 'creator', 'updator', 'create_time', 'update_time']
+    # cols = ['id', 'dmid', 'name', 'comment', 'default', 'nullable', 'unique']
+    adds = ['ditype','ddl']
+    rowvals = dbpc.handler.queryOne(""" select {{s}} from grabtask_datamodel where id = %s """.replace("{{s}}", ','.join(''.join(('`', one, '`')) for one in rows)), (dmid or '', )) or dict(zip(rows, ['' for one in rows]))
+    colvals = dbpc.handler.queryAll(""" select {{s}} from grabtask_dataitem where dmid = %s; """.replace("{{s}}", ','.join(''.join(('`', one, '`')) for one in cols)), (rowvals['id'], ))
+    for col in colvals:
+        # colvals[col]['datatypes'] = dbpc.handler.queryAll(""" select %s from grabtask_datatype where diid = %s; """, (','.join(''.join(('`', one, '`')) for one in adds), colvals[col]['id']))
+        del col['dmid']
+    cols.remove('dmid')
+    cols.remove('id')
+    rows.remove('id')
+    return render_template('datamodeldetail.html', rows=rows, cols=cols, rowvals=unicode2utf8(rowvals), colvals=unicode2utf8(colvals), colspan=len(cols)-1)
 
 @produce.route('/task/unit', methods=['GET'])
 def unit():

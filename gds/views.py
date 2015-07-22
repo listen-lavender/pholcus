@@ -2,7 +2,7 @@
 # coding=utf8
 import json
 from settings import staticfilepath, useport, CACHE_TIMEOUT, _DBCONN_R, _DBCONN_W, LIMIT
-from dbm.mysql.suit import withMysql, dbpc, RDB, WDB
+from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
 from flask import Flask, g, request, Response
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug.contrib.cache import SimpleCache

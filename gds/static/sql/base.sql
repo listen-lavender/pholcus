@@ -151,20 +151,19 @@ create table `grabtask_datamodel` (
   `create_time` datetime not null comment '创建时间',
   `update_time` timestamp not null default current_timestamp on update current_timestamp comment '更新时间',
   primary key (`id`),
-  unique key `model_column` (`name`)
+  unique key `model` (`name`)
 ) engine=innodb default charset=utf8 comment='抓取任务模型表';
 
 create table `grabtask_dataitem` (
   `id` int(11) not null auto_increment,
   `dmid` int(11) not null comment '数据模型id',
   `name` varchar(64) not null default '' comment '数据项名称',
-  `ddl` varchar(64) not null default '' comment '数据项类型',
   `default` longtext default null comment '数据项默认值',
   `comment` varchar(200) default null comment '数据项注释',
   `nullable` tinyint(1) not null default '1' comment '状态值：1，允许null； 0，不允许null',
   `unique` varchar(64) default null comment '状态值：1，是唯一索引数据项； 0，不是唯一索引数据项',
   primary key (`id`),
-  unique key `model_column` (`mid`, `name`)
+  unique key `model_time` (`dmid`, `name`)
 ) engine=innodb default charset=utf8 comment='抓取任务数据项表';
 
 create table `grabtask_datatype` (
@@ -173,7 +172,7 @@ create table `grabtask_datatype` (
   `ditype` varchar(10) not null comment '数据项的数据库',
   `ddl` varchar(64) not null default '' comment '数据项的具体类型',
   primary key (`id`),
-  unique key `model_column` (`mid`, `name`)
+  unique key `item` (`diid`)
 ) engine=innodb default charset=utf8 comment='抓取任务数据项类型表';
 
 create table `grabtask_statistics` (
