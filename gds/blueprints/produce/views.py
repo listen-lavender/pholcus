@@ -9,12 +9,12 @@ produce = Blueprint('produce', __name__, template_folder='templates')
 model = {}
 
 @produce.route('/datamodel/list', methods=['GET'])
-@withMysql(RDB, )
+@withMysql(RDB, methods=['GET'])
 def modellist():
     datamodels = dbpc.handler.queryAll(""" select * from grabtask_datamodel; """)
     return render_template('datamodellist.html')
 
-@produce.route('/datamodel/detail/<dmid>', methods=['GET'])
+@produce.route('/datamodel/detail/<dmid>', methods=['GET', 'POST'])
 @withMysql(RDB, resutype='DICT')
 def modeldetail(dmid):
     rows = ['id', 'name', 'autocreate', 'iscreated', 'status', 'extra', 'creator', 'updator', 'create_time', 'update_time']

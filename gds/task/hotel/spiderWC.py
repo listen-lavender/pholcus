@@ -8,7 +8,7 @@
 import datetime
 
 from task.config.web.hotel import TIMEOUT, SERVICES, INSERTSQLS
-from webcrawl.handleRequest import respGet, respPost, getHtmlNodeContent, getXmlNodeContent
+from webcrawl.handleRequest import requGet, requPost, getHtmlNodeContent, getXmlNodeContent
 from webcrawl.atlas import convertBtoG
 from webcrawl.character import unicode2utf8
 
@@ -139,7 +139,7 @@ class SpiderWyn88(SpiderHotelOrigin):
         page = url.split('###')[-1]
         url = url.split('###')[0]
         data = {'city':city,'pageIndex':int(page)} # ,'indate':'2015-02-11','outdate':'2015-02-12'
-        main_resp = respPost(url, data, format='JSON')
+        main_resp = requPost(url, data, format='JSON')
         allhotels = main_resp['pageInfo']['Rows']
         if len(allhotels) == 10:
             next = int(page) + 1
@@ -179,7 +179,7 @@ class SpiderWyn88(SpiderHotelOrigin):
             @param implementor: 补充抓取器
             @return city: 城市
         """
-        main_resp = respGet(url, timeout=timeout, format='HTML')
+        main_resp = requGet(url, timeout=timeout, format='HTML')
         citys = main_resp.findall('.//ul[@class="ullst"]//li')
         for prov in main_resp.findall('.//ul[@class="ullst"]//li'):
             city = getHtmlNodeContent(prov.find('.//h3'), 'TEXT')
