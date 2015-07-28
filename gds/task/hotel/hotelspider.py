@@ -8,7 +8,6 @@
 import datetime, time
 
 from task.config.web.hotel import CLSCON
-from task.keep import Keeper
 from webcrawl.spider import SpiderOrigin
 from multilog.aboutfile import modulename, modulepath
 from multilog.prettyprint import logprint
