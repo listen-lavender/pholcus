@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block precss %}
+    <style type="text/css">
+    </style>
+{% endblock %}
+{% block prejs %}
+    <script type="text/javascript">
+    </script>
+{% endblock %}
+{% block content %}
+    <div class="ui form">
+        <div class="field">
+            <label>数据模型</label>
+            <input type="text" name="model" placeholder=""/>
+        </div>
+        <div class="field">
+            <label>数据存储</label>
+            <input type="text"  name="store" placeholder=""/>
+        </div>
+        <div class="field">
+            <label>数据类型</label>
+            <input type="text"  name="datatype" placeholder="video"/>
+        </div>
+        <div class="field">
+            <label>是否跟踪子任务</label>
+            <input type="text"  name="trace" placeholder="False"/>
+        </div>
+        <div class="field">
+            <label>执行流</label>
+            <input type="text"  name="flow" placeholder="www"/>
+        </div>
+    </div>
+    <div>
+        <span>Acfun</span>
+        <ul>
+            <li><a href=""><span>详情</span></a></li>
+            <li><a href=""><span>详情</span><a></li>
+            <li><a href=""><span>详情</span></a></li>
+        </ul>
+        <span>Bili</span>
+        <ul>
+            <li>fetchWAPCitys<a href=""><span>详情</span></a></li>
+            <li>fetchWAPList<a href=""><span>详情</span><a></li>
+            <li>fetchWAPDetail<a href=""><span>详情</span></a></li>
+        </ul>
+    </div>
+{% endblock %}

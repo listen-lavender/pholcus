@@ -1,17 +1,17 @@
 {% extends "base.html" %}
-{% block css %}
+{% block precss %}
     <style type="text/css">
     </style>
 {% endblock %}
-{% block js %}
+{% block prejs %}
     <script type="text/javascript">
     </script>
 {% endblock %}
 {% block content %}
     <ul>
-        {% for one in datamodels %}
+        {% for one in articles %}
             <li>
-                <a href="detail/{{one['id']}}"><span>{{one["id"]}}&nbsp;&nbsp;&nbsp;&nbsp;</span><span>{{one["name"]}}&nbsp;&nbsp;&nbsp;&nbsp;</span><span>{{one["comment"]}}</span></a>
+                <a href="detail/{{one['id']}}"><span>{{one["name"]}}&nbsp;&nbsp;&nbsp;&nbsp;</span><span>{{one["filepath"]}}&nbsp;&nbsp;&nbsp;&nbsp;</span></a>
             </li>
         {% endfor %}
     </ul>

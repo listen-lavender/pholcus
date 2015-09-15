@@ -2,7 +2,7 @@ from datakit.mysql.orm import *
 from datakit.mysql.suit import withMysql, dbpc
 from task.config.db.mysql import RDB, WDB, LIMIT, _DBCONN, USE
 
-def initDb():
+def initDB():
     dbpc.addDB(RDB, LIMIT, host=_DBCONN[USE]['host'],
                 port=_DBCONN[USE]['port'],
                 user=_DBCONN[USE]['user'],

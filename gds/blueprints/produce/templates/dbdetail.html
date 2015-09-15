@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block precss %}
+    <style type="text/css">
+    </style>
+{% endblock %}
+{% block prejs %}
+    <script type="text/javascript">
+    </script>
+{% endblock %}
+{% block content %}
+    <ul>
+        <li>{{db['name']}}</li>
+        <li>{{db['key']}}</li>
+        <li>{{db['filepath']}}</li>
+        <li>{{db['extra'] or ''}}</li>
+        <input type='hidden' name='id' value='{{db["id"]}}'/>
+        {% for k, v in db.items() %}
+            {% if not k in ['id', 'name', 'key', 'filepath', 'extra'] %}
+                <label>{{k}}</label>
+                <input type='text' name='{{k}}' value='{{v}}'/>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endblock %}

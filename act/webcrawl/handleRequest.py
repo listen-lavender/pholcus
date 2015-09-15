@@ -12,6 +12,7 @@ import Image
 import StringIO
 import functools
 import threading
+import urlparse
 
 from lxml import etree as ET
 from lxml import html as HT
@@ -196,6 +197,9 @@ def treeXml(content, coding='unicode'):
     """
     """
     tree(content, coding, 'XML')
+
+def locateParams(url):
+    return dict(urlparse.parse_qsl(urlparse.urlparse(url).query))
 
 if __name__ == '__main__':
     print 'start...'

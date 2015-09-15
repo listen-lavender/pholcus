@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block precss %}
+    <style type="text/css">
+    </style>
+{% endblock %}
+{% block prejs %}
+    <script type="text/javascript">
+    </script>
+{% endblock %}
+{% block content %}
+    <ul>
+    {% for one in units %}
+        <li><a href="detail/{{one['id']}}"><span>{{one['unit_name']}}</span></a><span>{{one['datamodel_name']}}</span></li>
+    {% endfor %}
+    </ul>
+{% endblock %}
