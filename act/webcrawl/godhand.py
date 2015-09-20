@@ -307,10 +307,6 @@ def initTree(material):
                     tree[key]['#pre'].append(val['pid'])
                     tree[str(val['sid'])]['#children'].append(key)
                     tree[str(val['sid'])]['#hastxt'] = True
-                # elif val['method'] == 'yield':
-                #     tree[str(val['sid'])]['#yield'] = key
-                #     tree[str(val['sid'])]['#children'].append(key)
-                #     tree[str(val['sid'])]['#hastxt'] = True
                 else:
                     if val['method'] == 'yield' and val['name']:
                         tree[key]['#next'].append(val['pid'])
