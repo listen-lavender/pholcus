@@ -28,6 +28,10 @@ def login():
 def register():
     pass
 
-@admin.route('/task', methods=['POST'])
-def task():
+@admin.route('/config/list', methods=['GET'])
+def configlist():
     pass
+
+@admin.route('/config/detail/<cid>', methods=['GET', 'POST'])
+def configdetail(cid):
+    render_template('')

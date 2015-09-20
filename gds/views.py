@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # coding=utf8
-import json
+import json, sys, os
+sys.path.append(os.path.abspath('../act'))
 from settings import staticfilepath, useport, CACHE_TIMEOUT, _DBCONN_R, _DBCONN_W, LIMIT
 from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
 from flask import Flask, g, request, Response
@@ -10,6 +11,7 @@ from blueprints.admin.views import admin
 from blueprints.monitor.views import monitor
 from blueprints.produce.views import produce
 from werkzeug.routing import BaseConverter
+
 
 dbpc.addDB(RDB, LIMIT, host=_DBCONN_R['host'],
                     port=_DBCONN_R['port'],
@@ -46,9 +48,9 @@ app = Flask(__name__, static_folder='static', static_path='/gds/static', templat
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://hotel2:hotel0115@58.83.130.112:3306/hotel20'
 # db = SQLAlchemy(app)
 # g['db'] = db
-app.register_blueprint(admin, url_prefix='/gds/admin')
-app.register_blueprint(monitor, url_prefix='/gds/monitor')
-app.register_blueprint(produce, url_prefix='/gds/produce')
+app.register_blueprint(admin, url_prefix='/gds/a')
+app.register_blueprint(monitor, url_prefix='/gds/m')
+app.register_blueprint(produce, url_prefix='/gds/p')
 
 # @app.context_processor
 # def override_url_for():

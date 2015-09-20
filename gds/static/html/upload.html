@@ -3,33 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <title>task unit</title>
-    <link rel="stylesheet" type="text/css" href="http://s.androidesk.com/libs/bootstrap/v3.3.2/css/bootstrap.min.css"/>
-    <link rel="stylesheet" type="text/css" href="http://s.androidesk.com/libs/bootstrap/v3.3.2/css/bootstrap-theme.min.css"/>
-    <link rel="stylesheet" type="text/css" href="/gds/static/css/fileinput.min.css"/>
-    <script type="text/javascript" src="http://s.androidesk.com/libs/jquery/jquery-2.1.3.min.js"></script>
-    <script type="text/javascript" src="/gds/static/js/libs/v1/fileinput.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/gds/static/css/selectize.default.css"/>
+    <link rel="stylesheet" type="text/css" href="/gds/static/css/stylesheet.css"/>
+    <link rel="stylesheet" type="text/css" href="/gds/static/css/normalize.css"/>
+    <script type="text/javascript" src="/gds/static/js/jquery.min.js" ></script>
+    <script type="text/javascript" src="/gds/static/js/selectize.min.js" ></script>
+
     <style type="text/css">
     </style>
     <script type="text/javascript">
     </script>
 </head>
 <body>
-    <!-- <form class="form-horizontal" action="/test1" method="post" enctype="multipart/form-data" role="form"> -->
-        <input type="text" class="form-control" name="title" placeholder="广告标题" />
-        <input type="text" class="form-control" name="desc" placeholder="描述" />
-        <div class="col-sm-8">
-            <label class="control-label">Select File</label>
-            <input id="input-pic" type="file" class="file" multiple="true" data-show-upload="true" data-show-caption="true">
+    <div class="demo">
+        <h2></h2>
+        <div class="control-group">
+            <label for="input-tags">Tags:</label>
+            <input type="text" id="input-tags" class="demo-default" value="awesome,neat">
         </div>
-        <!-- <input type="submit"/>
-    </form> -->
-    <script type="text/javascript">
-        $("#input-pic").fileinput({
-                'uploadUrl': "/test2",
-                'allowedFileExtensions': ["jpg", "png", "gif"]
-            });
-    $(document).ready(function() {
-    });
-    </script>
+        <script>
+        $('#input-tags').selectize({
+            persist: false,
+            createOnBlur: true,
+            create: true
+        });
+        </script>
+    </div>
+    <div class="demo">
+        <h2>select multiple</h2>
+        <div class="control-group">
+            <label for="select-state">States:</label>
+            <select id="select-state" name="state[]" multiple class="demo-default" style="width:50%" placeholder="Select a state...">
+                <option value="">Select a state...</option>
+                <option value="AL">Alabama</option>
+                <option value="AK">Alaska</option>
+                <option value="AZ">Arizona</option>
+                <option value="AR">Arkansas</option>
+                <option value="CA">California</option>
+            </select>
+        </div>
+        <script>
+        $('#select-state').selectize({
+            maxItems: 1
+        });
+        </script>
+    </div>
 </body>
 </html>

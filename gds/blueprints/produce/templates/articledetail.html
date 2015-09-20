@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block precss %}
+    <style type="text/css">
+    </style>
+{% endblock %}
+{% block prejs %}
+    <script type="text/javascript">
+    </script>
+{% endblock %}
+{% block content %}
+    <ul>
+        {% for k, v in article.items() %}
+        <li>{{k}}: {{v}}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
