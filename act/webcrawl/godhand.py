@@ -78,7 +78,10 @@ def findParams(material, tree, node, route='', parents=[], params=[]):
                 elif material[one]['datatype'] == 'method':
                     params.append({'name':material[one]['name'], 'belong':belong, 'txt':'%s=%s%s' % (material[one]['name'], material[material[one]['pid']]['name'], material[one]['xpath'])})
                 elif material[one]['default'] is None:
-                    params.insert(0, {'name':material[one]['name'], 'belong':belong, 'txt':material[one]['name']})
+                    if material[one]['stype'] == 'execute':
+                        params.insert(0, {'name':material[one]['name'], 'belong':belong, 'txt':'%s=%s' % (material[one]['name'], material[one]['name'])})
+                    else:
+                        params.insert(0, {'name':material[one]['name'], 'belong':belong, 'txt':'%s' % material[one]['name']})
                 else:
                     params.append({'name':material[one]['name'], 'belong':belong, 'txt':'%s="%s"' % (material[one]['name'], material[one]['default']) if material[one]['datatype'] == 'str' else '%s=%s' % (material[one]['name'], material[one]['default'])})
 
@@ -163,22 +166,28 @@ def nodeAssignright(material, tree, node):
         if material[node]['datatype'] == 'execute':
             params = []
             findParams(material, tree, node, params=params)
-            return '%s(%s)' % (material[material[node]['pid']]['name'], ', '.join(['%s=%s'%(one['name'], one['name']) for one in params]))
+            txt = '%s(%s)' % (material[material[node]['pid']]['name'], ', '.join([one['txt'] for one in params]))
+            return txt
         elif material[node]['method'] == '.find':
             pid = material[node]['pid']
+            bid = None
             while True:
+                if bid is None and material[pid]['datatype'] in ('object', 'execute'):
+                    bid = material[node]['pid']
                 if material[pid]['datatype'] == 'execute':
                     break
                 else:
                     pid = material[pid]['pid']
-            return 'get%sNodeContent(%s.find("%s"), %s)' % (tree[pid]['#format'], material[pid]['name'], material[node]['xpath'], '"TEXT"' if material[node]['content'] == 'TEXT' else material[node]['content'])
+            return 'get%sNodeContent(%s.find("%s"), %s)' % (tree[pid]['#format'], material[bid]['name'], material[node]['xpath'], '"TEXT"' if material[node]['content'] == 'TEXT' else material[node]['content'])
         elif material[node]['method'] == '.findall':
             return '%s.findall("%s")' % (material[material[node]['pid']]['name'], material[node]['xpath'])
         elif material[node]['method'] == '%':
             if material[material[node]['pid']]['datatype'] == 'class' or material[str(material[material[node]['pid']]['sid'])]['name'] == '__init__':
                 return '"%s" %s self.%s' % (material[node]['xpath'], material[node]['method'], material[material[node]['pid']]['name'])
-            else:
+            elif material[material[node]['pid']]['name']:
                 return '"%s" %s %s' % (material[node]['xpath'], material[node]['method'], material[material[node]['pid']]['name'])
+            else:
+                return '"%s" %s %s["%s"]' % (material[node]['xpath'], material[node]['method'], material[str(material[material[node]['pid']]['sid'])]['name'], material[material[node]['pid']]['index'])
         else:
             if material[material[node]['pid']]['datatype'] == 'class' or material[str(material[material[node]['pid']]['sid'])]['name'] == '__init__':
                 return 'self.%s' % material[material[node]['pid']]['name']
@@ -325,7 +334,7 @@ def cook(material):
     treeWeight(tree, '0')
     treeSpace(material, tree, '0', -8)
     initParams(material, tree)
-    food = default + treeTxt(material, tree, '0')
+    food = default + treeTxt(material, tree, '0') + '\nif __name__ == "__main__":\n    pass\n\n'
     return food
 
 if __name__ == '__main__':

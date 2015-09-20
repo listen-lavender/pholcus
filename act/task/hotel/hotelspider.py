@@ -13,6 +13,6 @@ class SpiderHotelOrigin(SpiderOrigin):
     def __del__(self):
         pass
 
-    def __init__(self, queuetype="P", worknum=6, timeout=-1, worktype="COROUTINE"):
+    def __init__(self, queuetype="P", worknum=6, timeout=-1, worktype="THREAD"):
         super(SpiderHotelOrigin, self).__init__(queuetype=queuetype, worknum=worknum, timeout=timeout, worktype=worktype)
         initDB()

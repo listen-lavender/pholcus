@@ -84,6 +84,10 @@ def getXmlNodeContent(node, consrc):
     """
     return getNodeContent(node, consrc, 'XML')
 
+def getJsonNodeContent(node, consrc):
+    """
+    """
+    return ''
 
 def requformat(r, coding, dirtys, myfilter, format, filepath):
     code = r.status_code

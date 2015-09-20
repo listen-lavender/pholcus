@@ -33,6 +33,7 @@ _DBCONN = {"113":{"host": "58.83.130.113",
                 "db": "kuaijie",
                 "charset": "utf8",
                 "use_unicode":False,},
-            "rdb":"local",
-            "wdb":"local"
+            "use":{
+                "rdb":"local",
+                "wdb":"local"}
             }
