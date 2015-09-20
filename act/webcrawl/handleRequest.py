@@ -189,8 +189,13 @@ def treeXml(content, coding='unicode'):
     """
     return tree(content, coding, 'XML')
 
-def locateParams(url):
-    return dict(urlparse.parse_qsl(urlparse.urlparse(url).query))
+def parturl(url):
+    params = dict(urlparse.parse_qsl(urlparse.urlparse(url).query))
+    routes = url.split('//')[-1]
+    routes = routes[routes.index('/')+1:]
+    routes = routes.split('?')[0]
+    routes = tuple(routes.split('/'))
+    return routes, params
 
 if __name__ == '__main__':
     print 'start...'

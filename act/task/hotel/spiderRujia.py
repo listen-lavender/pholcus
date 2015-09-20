@@ -28,11 +28,9 @@ class SpiderHomeinns(SpiderHotelOrigin):
         self.bt = datetime.datetime.now().strftime('%Y-%m-%d')
         self.et = (datetime.datetime.now()+datetime.timedelta(days=1)).strftime('%Y-%m-%d')
 
-    @retry(1)
     @timelimit(30)
-    @index("url")
-    @initflow("WWW")
-    def fetchWWWHotelone(self, implementor, url, hotel_id, additions={}, timeout=30):
+    @store(update=True, method="MANY", way=Hotel.insert, db=withMysql(mysql['use']['wdb']))
+    def fetchWWWHotelone(self, url, hotel_id, additions={}, timeout=30, implementor=None):
         cookies = {}
         cookies["Origin"] = "http://i.huazhu.com"
         cookies["Referer"] = "http://i.huazhu.com/hotel/detail/%s" % hotel_id
@@ -43,6 +41,7 @@ class SpiderHomeinns(SpiderHotelOrigin):
         data["QueryRoomType"] = ""
         data["activityID"] = ""
         hotel = requPost(url=url, timeout=timeout, cookies=cookies, data=data, format=format)
+        hotel_id = hotel_id
         hotel_name = getJsonNodeContent(hotel.find(".//HotelName"), {"ATTR":"alt"})
         hotel_type = "002"
         lat = getJsonNodeContent(hotel.find(".//Lat"), "TEXT")
@@ -51,18 +50,39 @@ class SpiderHomeinns(SpiderHotelOrigin):
         status = 1
         lnt = getJsonNodeContent(hotel.find(".//Lnt"), "TEXT")
         tel = getJsonNodeContent(hotel.find(".//Tel"), "TEXT")
-        
+        yield Hotel(hotel_id=hotel_id, hotel_name=hotel_name, hotel_type=hotel_type, lat=lat, address=address, logo=logo, status=status, lnt=lnt, tel=tel)
 
-    @initflow("WWW")
     @index("url")
     @next(fetchWWWHotelone)
-    @retry(1)
     @timelimit(30)
-    def fetchWWWHotelids(self, city, url, implementor, timeout=30, additions={}):
+    def fetchWWWHotelids(self, city, url, implementor=None, timeout=30, additions={}):
+        yield next_page
         data = {}
         data["CityID"] = city
         data["CheckOutDate"] = self.et
         data["CheckInDate"] = self.bt
         data["PageSize"] = 15
         data["PageIndex"] = 1
-        allhotels = requPost(url=url, timeout=timeout, data=data, format=format)
+        result = requPost(url=url, timeout=timeout, data=data, format=format)
+        hotels = result.findall(".//Data//HotelList")
+        for one in hotels:
+            hotel = {}
+            hotel["hotel_id"] = getJsonNodeContent(result.find(".//Info//ID"), "TEXT")
+            hotel["url"] = "http://i.huazhu.com/api/hotel/detail"
+            yield hotel
+
+    @next(fetchWWWHotelids)
+    @initflow("WWW")
+    @timelimit(30)
+    def fetchWWWCitys(self, url, implementor=None, additions={}, timeout=30):
+        data = {}
+        result = requPost(url=url, timeout=timeout, data=data, format=format)
+        citys = result.findall(".//Data//CityList")
+        for one in citys:
+            city = {}
+            city["url"] = "http://i.huazhu.com/api/hotel/list###0"
+            city["city"] = getJsonNodeContent(result.find(".//CityName"), "TEXT")
+            city["additions"] = {}
+            city["additions"]["NUM"] = 30
+            city["additions"]["cid"] = getJsonNodeContent(result.find(".//CityID"), "TEXT")
+            yield city
