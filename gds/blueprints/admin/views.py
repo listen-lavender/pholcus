@@ -22,7 +22,7 @@ admin.send_static_file  = types.MethodType(send_static_file, admin)
 
 @admin.route('/login', methods=['POST'])
 def login():
-    return render_template('index.html')
+    return render_template('login.html')
 
 @admin.route('/register', methods=['POST'])
 def register():

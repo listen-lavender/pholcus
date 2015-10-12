@@ -1,16 +1,317 @@
 {% extends "base.html" %}
 {% block precss %}
     <style type="text/css">
+        .clsti{
+            background: 0 0;
+            color: rgba(0,0,0,.8);
+            border-top: none;
+            margin: 0;
+            padding: .75em 1em;
+            font-weight: 700;
+            -webkit-transition: background .2s ease,color .2s ease;
+            transition: background .2s ease,color .2s ease;
+            padding: .5em 0;
+            font-family: Roboto,'Helvetica Neue',Arial,Helvetica,sans-serif;
+            font-size: 1em;
+            cursor: pointer;
+            box-sizing: inherit;
+            display: block;
+            max-width: 100%;
+            min-width: 320px;
+            line-height: 1.33;
+            font-smoothing: antialiased;
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+            border-bottom: 1px solid rgba(39,41,43,.15);
+        }
     </style>
 {% endblock %}
 {% block prejs %}
     <script type="text/javascript">
+        function check(obj){
+            if($(obj).val()==''){
+                alert($(obj).attr('name').replace('_name', '')+" name not empty.");
+                $(obj).focus();
+            }
+            else
+                if($(obj).attr('name')=='section_name')
+                    $("#section_title").text($(obj).val());
+                else{
+                    if($(obj).attr('name') == 'source_name' || $(obj).attr('name') == 'extract_name'){
+                        var cls = $(obj).attr('name').charAt(0);
+                        var html = $("#"+cls+"t_"+$(obj).attr("id").replace(cls+"v_", "")).html().replace('>'+$("#"+cls+"t_"+$(obj).attr("id").replace(cls+"v_", "")).text(), '>'+$(obj).val());
+                        $("#"+cls+"t_"+$(obj).attr("id").replace(cls+"v_", "")).html(html);
+                    }
+                }
+        }
+        function addsource(){
+            if($("#sv_xy").html() == null)
+                $("#datasource").append('<div id="st_xy" class="title active"><i class="dropdown icon"></i>TODO</div><div id="sc_xy" class="content active">                            <input name="iid" type="hidden" value="" class="transition visible" style="display: inline-block !important;">                            <div class="ui input transition visible" style="width:30%; margin:15px 20px;display: inline-block !important;">                                <span>source:&nbsp;&nbsp;</span><input id="sv_xy" name="source_name" type="text" style="width:60%;" value="TODO" placeholder="source name" onblur="check(this)">&nbsp;&nbsp;&nbsp;&nbsp;<i class="save icon" onclick="savesource(this)" alt="save"></i>&nbsp;&nbsp;&nbsp;&nbsp;<i class="remove icon" onclick="delsource(this)" alt="delete">&nbsp;&nbsp;</i>                            </div>                            <div class="ui input transition visible" style="width:100%; margin:15px 20px;display: inline-block !important;">                                <span>url:&nbsp;&nbsp;</span><input name="url" type="text" style="width:60%;" value="" placeholder="url">                            </div>                            <div class="ui input transition visible" style="width:100%; margin:15px 20px;display: inline-block !important;">                                <span>method:&nbsp;&nbsp;</span>                                <div class="ui selection dropdown" tabindex="0">                                    <input type="hidden" name="method" value="" placeholder="method">                                    <i class="dropdown icon"></i>                                    <div class="text">get</div>                                    <div class="menu">                                        <div class="item" data-value="head">head</div>                                        <div class="item active selected" data-value="get">get</div>                                        <div class="item" data-value="post">post</div>                                    </div>                                </div>                            </div>                            <div class="ui input transition visible" style="width:100%; margin:15px 20px;display: inline-block !important;">                                <span>format:&nbsp;&nbsp;</span>                                <div class="ui selection dropdown" tabindex="0">                                    <input type="hidden" name="format" value="" placeholder="format">                                    <i class="dropdown icon"></i>                                    <div class="text">HTML</div>                                    <div class="menu">                                        <div class="item active selected" data-value="HTML">HTML</div>                                        <div class="item" data-value="XML">XML</div>                                        <div class="item" data-value="JSON">JSON</div>                                    </div>                                </div>                            </div>                            <div class="ui input transition visible" style="width:100%; margin:15px 20px;display: inline-block !important;">                                <span>timeout:&nbsp;&nbsp;</span><input name="timeout" type="text" style="width:60%;" value="" placeholder="timeout">                            </div>                            <div class="ui input transition visible" style="width:100%; margin:15px 20px;display: inline-block !important;">                                <span>data:&nbsp;&nbsp;</span><input name="data" type="text" style="width:60%;" value="" placeholder="request data">                            </div>                            <div class="ui input transition visible" style="width:100%; margin:15px 20px;display: inline-block !important;">                                <span>headers:&nbsp;&nbsp;</span><input name="headers" type="text" style="width:60%;" value="" placeholder="request headers">                            </div>                            <div class="ui input transition visible" style="width:100%; margin:15px 20px;display: inline-block !important;">                                <span>cookies:&nbsp;&nbsp;</span><input name="cookies" type="text" style="width:60%;" value="" placeholder="request cookies">                            </div>                            <!-- <div class="ui input" style="width:100%; margin:15px 20px;">                                <span>sid:&nbsp;&nbsp;</span><input name="sid" type="text" style="width:60%;" value="" placeholder="">                            </div>                            <div class="ui input" style="width:100%; margin:15px 20px;">                                <span>ssid:&nbsp;&nbsp;</span><input name="ssid" type="text" style="width:60%;" value="" placeholder="">                            </div> -->                        </div>');
+            else{
+                alert('尚有未保存的data source.');
+                $("#sv_xy").focus();
+            }
+        }
+        function addextract(){
+            if($("#ev_xy").html() == null)
+                $("#dataextract").append('<div id="et_xy" class="title active"><i class="dropdown icon"></i>TODO</div><div id="ec_xy" class="content active">                            <input name="iid" type="hidden" value="" class="transition visible" style="display: inline-block !important;">                            <div class="ui input transition visible" style="width:30%; margin:15px 20px;display: inline-block !important;">                                <span>extract:&nbsp;&nbsp;</span><input id="ev_xy" name="extract_name" type="text" style="width:60%;" value="TODO" placeholder="extract name" onblur="check(this)">&nbsp;&nbsp;&nbsp;&nbsp;<i class="save icon" onclick="saveextract(this)" alt="save"></i>&nbsp;&nbsp;&nbsp;&nbsp;<i class="remove icon" onclick="delextract(this)" alt="delete">&nbsp;&nbsp;</i>                            </div>                            <div class="ui input transition visible" style="width:100%; margin:15px 20px;display: inline-block !important;">                                <span>method:&nbsp;&nbsp;</span>                                <div class="ui selection dropdown" tabindex="0">                                    <input type="hidden" name="method" value="find">                                    <i class="dropdown icon"></i>                                    <div class="text">find</div>                                    <div class="menu">                                        <div class="item active selected" data-value="find">find</div>                                        <div class="item" data-value="findall">findall</div>                                    </div>                                </div>                            </div>                            <div class="ui input transition visible" style="width:100%; margin:15px 20px;display: inline-block !important;">                                <span>path:&nbsp;&nbsp;</span><input name="path" type="text" style="width:60%;" value="." placeholder="path, default . current location">                            </div>                            <div class="ui input transition visible" style="width:100%; margin:15px 20px;display: inline-block !important;">                                <span>content:&nbsp;&nbsp;</span><input name="content" type="text" style="width:60%;" value="" placeholder="content">                            </div>                            <div class="ui input transition visible" style="width:100%; margin:15px 20px;display: inline-block !important;">                                <span>parameter:&nbsp;&nbsp;</span>                                <div class="ui selection dropdown" tabindex="0">                                    <input type="hidden" name="parameter" value="">                                    <i class="dropdown icon"></i>                                    <div class="default text"></div>                                    <div class="menu">                                        <div class="item" data-value="1">是</div>                                        <div class="item" data-value="0">否</div>                                    </div>                                </div>                            </div>                            <div class="ui input transition visible" style="width:100%; margin:15px 20px;display: inline-block !important;">                                <span>store:&nbsp;&nbsp;</span>                                <div class="ui selection dropdown" tabindex="0">                                    <input type="hidden" name="store" value="">                                    <i class="dropdown icon"></i>                                    <div class="default text"></div>                                    <div class="menu">                                        <div class="item" data-value="1">是</div>                                        <div class="item" data-value="0">否</div>                                    </div>                                </div>                            </div>                            <!-- <div class="ui input" style="width:100%; margin:15px 20px;">                                <span>sid:&nbsp;&nbsp;</span><input name="sid" type="text" style="width:60%;" value="" placeholder="sid">                            </div> -->                            <div class="ui input transition visible" style="width:100%; margin:15px 20px;display: inline-block !important;">                                <span>dsid:&nbsp;&nbsp;</span><input name="dsid" type="text" style="width:60%;" value="" placeholder="dsid">                            </div>                            <div class="ui input transition visible" style="width:100%; margin:15px 20px;display: inline-block !important;">                                <span>pdeid:&nbsp;&nbsp;</span><input name="pdeid" type="text" style="width:60%;" value="" placeholder="pdeid">                            </div>                        </div>');
+            else{
+                alert('尚有未保存的data extract.');
+                $("#ev_xy").focus();
+            }
+        }
+        function savesource(obj){
+            var id = $(obj).parent().parent("div[id^='sc_']").find("input[name='iid']").val();
+            var name = $(obj).parent().parent("div[id^='sc_']").find("input[name='name']").val();
+            var url = $(obj).parent().parent("div[id^='sc_']").find("input[name='url']").val();
+            var method = $(obj).parent().parent("div[id^='sc_']").find("input[name='method']").val();
+            var format = $(obj).parent().parent("div[id^='sc_']").find("input[name='format']").val();
+            var timeout = $(obj).parent().parent("div[id^='sc_']").find("input[name='timeout']").val();
+            var data = $(obj).parent().parent("div[id^='sc_']").find("input[name='data']").val();
+            var headers = $(obj).parent().parent("div[id^='sc_']").find("input[name='headers']").val();
+            var cookies = $(obj).parent().parent("div[id^='sc_']").find("input[name='cookies']").val();
+            $.ajax({
+                url:location.href,
+                type:'post',
+                data:delnull({'id':id, 'name':name, 'url':url, 'method':method, 'format':format, 'timeout':timeout, 'data':data, 'headers':headers, 'cookies':cookies, 'type':'source'}),
+                async:false,
+                dataType:'json',
+                success:function(data){
+                    location.href=location.href;
+                },
+                error:function(XMLHttpRequest, status, thrown){
+                    ;
+                }
+            });
+        }
+        function saveextract(obj){
+            var id = $(obj).parent().parent("div[id^='ec_']").find("input[name='iid']").val();
+            var name = $(obj).parent().parent("div[id^='ec_']").find("input[name='name']").val();
+            var method = $(obj).parent().parent("div[id^='ec_']").find("input[name='method']").val();
+            var path = $(obj).parent().parent("div[id^='ec_']").find("input[name='path']").val();
+            var content = $(obj).parent().parent("div[id^='ec_']").find("input[name='content']").val();
+            var parameter = $(obj).parent().parent("div[id^='ec_']").find("input[name='parameter']").val();
+            var store = $(obj).parent().parent("div[id^='ec_']").find("input[name='store']").val();
+            var dsid = $(obj).parent().parent("div[id^='ec_']").find("input[name='dsid']").val();
+            var pdeid = $(obj).parent().parent("div[id^='ec_']").find("input[name='pdeid']").val();
+            $.ajax({
+                url:location.href,
+                type:'post',
+                data:delnull({'id':id, 'name':name, 'method':method, 'path':path, 'content':content, 'parameter':parameter, 'store':store, 'dsid':dsid, 'pdeid':pdeid, 'type':'extract'}),
+                async:false,
+                dataType:'json',
+                success:function(data){
+                    location.href=location.href;
+                },
+                error:function(XMLHttpRequest, status, thrown){
+                    ;
+                }
+            });
+        }
+        function delsource(obj){
+            var id = $(obj).parent().parent("div[id^='sc_']").find("input[name='iid']").val();
+            var name = $(obj).parent().parent("div[id^='sc_']").find("input[name='name']").val();
+            if(id==''){
+                $("#"+$(obj).parent().parent("div[id^='sc_']").attr("id").replace("sc_", "st_")).remove();
+                $(obj).parent().parent("div[id^='sc_']").remove();
+            }
+            else
+                $.ajax({
+                    url:location.href,
+                    type:'delete',
+                    data:delnull({'id':id, 'name':name, 'type':'source'}),
+                    async:false,
+                    dataType:'json',
+                    success:function(data){
+                        location.href=location.href;
+                    },
+                    error:function(XMLHttpRequest, status, thrown){
+                        ;
+                    }
+                });
+        }
+        function delextract(obj){
+            var id = $(obj).parent().parent("div[id^='ec_']").find("input[name='iid']").val();
+            var name = $(obj).parent().parent("div[id^='ec_']").find("input[name='name']").val();
+            if(id==''){
+                $("#"+$(obj).parent().parent("div[id^='ec_']").attr("id").replace("ec_", "et_")).remove();
+                $(obj).parent().parent("div[id^='ec_']").remove();
+            }
+            else
+                $.ajax({
+                    url:location.href,
+                    type:'delete',
+                    data:delnull({'id':id, 'name':name, 'type':'extract'}),
+                    async:false,
+                    dataType:'json',
+                    success:function(data){
+                        location.href=location.href;
+                    },
+                    error:function(XMLHttpRequest, status, thrown){
+                        ;
+                    }
+                });
+        }
     </script>
 {% endblock %}
 {% block content %}
-    <ul>
-        {% for k, v in unit.items() %}
-        <li>{{k}}: {{v}}</li>
-        {% endfor %}
-    </ul>
+    <div class="ui sizer vertical segment" style="font-size: 20px; text-align: center;">
+        <div class="ui large header">脚本分步抓取流</div>
+    </div>
+    <div class="ui container" style="padding: .75em 1em;">
+        &nbsp;&nbsp;&nbsp;&nbsp;<i class="save icon" alt="save"></i>
+    </div>
+    <div class="ui styled accordion" style="width:100%">
+        <div id="section_title" class="title active">{{section['name']}}</div>
+        <div class="content active">
+            <div class="ui input" style="width:100%; margin:15px 20px;">
+                <span>section_name:&nbsp;&nbsp;</span><input id="section_name" name="section_name" type="text" style="width:60%;" value="{{section['name']}}" onblur="check(this)">
+            </div>
+            <div class="ui input" style="width:100%; margin:15px 20px;">
+                <span>next:&nbsp;&nbsp;</span><input id="next_id" type="text" style="width:60%;" value="{{section['next']}}" readonly="true">
+            </div>
+            <div class="ui input" style="width:100%; margin:15px 20px;">
+                <span>index:&nbsp;&nbsp;</span><input id="index" type="text" style="width:60%;" value="{{section['index']|default('', true)}}">
+            </div>
+            <div class="ui input" style="width:100%; margin:15px 20px;">
+                <span>retry:&nbsp;&nbsp;</span><input id="retry" type="text" style="width:60%;" value="{{section['retry']}}">
+            </div>
+            <div class="ui input" style="width:100%; margin:15px 20px;">
+                <span>timelimit:&nbsp;&nbsp;</span><input id="timelimit" type="text" style="width:60%;" value="{{section['timelimit']}}">
+            </div>
+            <div class="ui input" style="width:100%; margin:15px 20px;">
+                <span>store:&nbsp;&nbsp;</span><input id="store" type="text" style="width:60%;" value="{{section['store']|default('', true)}}">
+            </div>
+            <div class="accordion">
+                <div class="clsti">&nbsp;&nbsp;&nbsp;&nbsp;datasource&nbsp;&nbsp;&nbsp;&nbsp;<i class="add icon" onclick="addsource()" alt="add"></i></div>
+                <div id="datasource" class="clsti">
+                    {% for source in section['datasource'] %}
+                        <div id="st_{{source['id']}}" class="title"><i class="dropdown icon"></i>{{source['name']}}</div>
+                        <div id="sc_{{source['id']}}" class="content">
+                            <input name="iid" type="hidden" value="{{source['id']}}"/>
+                            <div class="ui input" style="width:30%; margin:15px 20px;">
+                                <span>source:&nbsp;&nbsp;</span><input id="sv_{{source['id']}}" name="source_name" type="text" style="width:60%;" value="{{source['name']}}" onblur="check(this)">&nbsp;&nbsp;&nbsp;&nbsp;<i class="save icon" onclick="savesource(this)" alt="save"></i>&nbsp;&nbsp;&nbsp;&nbsp;<i class="remove icon" onclick="delsource(this)" alt="delete">&nbsp;&nbsp;</i>
+                            </div>
+                            <div class="ui input" style="width:100%; margin:15px 20px;">
+                                <span>url:&nbsp;&nbsp;</span><input name="url" type="text" style="width:60%;" value="{{source['url']|default('', true)}}">
+                            </div>
+                            <div class="ui input" style="width:100%; margin:15px 20px;">
+                                <span>method:&nbsp;&nbsp;</span>
+                                <div class="ui selection dropdown" tabindex="0">
+                                    <input type="hidden" name="method" value="{{source['method']|default('', true)}}">
+                                    <i class="dropdown icon"></i>
+                                    <div class="default text">{{source['method']|default('', true)}}</div>
+                                    <div class="menu">
+                                        <div class="item" data-value="head">head</div>
+                                        <div class="item" data-value="get">get</div>
+                                        <div class="item" data-value="post">post</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ui input" style="width:100%; margin:15px 20px;">
+                                <span>format:&nbsp;&nbsp;</span>
+                                <div class="ui selection dropdown" tabindex="0">
+                                    <input type="hidden" name="format" value="{{source['format']|default('', true)}}">
+                                    <i class="dropdown icon"></i>
+                                    <div class="default text">{{source['format']|default('', true)}}</div>
+                                    <div class="menu">
+                                        <div class="item" data-value="HTML">HTML</div>
+                                        <div class="item" data-value="XML">XML</div>
+                                        <div class="item" data-value="JSON">JSON</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ui input" style="width:100%; margin:15px 20px;">
+                                <span>timeout:&nbsp;&nbsp;</span><input name="timeout" type="text" style="width:60%;" value="{{source['timeout']|default('', true)}}">
+                            </div>
+                            <div class="ui input" style="width:100%; margin:15px 20px;">
+                                <span>data:&nbsp;&nbsp;</span><input name="data" type="text" style="width:60%;" value="{{source['data']|default('', true)}}">
+                            </div>
+                            <div class="ui input" style="width:100%; margin:15px 20px;">
+                                <span>headers:&nbsp;&nbsp;</span><input name="headers" type="text" style="width:60%;" value="{{source['headers']|default('', true)}}">
+                            </div>
+                            <div class="ui input" style="width:100%; margin:15px 20px;">
+                                <span>cookies:&nbsp;&nbsp;</span><input name="cookies" type="text" style="width:60%;" value="{{source['cookies']|default('', true)}}">
+                            </div>
+                            <!-- <div class="ui input" style="width:100%; margin:15px 20px;">
+                                <span>sid:&nbsp;&nbsp;</span><input name="sid" type="text" style="width:60%;" value="{{source['sid']|default('', true)}}">
+                            </div>
+                            <div class="ui input" style="width:100%; margin:15px 20px;">
+                                <span>ssid:&nbsp;&nbsp;</span><input name="ssid" type="text" style="width:60%;" value="{{source['ssid']|default('', true)}}">
+                            </div> -->
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="clsti">&nbsp;&nbsp;&nbsp;&nbsp;dataextract&nbsp;&nbsp;&nbsp;&nbsp;<i class="add icon" onclick="addextract()" alt="add"></i></div>
+                <div id="dataextract" class="clsti">
+                    {% for extract in section['dataextract'] %}
+                        <div id="et_{{extract['id']}}" class="title"><i class="dropdown icon"></i>{{extract['name']}}</div>
+                        <div id="ec_{{extract['id']}}" class="content">
+                            <input name="iid" type="hidden" value="{{extract['id']}}"/>
+                            <div class="ui input" style="width:30%; margin:15px 20px;">
+                                <span>extract:&nbsp;&nbsp;</span><input id="ev_{{extract['id']}}" name="extract_name" type="text" style="width:60%;" value="{{extract['name']}}" onblur="check(this)">&nbsp;&nbsp;&nbsp;&nbsp;<i class="save icon" onclick="saveextract(this)" alt="save"></i>&nbsp;&nbsp;&nbsp;&nbsp;<i class="remove icon" onclick="delextract(this)" alt="delete">&nbsp;&nbsp;</i>
+                            </div>
+                            <div class="ui input" style="width:100%; margin:15px 20px;">
+                                <span>method:&nbsp;&nbsp;</span>
+                                <div class="ui selection dropdown" tabindex="0">
+                                    <input type="hidden" name="method" value="{{extract['method']|default('', true)}}">
+                                    <i class="dropdown icon"></i>
+                                    <div class="default text">{{extract['method']|default('', true)}}</div>
+                                    <div class="menu">
+                                        <div class="item" data-value="find">find</div>
+                                        <div class="item" data-value="findall">findall</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ui input" style="width:100%; margin:15px 20px;">
+                                <span>path:&nbsp;&nbsp;</span><input name="path" type="text" style="width:60%;" value="{{extract['path']|default('', true)}}">
+                            </div>
+                            <div class="ui input" style="width:100%; margin:15px 20px;">
+                                <span>content:&nbsp;&nbsp;</span><input name="content" type="text" style="width:60%;" value="{{extract['content']|default('', true)}}">
+                            </div>
+                            <div class="ui input" style="width:100%; margin:15px 20px;">
+                                <span>parameter:&nbsp;&nbsp;</span>
+                                <div class="ui selection dropdown" tabindex="0">
+                                    <input type="hidden" name="parameter" value="{{extract['parameter']|default('', true)}}">
+                                    <i class="dropdown icon"></i>
+                                    <div class="default text">{{extract['parameter']|default('', true)}}</div>
+                                    <div class="menu">
+                                        <div class="item" data-value="1">是</div>
+                                        <div class="item" data-value="0">否</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ui input" style="width:100%; margin:15px 20px;">
+                                <span>store:&nbsp;&nbsp;</span>
+                                <div class="ui selection dropdown" tabindex="0">
+                                    <input type="hidden" name="store" value="{{extract['store']|default('', true)}}">
+                                    <i class="dropdown icon"></i>
+                                    <div class="default text">{{extract['store']|default('', true)}}</div>
+                                    <div class="menu">
+                                        <div class="item" data-value="1">是</div>
+                                        <div class="item" data-value="0">否</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- <div class="ui input" style="width:100%; margin:15px 20px;">
+                                <span>sid:&nbsp;&nbsp;</span><input name="sid" type="text" style="width:60%;" value="{{extract['sid']|default('', true)}}">
+                            </div> -->
+                            <div class="ui input" style="width:100%; margin:15px 20px;">
+                                <span>dsid:&nbsp;&nbsp;</span><input name="dsid" type="text" style="width:60%;" value="{{extract['dsid']|default('', true)}}">
+                            </div>
+                            <div class="ui input" style="width:100%; margin:15px 20px;">
+                                <span>pdeid:&nbsp;&nbsp;</span><input name="pdeid" type="text" style="width:60%;" value="{{extract['pdeid']|default('', true)}}">
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block postjs %}
+    <script type="text/javascript">
+    $('.ui.accordion').accordion();
+    $('.ui.dropdown').dropdown();
+    </script>
 {% endblock %}

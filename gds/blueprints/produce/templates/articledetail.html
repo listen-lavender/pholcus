@@ -5,12 +5,41 @@
 {% endblock %}
 {% block prejs %}
     <script type="text/javascript">
+        function save(){
+            $.ajax({
+                url:location.href,
+                type:'post',
+                data:{
+                    host:$("#host").val(),
+                    pinyin:$("#pinyin").val(),
+                },
+                async:false,
+                dataType:'json',
+                success:function(data){
+                    location.href=location.href.substring(0, location.href.indexOf('detail')) + 'list/{{uid}}';
+                },
+                error:function(XMLHttpRequest, status, thrown){
+                    ;
+                }
+            });
+        }
+        function reset(){
+            $("#article_name").val("");
+            $("#filepath").val("");
+        }
     </script>
 {% endblock %}
 {% block content %}
-    <ul>
-        {% for k, v in article.items() %}
-        <li>{{k}}: {{v}}</li>
-        {% endfor %}
-    </ul>
+    <div class="ui sizer vertical segment" style="font-size: 20px; text-align: center;">
+        <div class="ui large header">脚本数据源</div>
+    </div>
+    <div class="ui input" style="width:100%; margin:15px 20px;">
+        <span >host:&nbsp;&nbsp;</span><input id="host" type="text" style="width:60%;" value="{{article['host']}}"><span>&nbsp;&nbsp;*例如 如家(www.homeinns.com)</span>
+    </div>
+    <div class="ui input" style="width:100%; margin:15px 20px;">
+        <span>pinyin:&nbsp;&nbsp;</span><input id="pinyin" type="text" style="width:60%;" value="{{article['pinyin']}}"><span>&nbsp;&nbsp;*例如 如家(rujia)</span>
+    </div>
+    <button class="ui primary button" onclick="save()">保存</button>
+    <button class="ui button" onclick="reset()">重置</button>
+    <a href="/gds/p/section/list/{{article['id']}}">脚本分步抓取器列表</a>
 {% endblock %}

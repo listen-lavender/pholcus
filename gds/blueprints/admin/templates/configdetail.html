@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block precss %}
+    <style type="text/css">
+    </style>
+{% endblock %}
+{% block prejs %}
+    <script type="text/javascript">
+    </script>
+{% endblock %}
+{% block content %}
+    <table id="m_{{rowvals['id']}}" class="ui compact celled definition table">
+        <thead class="full-width">
+        {% for row in rows %}
+            <tr class="ui tag labels">
+                <td class="ui label">{{row}}:</td><td colspan="{{colspan}}">{{rowvals[row]}}</td>
+            </tr>
+        {% endfor %}
+        </thead>
+        <tbody>
+        <tr>
+            <th></th>
+            {% for col in cols %}
+            <th>{{col}}</th>
+            {% endfor %}
+        </tr>
+        {% for colval in colvals %}
+        <tr id="i_{{colval['id']}}">
+            <td class="collapsing" align="right">
+                <div class="ui fitted slider checkbox">
+                    <i class="remove icon" alt="delete"></i>
+                    <i class="edit icon" alt="edit"></i>
+                </div>
+            </td>
+            {% for col in cols %}
+            <td>{{colval[col]}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        <tr>
+            <td class="collapsing" align="right">
+                <div class="ui fitted slider checkbox">
+                    <i class="eraser icon" alt="clear"></i>
+                    <i class="edit icon" alt="edit"></i>
+                </div>
+            </td>
+            {% for col in range(colspan+1) %}
+            <td></td>
+            {% endfor %}
+        </tr>
+        <tbody>
+        <tfoot class="full-width">
+            <tr>
+                <th></th>
+                <th colspan="{{colspan}}">
+                    <div>
+                        <i class="add icon" alt="add"></i>
+                    </div>
+                </th>
+                <th>
+                    <div>
+                        <i class="save icon" alt="save"></i>
+                    </div>
+                </th>
+            </tr>
+        </tfoot>
+    </table>
+    {% for col in datamodel %}
+    <div>
+    </div>
+    {% endfor %}
+{% endblock %}

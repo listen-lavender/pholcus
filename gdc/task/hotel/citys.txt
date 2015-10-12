@@ -1,0 +1,32 @@
+citys 
+    下一步/next
+    超时/timelimit  30
+    索引/index url
+    存储/store mysql data update MANY
+
+params: 抓取目标 url
+        附加数据 {}
+        请求超时 30
+
+数据源
+http:get, post, head
+
+params = parse(url)
+dataid = params['']
+page = params['p']
+
+url = ''
+datas = {}
+headers = {}
+cookies = {}
+timeout = ''
+format = ''
+
+additions
+
+next_page
+
+
+findall
+find(yield/return)
+

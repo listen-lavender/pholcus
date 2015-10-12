@@ -1,0 +1,20 @@
+--section
+
+---datasource
+id name   method  url  data  headers cookies timeout format sid  session
+1  result requGet dpid dpid  dpid    dpid    dpid    HTML        NULL
+
+---datapath
+id  name       default   index  method     xpath       content   type  refid  reftype   dsid   pid
+1   hotels       []      ''     findall   './hotels'   null      list   1     section          1     0
+2   hotel_name   null    ''     find      './hotel'    attr:bbc  str    1     section          0     1
+3   hotel_id     null    ''     find      './hotel'    text      str    1     section           0     1
+4   lat          null    ''     find      './hotel'    text      int    1                0     1
+5   hotel        null    1      yield     null         null      str    1                0     2
+6   hotel        null    2      yield     null         null      str    1                0     3
+7   hotel        null    3      yield     null         null      int    1                0     4
+8   url          null    ''     null      null         null      str    1                0     0
+9   hotel_id     null    ''     null      null         null      str    1                0     0
+10  additions    {}      ''     null      null         null      dict   1                0     0
+11  headers      null    ua     index     ua           null      str    0      article         0     10
+12  requGet      null    ''     init      webcrawl.handleRequest        null            str    1     0     10

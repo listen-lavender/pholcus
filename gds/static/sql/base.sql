@@ -85,9 +85,6 @@ create table `grab_unit` (
   `dirpath` varchar(64) not null default '' comment '任务业务分类目录路径',
   `filepath` varchar(64) not null default '' comment '任务业务分类脚本路径',
   `status` tinyint(1) not null default 1 comment '是否有效，1：有效，0：无效',
-  `hm` tinyint(1) not null default 1 comment '是否有module，1：有效，0：无效',
-  `hc` tinyint(1) not null default 1 comment '是否有class，1：有效，0：无效',
-  `hf` tinyint(1) not null default 0 comment '是否有function，1：有效，0：无效',
   `extra` varchar(300) default null comment '附加内容',
   `creator` int(11) not null comment '创建者id',
   `updator` int(11) not null comment '更新者id',
@@ -103,9 +100,6 @@ create table `grab_article` (
   `name` varchar(20) not null comment '抓取任务名称',
   `filepath` varchar(64) not null default '' comment '任务脚本文件路径',
   `status` tinyint(1) not null default 1 comment '是否有效，1：有效，0：无效',
-  `hm` tinyint(1) not null default 1 comment '是否有module，1：有效，0：无效',
-  `hc` tinyint(1) not null default 1 comment '是否有class，1：有效，0：无效',
-  `hf` tinyint(1) not null default 0 comment '是否有function，1：有效，0：无效',
   `extra` varchar(300) default null comment '附加内容',
   `creator` int(11) not null comment '创建者id',
   `updator` int(11) not null comment '更新者id',
@@ -126,9 +120,6 @@ create table `grab_section` (
   `timeout` int(4) not null default '30' comment '任务超时时间',
   `store` int(11) default null comment '工作流存储id',
   `status` tinyint(1) not null default '1' comment '是否有效，1：有效，0：无效',
-  `hm` tinyint(1) not null default 0 comment '是否有module，1：有效，0：无效',
-  `hc` tinyint(1) not null default 0 comment '是否有class，1：有效，0：无效',
-  `hf` tinyint(1) not null default 1 comment '是否有function，1：有效，0：无效',
   `extra` varchar(300) default null comment '附加内容',
   `creator` int(11) not null comment '创建者id',
   `updator` int(11) not null comment '更新者id',
@@ -141,10 +132,10 @@ create table `grab_section` (
 
 create table `grab_datapath` (
   `id` int(11) not null auto_increment,
-  `bid` int(11) NOT NULL default 0 COMMENT '业务id，0表示同等业务通用',
-  `btype` varchar(30) NOT NULL DEFAULT '' COMMENT '业务类型',
-  `sid` int(11) NOT NULL default 0 COMMENT '作用域id，0表示同等作用域通用',
-  `stype` varchar(30) NOT NULL DEFAULT '' COMMENT '作用域类型',
+  `bid` int(11) not null default 0 comment '业务id，0表示同等业务通用',
+  `btype` varchar(30) not null default '' comment '业务类型',
+  `sid` int(11) not null default 0 comment '作用域id，0表示同等作用域通用',
+  `stype` varchar(30) not null default '' comment '作用域类型',
   `pid` int(11) not null default '' comment '工作流段数据源id',
   `name` varchar(100) not null comment '工作流段变量名称',
   `index` varchar(100) not null default '' comment '工作流段复杂变量索引',
@@ -194,22 +185,12 @@ create table `grab_dataitem` (
   `id` int(11) not null auto_increment,
   `dmid` int(11) not null comment '数据模型id',
   `name` varchar(64) not null default '' comment '数据项名称',
-  `default` longtext default null comment '数据项默认值',
+  `length` int(11) default null comment '数据项长度',
   `comment` varchar(200) default null comment '数据项注释',
-  `nullable` tinyint(1) not null default 1 comment '状态值：1，允许null； 0，不允许null',
   `unique` varchar(64) default null comment '状态值：1，是唯一索引数据项； 0，不是唯一索引数据项',
   primary key (`id`),
   unique key `model_time` (`dmid`, `name`)
 ) engine=innodb default charset=utf8 comment='抓取任务数据项表';
-
-create table `grab_datatype` (
-  `id` int(11) not null auto_increment,
-  `diid` int(11) not null comment '数据项id',
-  `type` varchar(30) not null comment '数据库类型',
-  `ddl` varchar(64) not null default '' comment '数据项的具体类型',
-  primary key (`id`),
-  unique key `item` (`diid`, `type`)
-) engine=innodb default charset=utf8 comment='抓取任务数据项类型表';
 
 create table `grab_task` (
   `id` int(11) not null auto_increment,
@@ -219,7 +200,7 @@ create table `grab_task` (
   `args` varchar(30) default null comment '初始元组参数',
   `kwargs` varchar(30) default null comment '初始字典参数',
   `worknum` int(3) default null comment '工作者数量',
-  `queuetype` char(1) default null comment '队列类型，B or P',
+  `queuetype` char(1) default null comment '队列类型，b or p',
   `worktype` varchar(30) default null comment '工作类型，thread or coroutine',
   `trace` tinyint(1) not null default 0 comment '是否跟踪子任务',
   `timeout` int(4) not null default 30 comment '超时时间',
@@ -251,3 +232,32 @@ create table `grab_statistics` (
   primary key (`id`),
   key `task` (`sid`, `tid`)
 ) engine=innodb default charset=utf8 comment='抓取任务统计表';
+
+create table `grab_proxy` (
+  `id` int(11) not null auto_increment,
+  `ip` varchar(20) not null comment '代理地址',
+  `port` int(10) not null comment '代理端口',
+  `location` varchar(30) default null comment '代理地理位置',
+  `safetype` varchar(30) not null comment '代理类型',
+  `protocol` varchar(30) not null comment '通信协议类型',
+  `refspeed` float default '0' comment '参考速度',
+  `usespeed` float default '0' comment '使用速度',
+  `usenum` int(10) default '0' comment '使用次数',
+  `status` tinyint(1) not null default '1' comment '是否有效，1：有效，0：无效',
+  `extra` varchar(300) default null comment '附加内容',
+  `creator` int(11) not null comment '创建者id',
+  `updator` int(11) not null comment '更新者id',
+  `create_time` datetime not null comment '创建时间',
+  `update_time` timestamp not null default current_timestamp on update current_timestamp comment '更新时间',
+  primary key (`id`),
+  unique key `proxy` (`ip`,`port`)
+) engine=innodb default charset=utf8 comment='代理表';
+
+create table `grab_proxy_log` (
+  `id` int(11) not null auto_increment,
+  `pid` int(11) not null comment '代理id',
+  `elapse` float default '0' comment '消耗时间',
+  `create_time` datetime not null comment '创建时间',
+  primary key (`id`)
+) engine=innodb default charset=utf8 comment='代理使用日志表';
+
