@@ -6,6 +6,9 @@ DISTINCT = True
 
 def treeWeight(tree, node):
     tree[node]["#w"] = 1
+    if tree[node]['#params']:
+        for one in tree[node]['#params']:
+            tree[node]["#w"] += treeWeight(tree, one)
     if len(tree[node]["#children"]) > 0:
         for one in tree[node]["#children"]:
             tree[node]["#w"] += treeWeight(tree, one)
@@ -31,15 +34,28 @@ def treeSpace(material, tree, node, num):
         childnum = tree[node]["#s"]
     if len(tree[node]["#children"]) > 0:
         for one in tree[node]["#children"]:
+            if tree[one]['#routed'] and tree[one]['#routed'] > 3:
+                continue
+            tree[one]['#routed'] = 3
             treeSpace(material, tree, one, childnum)
     if tree[node]['#pre']:
         for one in tree[node]['#pre']:
+            if tree[one]['#routed'] and tree[one]['#routed'] > 2:
+                continue
+            tree[one]['#routed'] = 2
             treeSpace(material, tree, one, childnum)
     if tree[node]['#decorators']:
         for one in tree[node]['#decorators']:
+            if tree[one]['#routed'] and tree[one]['#routed'] > 2:
+                continue
+            tree[one]['#routed'] = 2
             treeSpace(material, tree, one, childnum)
     if tree[node]['#next']:
         for one in tree[node]['#next']:
+            if tree[one]['#routed'] and tree[one]['#routed'] > 1:
+                continue
+            tree[one]['#routed'] = 1
+            treeSpace(material, tree, one, childnum)
             if material[one]['datatype'] in ('function', 'execute'):
                 treeSpace(material, tree, one, childnum-4)
             else:
@@ -83,7 +99,7 @@ def findParams(material, tree, node, route='', parents=[], params=[]):
                     else:
                         params.insert(0, {'name':material[one]['name'], 'belong':belong, 'txt':'%s' % material[one]['name']})
                 else:
-                    params.append({'name':material[one]['name'], 'belong':belong, 'txt':'%s="%s"' % (material[one]['name'], material[one]['default']) if material[one]['datatype'] == 'str' else '%s=%s' % (material[one]['name'], material[one]['default'])})
+                    params.append({'name':material[one]['name'], 'belong':belong, 'txt':"%s='%s'" % (material[one]['name'], material[one]['default']) if material[one]['datatype'] == 'str' else '%s=%s' % (material[one]['name'], material[one]['default'])})
 
 def nodeDecorate(material, tree, node):
     if material[node]['default'] is not None:
@@ -93,7 +109,7 @@ def nodeDecorate(material, tree, node):
         txt = '\n%s@%s(%s)' % (' ' * tree[node]['#s'], material[node]['name'], material[material[node]['pid']]['name'])
         return txt
     if material[node]['name'] == 'store':
-        if not material[node]['datatype'] == 'None':
+        if material[node]['datatype'] == 'execute':
             params = []
             findParams(material, tree, node, params=params)
             txt = '\n%s@%s(%s)' % (' ' * tree[node]['#s'], material[node]['name'], ', '.join(one['txt'] for one in params))
@@ -119,8 +135,13 @@ def nodeFunction(material, tree, node):
     if material[node]['name'] == '__init__':
         parents = []
         for one in tree[str(material[node]['sid'])]['#params']:
-            if material[one]['pid'] and material[material[one]['pid']]['datatype'] == 'class':
-                parents.append(material[one]['pid'])
+            try:
+                if material[one]['pid'] and material[material[one]['pid']]['datatype'] == 'class':
+                    parents.append(material[one]['pid'])
+            except:
+                print one
+                print material[one]['pid']
+                raise
         findParams(material, tree, node, parents=parents, params=params)
     else:
         findParams(material, tree, node, params=params)
@@ -181,9 +202,9 @@ def nodeAssignright(material, tree, node):
             if material[node]['xpath'] is None:
                 return 'get%sNodeContent(%s, %s)' % (tree[pid]['#format'], material[bid]['name'], '"TEXT"' if material[node]['content'] == 'TEXT' else material[node]['content'])
             else:
-                return 'get%sNodeContent(%s.find("%s"), %s)' % (tree[pid]['#format'], material[bid]['name'], material[node]['xpath'], '"TEXT"' if material[node]['content'] == 'TEXT' else material[node]['content'])
+                return "get%sNodeContent(%s.find('%s'), %s)" % (tree[pid]['#format'], material[bid]['name'], material[node]['xpath'], '"TEXT"' if material[node]['content'] == 'TEXT' else material[node]['content'])
         elif material[node]['method'] == '.findall':
-            return '%s.findall("%s")' % (material[material[node]['pid']]['name'], material[node]['xpath'])
+            return "%s.findall('%s')" % (material[material[node]['pid']]['name'], material[node]['xpath'])
         elif material[node]['method'] == '%':
             if material[material[node]['pid']]['datatype'] == 'class' or material[str(material[material[node]['pid']]['sid'])]['name'] == '__init__':
                 return '"%s" %s self.%s' % (material[node]['xpath'], material[node]['method'], material[material[node]['pid']]['name'])
@@ -198,7 +219,7 @@ def nodeAssignright(material, tree, node):
                 return material[material[node]['pid']]['name'] + ('' if material[node]['xpath'] is None else material[node]['xpath'])
     else:
         if material[node]['datatype'] == 'str':
-            return '"%s"' % material[node]['default']
+            return "'%s'" % material[node]['default']
         else:
             return material[node]['default']
 
@@ -286,7 +307,8 @@ def initTree(material):
         '#params':[],
         '#decorators':[],
         '#next':[], '#pre':[], '#store':None,
-        '#used':False
+        '#used':False,
+        '#routed':None
     }}
     pieces = material.items()
     total = len(pieces)
@@ -297,7 +319,7 @@ def initTree(material):
                 continue
             if str(val['sid']) in tree:
                 num += 1
-                tree[key] = {'#w':0, '#s':0, '#children':[], '#hastxt':False, '#params':[], '#decorators':[], '#next':[], '#pre':[], '#store':None, '#used':False}
+                tree[key] = {'#w':0, '#s':0, '#children':[], '#hastxt':False, '#params':[], '#decorators':[], '#next':[], '#pre':[], '#store':None, '#used':False, '#routed':None}
                 if val['method'] in ['params']:
                     tree[str(val['sid'])]["#params"].append(key)
                 elif val['method'] in ['='] and material.get(str(val['sid']), {"datatype":""})["datatype"] in ['execute']:
@@ -336,7 +358,6 @@ def cook(material):
     tree = initTree(material)
     treeWeight(tree, '0')
     treeSpace(material, tree, '0', -8)
-    print tree['53']
     initParams(material, tree)
     food = default + treeTxt(material, tree, '0') + '\nif __name__ == "__main__":\n    pass\n\n'
     return food

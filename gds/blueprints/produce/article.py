@@ -3,8 +3,7 @@
 import json
 from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
 from webcrawl.character import unicode2utf8
-from makescript import newarticle
-from do import makearticle
+from hawkeye import seearticle
 from flask import Blueprint, request, Response, render_template
 from views import produce
 
@@ -41,12 +40,10 @@ def articledetail(aid=None):
         if aid is None:
             dbpc.handler.insert(""" insert into `grab_article` (`uid`, `name`, `host`, `pinyin`, `filepath`, `filepath`, `status`, `extra`, `creator`, `updator`, `create_time`, `update_time`)values(%s, %s, %s, %s, %s, 1, null, 0, 0, now(), now()); """, (uid, article_name, host, pinyin, filepath))
             aid = dbpc.handler.queryOne(""" select * from grab_article where `uid` = %s and `name` = %s """, (uid, article_name))['id']
-            newarticle(uid, aid)
-            makearticle(aid)
+            # seearticle(dbpc, uid, aid)
         else:
             dbpc.handler.update(""" update `grab_article` set `name` = %s, `host` = %s, `pinyin` = %s, `filepath` = %s, update_time=now() where `id` = %s """, (article_name, host, pinyin, filepath, aid))
-            newarticle(uid, aid)
-            makearticle(aid)
+            # seearticle(dbpc, uid, aid)
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         pass

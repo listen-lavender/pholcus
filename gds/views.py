@@ -1,15 +1,12 @@
 #!/usr/bin/python
 # coding=utf8
 import json, sys, os
-sys.path.append(os.path.abspath('../act'))
+sys.path.append(os.path.abspath('../gdc'))
 from settings import staticfilepath, useport, CACHE_TIMEOUT, _DBCONN_R, _DBCONN_W, LIMIT
 from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
 from flask import Flask, g, request, Response
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug.contrib.cache import SimpleCache
-from blueprints.admin.views import admin
-from blueprints.monitor.views import monitor
-from blueprints.produce.views import produce
 from werkzeug.routing import BaseConverter
 
 
@@ -30,6 +27,10 @@ dbpc.addDB(WDB, LIMIT, host=_DBCONN_W['host'],
                     charset=_DBCONN_W['charset'],
                     use_unicode=_DBCONN_W['use_unicode'],
                     override=False)
+
+from blueprints.admin.views import admin
+from blueprints.monitor.views import monitor
+from blueprints.produce.views import produce
 
 cache = SimpleCache()
 def cached(func):

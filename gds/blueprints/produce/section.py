@@ -3,24 +3,12 @@
 import json
 from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
 from webcrawl.character import unicode2utf8
+from hawkeye import seesection
 from flask import Blueprint, request, Response, render_template
 from views import produce
 
-# @produce.route('/section/list', methods=['GET'])
-# @produce.route('/section/list/<aid>', methods=['GET'])
-# @withMysql(RDB, resutype='DICT')
-# def sectionlist(aid):
-#     pagetotal = int(request.args.get('pagetotal', 10))
-#     page = int(request.args.get('page', 1))
-#     total = int(request.args.get('total', 0))
-#     if total == 0:
-#         total = dbpc.handler.queryOne(""" select count(id) as total from grab_section where aid = %s or '' = %s; """, (aid, aid))['total']
-#     count = (total - 1)/pagetotal + 1
-#     sections = dbpc.handler.queryAll(""" select `id`, `name` from grab_section where aid = %s or ''=%s; """, (aid, aid))
-#     return render_template('sectionlist.html', aid=aid, sections=sections, pagetotal=pagetotal, page=page, total=total, count=count)
-
 @produce.route('/section/list/<aid>', methods=['GET', 'POST', 'DELETE'])
-@withMysql(RDB, resutype='DICT')
+@withMysql(WDB, resutype='DICT', autocommit=True)
 def sectionlist(aid):
     """
     select gs.id, gs.aid, gs.name, gs.flow, gs.index, gs.retry, gs.timelimit, gs.store, gsp.id, gsp.aid, gsp.name, gsp.flow, gsp.index, gsp.retry, gsp.timelimit, gsp.store
@@ -79,19 +67,28 @@ def sectiondetail(sid=None):
             dataextract = dbpc.handler.queryAll(""" select * from grab_dataextract where sid = %s """, (sid, ))
             section['datasource'] = datasource
             section['dataextract'] = dataextract
-        return render_template('sectiondetail.html', aid=aid, section=section)
+        return render_template('sectiondetail.html', aid=aid, sid=sid, section=section)
     elif request.method == 'POST':
-        section_name = request.form.get('section_name')
-        next_id = request.form.get('next_id')
-        flow = request.form.get('flow')
-        index = request.form.get('index')
-        retry = request.form.get('retry')
-        timelimit = request.form.get('timelimit')
-        store = request.form.get('store')
-        if aid is None:
-            dbpc.handler.insert(""" insert into `grab_section` (`aid`, `name`, `next_id`, `flow`, `index`, `retry`, `timelimit`, `store`, `creator`, `updator`, `create_time`, `update_time`)values(%s, %s, %s, %s, %s, %s, %s, %s, 1, null, 0, 0, now(), now()); """, (aid, section_name, next_id, flow, index, retry, timelimit, store))
+        if request.form.get('type') == 'source':
+            sid = request.form.get('sid')
+            datasource_name = request.form.get('name')
+        elif request.form.get('type') == 'extract':
+            sid = request.form.get('sid')
+            dataextract_name = request.form.get('name')
         else:
-            dbpc.handler.update(""" update `grab_section` set `name` = %s, `next_id` = %s, `flow` = %s, `index` = %s, `retry` = %s, `timelimit` = %s, `store` = %s, update_time=now() where `id` = %s """, (section_name, next_id, flow, index, retry, timelimit, store, sid))
+            sid = request.form.get('id')
+            section_name = request.form.get('name')
+            next = request.form.get('next')
+            flow = request.form.get('flow')
+            index = request.form.get('index')
+            retry = request.form.get('retry')
+            timelimit = request.form.get('timelimit')
+            store = request.form.get('store')
+            # if aid is None:
+            #     dbpc.handler.insert(""" insert into `grab_section` (`aid`, `name`, `next_id`, `flow`, `index`, `retry`, `timelimit`, `store`, `creator`, `updator`, `create_time`, `update_time`)values(%s, %s, %s, %s, %s, %s, %s, %s, 1, null, 0, 0, now(), now()); """, (aid, section_name, next_id, flow, index, retry, timelimit, store))
+            # else:
+            #     dbpc.handler.update(""" update `grab_section` set `name` = %s, `next_id` = %s, `flow` = %s, `index` = %s, `retry` = %s, `timelimit` = %s, `store` = %s, update_time=now() where `id` = %s """, (section_name, next_id, flow, index, retry, timelimit, store, sid))
+        # seesection(dbpc, aid, sid)
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     elif request.method == 'DELETE':
         iid = request.form.get('id', '')

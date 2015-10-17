@@ -99,7 +99,7 @@ def findParams(material, tree, node, route='', parents=[], params=[]):
                     else:
                         params.insert(0, {'name':material[one]['name'], 'belong':belong, 'txt':'%s' % material[one]['name']})
                 else:
-                    params.append({'name':material[one]['name'], 'belong':belong, 'txt':'%s="%s"' % (material[one]['name'], material[one]['default']) if material[one]['datatype'] == 'str' else '%s=%s' % (material[one]['name'], material[one]['default'])})
+                    params.append({'name':material[one]['name'], 'belong':belong, 'txt':"%s='%s'" % (material[one]['name'], material[one]['default']) if material[one]['datatype'] == 'str' else '%s=%s' % (material[one]['name'], material[one]['default'])})
 
 def nodeDecorate(material, tree, node):
     if material[node]['default'] is not None:
@@ -109,7 +109,7 @@ def nodeDecorate(material, tree, node):
         txt = '\n%s@%s(%s)' % (' ' * tree[node]['#s'], material[node]['name'], material[material[node]['pid']]['name'])
         return txt
     if material[node]['name'] == 'store':
-        if not material[node]['datatype'] == 'None':
+        if material[node]['datatype'] == 'execute':
             params = []
             findParams(material, tree, node, params=params)
             txt = '\n%s@%s(%s)' % (' ' * tree[node]['#s'], material[node]['name'], ', '.join(one['txt'] for one in params))
@@ -202,9 +202,9 @@ def nodeAssignright(material, tree, node):
             if material[node]['xpath'] is None:
                 return 'get%sNodeContent(%s, %s)' % (tree[pid]['#format'], material[bid]['name'], '"TEXT"' if material[node]['content'] == 'TEXT' else material[node]['content'])
             else:
-                return 'get%sNodeContent(%s.find("%s"), %s)' % (tree[pid]['#format'], material[bid]['name'], material[node]['xpath'], '"TEXT"' if material[node]['content'] == 'TEXT' else material[node]['content'])
+                return "get%sNodeContent(%s.find('%s'), %s)" % (tree[pid]['#format'], material[bid]['name'], material[node]['xpath'], '"TEXT"' if material[node]['content'] == 'TEXT' else material[node]['content'])
         elif material[node]['method'] == '.findall':
-            return '%s.findall("%s")' % (material[material[node]['pid']]['name'], material[node]['xpath'])
+            return "%s.findall('%s')" % (material[material[node]['pid']]['name'], material[node]['xpath'])
         elif material[node]['method'] == '%':
             if material[material[node]['pid']]['datatype'] == 'class' or material[str(material[material[node]['pid']]['sid'])]['name'] == '__init__':
                 return '"%s" %s self.%s' % (material[node]['xpath'], material[node]['method'], material[material[node]['pid']]['name'])
@@ -219,7 +219,7 @@ def nodeAssignright(material, tree, node):
                 return material[material[node]['pid']]['name'] + ('' if material[node]['xpath'] is None else material[node]['xpath'])
     else:
         if material[node]['datatype'] == 'str':
-            return '"%s"' % material[node]['default']
+            return "'%s'" % material[node]['default']
         else:
             return material[node]['default']
 
