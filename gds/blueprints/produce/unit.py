@@ -4,7 +4,6 @@ import json
 from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
 from webcrawl.character import unicode2utf8
 from hawkeye import seeunit
-from do import makeunit
 from flask import Blueprint, request, Response, render_template
 from views import produce
 

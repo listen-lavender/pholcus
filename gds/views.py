@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # coding=utf8
 import json, sys, os
-sys.path.append(os.path.abspath('../gdc'))
 from settings import staticfilepath, useport, CACHE_TIMEOUT, _DBCONN_R, _DBCONN_W, LIMIT
 from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
 from flask import Flask, g, request, Response
