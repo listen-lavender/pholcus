@@ -1,6 +1,6 @@
 # Pholcus
 
-It will be a nice no coding grabbing platform, but just have a simple demo for no coding scenario and mainly support coding scenario now.
+It will be a nice no coding datas grabbing platform, but just have a simple demo for no coding scenario and mainly support coding scenario now.
 
 And pholcus is in developping, anyone who agree with this idea and will contribute is welcome. 
 
