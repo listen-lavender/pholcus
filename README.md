@@ -4,7 +4,7 @@ It will be a nice no coding grabbing platform, but just have a simple demo for n
 
 And pholcus is in developping, anyone who agree with this idea and will contribute is welcome. 
 
-Please remember, my dream is to help more people to fetch datas conveniently.
+Please remember, my dream is to help more people to fetch datas conveniently. Thank to Lao Zhao, my previous team leader.
 
 ## gds
 

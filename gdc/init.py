@@ -1,12 +1,36 @@
 #!/usr/bin/python
 # coding=utf-8
-import time
-import os
-from webcrawl.godhand import cook
+from godhand import cook
 from datakit.mysql.suit import withMysql, dbpc
-from task.config.db.mysql import RDB, WDB
-from task.model.mysql import initDB
-from webcrawl.handleRequest import parturl
+
+WDB = 'local'
+RDB = 'local'
+_DBCONN = {"host": "127.0.0.1",
+                "port": 3306,
+                "user": "root",
+                "passwd": "",
+                "db": "kuaijie",
+                "charset": "utf8",
+                "use_unicode":False
+            }
+
+def initDB():
+    dbpc.addDB(RDB, LIMIT, host=_DBCONN['host'],
+                port=_DBCONN['port'],
+                user=_DBCONN['user'],
+                passwd=_DBCONN['passwd'],
+                db=_DBCONN['db'],
+                charset=_DBCONN['charset'],
+                use_unicode=_DBCONN['use_unicode'],
+                override=False)
+    dbpc.addDB(WDB, LIMIT, host=_DBCONN['host'],
+                port=_DBCONN['port'],
+                user=_DBCONN['user'],
+                passwd=_DBCONN['passwd'],
+                db=_DBCONN['db'],
+                charset=_DBCONN['charset'],
+                use_unicode=_DBCONN['use_unicode'],
+                override=False)
 
 initDB()
 
@@ -42,6 +66,14 @@ def makearticle(aid, flow):
     fi = open(ensure(dirfile['filepath']), 'w')
     fi.write(cook(material))
     fi.close()
+
+@withMysql(WDB, resutype='DICT')
+def initScript():
+    for u in dbpc.handler.queryAll(""" select * from grab_unit; """):
+        makeunit(u['id'])
+        for a in dbpc.handler.queryAll(""" select * from grab_article where uid = %s; """, (u['id'])):
+            for f in dbpc.handler.queryAll(""" select distinct flow from grab_section where aid = %s; """, a['id']):
+                makearticle(a['id'], f['flow'])
 
 if __name__ == '__main__':
     print 'start'

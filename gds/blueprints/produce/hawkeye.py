@@ -1,7 +1,5 @@
 #!/usr/bin/python
 # coding=utf-8
-import time
-from godhand import cook
 
 initsqls = ["""
 insert into `grab_datapath` (`bid`, `btype`, `sid`, `stype`, `pid`, `name`, `index`, `method`, `xpath`, `default`, `content`, `datatype`)
