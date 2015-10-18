@@ -2,7 +2,7 @@
 
 It will be a nice no coding datas grabbing platform, but just have a simple demo for no coding scenario and mainly support coding scenario now.
 
-And pholcus is in developping, anyone who agree with this idea and will contribute is welcome. 
+And pholcus is in developping, anyone who agree with it and will contribute is welcome. 
 
 Please remember, my dream is to help more people to fetch datas conveniently. Thank to Lao Zhao, my previous team leader.
 
