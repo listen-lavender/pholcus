@@ -8,40 +8,48 @@
     </script>
 {% endblock %}
 {% block content %}
-    <div class="ui form">
-        <div class="field">
-            <label>数据模型</label>
-            <input type="text" name="model" placeholder=""/>
-        </div>
-        <div class="field">
-            <label>数据存储</label>
-            <input type="text"  name="store" placeholder=""/>
-        </div>
-        <div class="field">
-            <label>数据类型</label>
-            <input type="text"  name="datatype" placeholder="video"/>
-        </div>
-        <div class="field">
-            <label>是否跟踪子任务</label>
-            <input type="text"  name="trace" placeholder="False"/>
-        </div>
-        <div class="field">
-            <label>执行流</label>
-            <input type="text"  name="flow" placeholder="www"/>
-        </div>
+    <div class="ui sizer vertical segment" style="font-size: 20px; text-align: center;">
+        <div class="ui large header">任务</div>
     </div>
     <div>
-        <span>Acfun</span>
-        <ul>
-            <li><a href=""><span>详情</span></a></li>
-            <li><a href=""><span>详情</span><a></li>
-            <li><a href=""><span>详情</span></a></li>
-        </ul>
-        <span>Bili</span>
-        <ul>
-            <li>fetchWAPCitys<a href=""><span>详情</span></a></li>
-            <li>fetchWAPList<a href=""><span>详情</span><a></li>
-            <li>fetchWAPDetail<a href=""><span>详情</span></a></li>
-        </ul>
+        <a href="detail" class="ui button">新建任务</a>
+    </div>
+    <ul class="ui list" style="margin-left: 5%;">
+    {% for one in tasks %}
+        <li><a href="detail/{{one['id']}}"><span>{{one['task_name']}}</span></a></li>
+    {% endfor %}
+    </ul>
+    <div class="ui page grid" style="text-align: center; margin-bottom: 150px; margin-top: 50px;">
+        <div class="twelve wide column">
+            <a class="item" href="list?page=1&total={{total}}">First
+            </a>
+            &nbsp;&nbsp;&nbsp;
+            {% if page < 2 %}
+            <a class="disabled item">
+                Previous
+            </a>
+            {% else %}
+            <a class="item" href="list?page={{page - 1}}&total={{total}}">
+                Previous
+            </a>
+            {% endif %}
+            &nbsp;&nbsp;&nbsp;
+            <a class="disabled item">
+            {{page}}/{{count}}
+            </a>
+            &nbsp;&nbsp;&nbsp;
+            {% if page > count - 1 %}
+            <a class="disabled item">
+                Next
+            </a>
+            {% else %}
+            <a class="item" href="list?page={{page + 1}}&total={{total}}">
+                Next
+            </a>
+            {% endif %}
+            &nbsp;&nbsp;&nbsp;
+            <a class="item" href="list?page={{count}}&total={{total}}">Last
+            </a>
+        </div>
     </div>
 {% endblock %}

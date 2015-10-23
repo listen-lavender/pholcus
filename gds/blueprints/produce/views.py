@@ -13,6 +13,7 @@ from datamodel import *
 from unit import *
 from article import *
 from section import *
+from task import *
 
 @withMysql(WDB, resutype='DICT', autocommit=True)
 def codetree():

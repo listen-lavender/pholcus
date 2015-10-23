@@ -1,0 +1,17 @@
+#!/usr/bin/python
+# coding=utf-8
+import os
+from docopt import docopt
+from blueprints.produce.hawkeye import *
+
+if __name__ == '__main__':
+    helpdoc = """Tools to use gds(grabbing datas server) conviently.
+    Usage:
+      gds (-h|--help)
+      gds init
+
+    Options:
+      -h,  --help        Show help document.
+    """
+    params = docopt(helpdoc)
+    print params
