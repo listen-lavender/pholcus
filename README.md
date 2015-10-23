@@ -10,20 +10,20 @@ Please remember, my dream is to help more people to fetch datas conveniently. Th
 
 Server of pholcus.
 
->    - settings for grabbing datas and create code tree
->    - settings for task 
->    - multi dimensional statistic for task
->    - administrate running task
->    - administrate free third party proxy
->    - administrate user
+- settings for grabbing datas and create code tree
+- settings for task 
+- multi dimensional statistic for task
+- administrate running task
+- administrate free third party proxy
+- administrate user
 
 ## gdc
 
 Client of pholcus.
 
->    - according to unregistered executable .py file, create settings for grabbing datas
->    - according to code tree, create executable .py file
->    - executing .py file to grab datas from web, including proxy 
+- according to unregistered executable .py file, create settings for grabbing datas
+- according to code tree, create executable .py file
+- executing .py file to grab datas from web, including proxy 
 
 
 ## Installation
@@ -32,4 +32,4 @@ Client of pholcus.
 
 ## Discussion and support
 
-Report bugs on the *GitHub issue tracker <https://github.com/UniqueHK/pholcus/issues>*. 
+Report bugs on the *GitHub issue tracker <https://github.com/UniqueHK/pholcus/issues*. 
