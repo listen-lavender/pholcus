@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # coding=utf-8
+
 from datakit.mysql.suit import withMysql, dbpc
 from init import initDB
 import task
@@ -17,6 +18,10 @@ def task():
             spider = cls(worknum=int(t['worknum']), queuetype=t['queuetype'], worktype=t['worktype'], tid=int(t['id']))
             spider.fetchDatas(t['flow'], t['args'])
             spider.statistic()
+            for name in spider.stat.keys():
+                if not name == 'total':
+                    dbpc.handler.insert(""" insert into grab_log(`tid`,`sname`,`succ`,`fail`,`timeout`,`create_time`)
+                                                    values( %s,     %s,    %s,    %s,       %s,        now())""", (t['id'], key, spider.stat[name]['succ'], spider.stat[name]['fail'], spider.stat[name]['timeout']))
         time.sleep(0.1)
 
 if __name__ == '__main__':

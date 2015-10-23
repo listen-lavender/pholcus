@@ -211,7 +211,7 @@ def setArticle(filepath, pinyin, host):
         for line in fi.readlines():
             if 'def ' in line and not '__init__' in line:
                 sections.append(line.replace('\n', '').replace('  ', ''))
-            if '@' in line and 'find' not in line and 'findall' not in line:
+            if '@' in line and not 'find' in line and not 'findall' in line:
                 sections.append(line.replace('\n', '').replace('  ', ''))
             if 'initflow' in line:
                 flow = line.replace('\n', '').replace('  ', '').replace('@initflow(', '').replace(')', '').replace('"', '').replace("'", '')
