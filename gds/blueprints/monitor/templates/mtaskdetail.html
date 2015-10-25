@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block precss %}
+    <style type="text/css">
+    </style>
+{% endblock %}
+{% block prejs %}
+{% endblock %}
+{% block content %}
+    <div>
+        <form method="GET" action='{{request.base_url}}'>
+                <div>
+                    <input value="{{begin}}">
+                    <span>range-begin</span>
+                </div>
+                <div>
+                    <input value="{{end}}">
+                    <span>range-end</span>
+                </div>
+                <input type=submit/>
+        </form>
+    </div>
+    <div id="graph-container"></div>
+{% endblock %}
+{% block postjs %}
+    <script type="text/javascript" src="/gds/static/js/Highcharts-3.0.1/js/highcharts.js"></script>
+    <script type="text/javascript" src="/gds/static/js/Highcharts-3.0.1/js/modules/exporting.js"></script>
+    <script type="text/javascript" src="/gds/static/js/highslide/highslide/highslide-full.min.js"></script>
+    <script type="text/javascript" src="/gds/static/js/highslide/highslide/highslide.config.js"></script>
+{% include "mtaskdetail.html.js" ignore missing %}
+{% endblock %}

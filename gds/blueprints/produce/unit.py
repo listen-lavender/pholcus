@@ -17,7 +17,7 @@ def unitlist():
         total = dbpc.handler.queryOne(""" select count(gu.id) as total from grab_unit gu join grab_datamodel gdm on gu.dmid = gdm.id; """)['total']
     count = (total - 1)/pagetotal + 1
     units = dbpc.handler.queryAll(""" select gu.id, gu.name as unit_name, gdm.name as datamodel_name from grab_unit gu join grab_datamodel gdm on gu.dmid = gdm.id order by gu.update_time desc limit %s, %s; """, ((page-1)*pagetotal, pagetotal))
-    return render_template('unitlist.html', units=units, pagetotal=pagetotal, page=page, total=total, count=count)
+    return render_template('punitlist.html', units=units, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @produce.route('/unit/detail', methods=['GET', 'POST'])
 @produce.route('/unit/detail/<uid>', methods=['GET', 'POST'])
@@ -29,7 +29,7 @@ def unitdetail(uid=None):
             unit = {'id':'', 'unit_name':'', 'datamodel_name':'', 'extra':'', 'dmid':''}
         else:
             unit = dbpc.handler.queryOne(""" select gu.id, gu.name as unit_name, gdm.name as datamodel_name, gu.extra, gdm.id as dmid from grab_unit gu join grab_datamodel gdm on gu.dmid = gdm.id where gu.id = %s; """, (uid,))
-        return render_template('unitdetail.html', unit=unit, datamodels=datamodels)
+        return render_template('punitdetail.html', unit=unit, datamodels=datamodels)
     elif request.method == 'POST':
         unit_name = request.form.get('unit_name')
         dirpath = request.form.get('dirpath')

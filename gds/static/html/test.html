@@ -1,51 +1,94 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes"/>
-    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
-    <meta name="format-detection" content="teleusername=no"/>
-    <meta name="format-detection" content="address=no"/>
-    
-    <title>wecatch</title>
-    
-    <link rel="stylesheet" type="text/css" href="/gds/static/css/font-awesome.css">
-    <link rel="stylesheet" type="text/css" href="/gds/static/css/semantic.min.css">
-    
-    <style type="text/css">
-    </style>
-
-    <script type="text/javascript" src="/gds/static/js/jquery.min.js"></script>
-    <script type="text/javascript" src="/gds/static/js/semantic.min.js"></script>
-    <script type="text/javascript" src="/gds/static/js/main.js"></script>
-    
-    <script type="text/javascript">
-    </script>
-
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ECharts">
+    <meta name="author" content="kener.linfeng@gmail.com">
+    <title>ECharts · Example</title>
+    <link href="/gds/static/css/font-awesome.min.css" rel="stylesheet">
+    <!--link href="/gds/static/css/bootstrap.css" rel="stylesheet"-->
+    <link href="/gds/static/css/echartsHome.css" rel="stylesheet">
+    <script src="/gds/static/js/esl.js"></script>
 </head>
+
 <body>
-    <div class="ui styled accordion">
-      <div class="active title">1</div>
-      <div class="active content">
-        <div class="accordion">
-          <div class="active title">2</div>
-          <div class="active content">
-            <div class="accordion">
-              <div class="title">3</div>
-              <div class="content">
-                <div class="accordion">
-                  <div class="title">4</div>
-                  <div class="content">4</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div id="main" style="height:1000px;width:100%"></div>
+    <script src="/gds/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/gds/static/js/echartsHome.js"></script>
+    <!-- script src="/gds/static/js/bootstrap.min.js"></script-->
     <script type="text/javascript">
-        $('.ui.accordion').accordion();
+        require.config({
+            packages: [
+                {
+                    name: 'echarts',
+                    location: 'http://echarts.baidu.com/src',
+                    main: 'echarts'
+                },
+                {
+                    name: 'zrender',
+                    location: 'http://ecomfe.github.io/zrender/src',
+                    //location: '../../../zrender/src',
+                    main: 'zrender'
+                }
+            ]
+        });
+        
+        var option = {
+            tooltip : {
+                trigger: 'axis'
+            },
+            legend: {
+                data:['蒸发量','降水量']
+            },
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: false, readOnly: false},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            calculable : true,
+            xAxis : [
+                {
+                    type : 'category',
+                    data : ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']
+                }
+            ],
+            yAxis : [
+                {
+                    type : 'value',
+                    splitArea : {show : true}
+                }
+            ],
+            series : [
+                {
+                    name:'蒸发量',
+                    type:'line',
+                    data:[2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3]
+                },
+                {
+                    name:'降水量',
+                    type:'line',
+                    data:[2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
+                }
+            ]
+        };
+        
+        require(
+            [
+                'echarts',
+                'echarts/chart/line'
+            ],
+            function (ec) {
+                var myChart = ec.init(document.getElementById('main'));
+                myChart.setOption(option);
+            }
+        )
     </script>
 </body>
 </html>
