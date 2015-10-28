@@ -5,6 +5,32 @@
 {% endblock %}
 {% block prejs %}
     <script type="text/javascript">
+        function dropdown(id){
+            $('#task_' + id).dropdown({
+                action: function(value, text) {
+                    $('#task_' + id + ' input[type="hidden"]').val(text);
+                    $('#task_' + id + ' .text').text(value);;
+                    $.ajax({
+                        url:'/gds/m/task/change/'+$('#task_' + id + ' span[name="tid"]').text(),
+                        type:'post',
+                        data:{status:text},
+                        async:false,
+                        dataType:'json',
+                        success:function(data){
+                            $("#task_" + id + " .menu").removeClass("visible");
+                            $("#task_" + id + " .menu").addClass("hidden");
+                            $("#task_" + id).removeClass("active");
+                            $("#task_" + id).removeClass("visible");
+                            $("#task_" + id + " div[data-value='"+text+"']").addClass("active");
+                            $("#task_" + id + " div[data-value='"+text+"']").addClass("selected");
+                        },
+                        error:function(XMLHttpRequest, status, thrown){
+                            ;
+                        }
+                    });
+                }
+            });
+        }
     </script>
 {% endblock %}
 {% block content %}
@@ -17,7 +43,7 @@
     <ul class="ui list" style="margin-left: 5%;">
     {% for one in tasks %}
         <li><a href="detail/{{one['id']}}"><span>{{one['task_name']}}</span></a><span>{{one['status_desc']}}</span><span>管理任务:&nbsp;&nbsp;</span>
-        <div id="status" class="ui selection dropdown" tabindex="0">
+        <div id="task_{{loop.index}}" class="ui selection dropdown" tabindex="0">
             <span name="tid" style="display:none;">{{one['id']}}</span>
             {% if one['status'] == 0 %}
                 <input type="hidden" value="0">
@@ -37,6 +63,9 @@
                 <div class="item" data-value="1">启动</div>
             </div>
         </div></li>
+        <script type="text/javascript">
+            dropdown({{loop.index}});
+        </script>
     {% endfor %}
     </ul>
     <div class="ui page grid" style="text-align: center; margin-bottom: 150px; margin-top: 50px;">
@@ -72,34 +101,4 @@
             </a>
         </div>
     </div>
-{% endblock %}
-{% block postjs %}
-    <script type="text/javascript">
-        $('#status').dropdown({
-            action: function(value, text) {
-                alert(text);
-                alert(value);
-                $('#status input[type="hidden"]').val(text);
-                $('#status .text').text(value);
-                $.ajax({
-                    url:'/gds/m/task/change/'+$("#status span[name='tid']").text(),
-                    type:'post',
-                    data:{status:text},
-                    async:false,
-                    dataType:'json',
-                    success:function(data){
-                        $("#status .menu").removeClass("visible");
-                        $("#status .menu").addClass("hidden");
-                        $("#status").removeClass("active");
-                        $("#status").removeClass("visible");
-                        $("#status div[data-value='"+text+"']").addClass("active");
-                        $("#status div[data-value='"+text+"']").addClass("selected");
-                    },
-                    error:function(XMLHttpRequest, status, thrown){
-                        ;
-                    }
-                });
-            }
-        });
-    </script>
 {% endblock %}

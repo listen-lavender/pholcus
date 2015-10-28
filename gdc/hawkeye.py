@@ -223,7 +223,7 @@ def setArticle(filepath, pinyin, host):
             section = {}
             for one in sections:
                 if 'next' in one:
-                    section['next_id'] = dbpc.handler.queryOne(""" select id from grab_section where `name` = %s """, (one.replace('@next(', '').replace(')', '').replace(flow, '').lower(), ))['id']
+                    section['next_id'] = dbpc.handler.queryOne(""" select id from grab_section where `name` = %s and aid = %s """, (one.replace('@next(', '').replace(')', '').lower().replace(flow, '').replace('fetch', ''), article['id']))['id']
                 if 'index' in one:
                     section['index'] = one.replace('@index(', '').replace(')', '')
                 if 'retry' in one:
@@ -242,7 +242,7 @@ def setArticle(filepath, pinyin, host):
             section = {}
             for one in sections:
                 if 'next' in one:
-                    section['next_id'] = dbpc.handler.queryOne(""" select id from grab_section where `name` = %s """, (one.replace('@next(', '').replace(')', '').replace(flow, '').lower(), ))['id']
+                    section['next_id'] = dbpc.handler.queryOne(""" select id from grab_section where `name` = %s and aid = %s """, (one.replace('@next(', '').replace(')', '').lower().replace(flow, '').replace('fetch', ''), article['id']))['id']
                 if 'index' in one:
                     section['index'] = one.replace('@index(', '').replace(')', '')
                 if 'retry' in one:

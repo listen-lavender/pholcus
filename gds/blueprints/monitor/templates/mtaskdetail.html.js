@@ -106,9 +106,8 @@ function loadGraph() {
                     data: [
                         {% for row in series['stats'] %}
                             {% set time, value =row['time'], row['value'] %}
-                            [{{time}}, {{value}} ],
+                            [{{time}}, {{value}}],
                         {% endfor %}
-
                     ]
                 },
             {% endfor %}

@@ -23,9 +23,9 @@ def tasklist():
         one['status_desc'] = STATDESC.get(one['status'], '')
     return render_template('mtasklist.html', tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
 
-@monitor.route('/task/detail/<tid>', methods=['GET'])
+@monitor.route('/task/time/detail/<tid>', methods=['GET'])
 @withMysql(RDB, resutype='DICT')
-def taskdetail(tid):
+def tasktimedetail(tid):
     end = request.args.get('end', datetime.datetime.now())
     begin = request.args.get('begin', datetime.datetime.now() -
                              datetime.timedelta(seconds=48*600))
@@ -39,19 +39,69 @@ def taskdetail(tid):
     for log in stats:
         # log['time'] = parser.parse(log['time']+'0')
         log['time'] = time.mktime(time.strptime(log['time']+ ':00', '%Y-%m-%d %H:%M:%S')) * 1000
-        log['value']  = float(log['value'])
+        log['value'] = float(log['value'])
 
     chart = dict(
         title='a',
         subtitle='b',
         ytitle='c',
     )
-    print stats
     dataset=[
-        {'name':u'elapse state', 'stats':stats, 'color':'#229933'},
-        # {'name':u'exception requests', 'stats':stats, 'color':'#007788'},
+        {'name':'elapse state', 'stats':stats, 'color':'#229933'},
     ]
     return render_template("mtaskdetail.html", dataset=dataset, request=request, chart=chart, unit='s', begin=begin, end=end)
+
+@monitor.route('/task/count/detail/<tid>', methods=['GET'])
+@withMysql(RDB, resutype='DICT')
+def taskcountdetail(tid):
+    end = request.args.get('end', datetime.datetime.now())
+    begin = request.args.get('begin', datetime.datetime.now() -
+                             datetime.timedelta(seconds=48*600))
+
+    sql = '''select substr(create_time, 1, 16) as time, succ as value
+        from grab_statistics where tid = %s and create_time between %s and %s
+            order by time
+    '''
+    print sql, tid, begin.strftime('%Y-%m-%d %H:%M:%S'), end.strftime('%Y-%m-%d %H:%M:%S')
+    succ_stats = dbpc.handler.queryAll(sql, (tid, begin, end))
+    for log in succ_stats:
+        # log['time'] = parser.parse(log['time']+'0')
+        log['time'] = time.mktime(time.strptime(log['time']+ ':00', '%Y-%m-%d %H:%M:%S')) * 1000
+        log['value'] = float(log['value'])
+
+    sql = '''select substr(create_time, 1, 16) as time, fail as value
+        from grab_statistics where tid = %s and create_time between %s and %s
+            order by time
+    '''
+    print sql, tid, begin.strftime('%Y-%m-%d %H:%M:%S'), end.strftime('%Y-%m-%d %H:%M:%S')
+    fail_stats = dbpc.handler.queryAll(sql, (tid, begin, end))
+    for log in fail_stats:
+        # log['time'] = parser.parse(log['time']+'0')
+        log['time'] = time.mktime(time.strptime(log['time']+ ':00', '%Y-%m-%d %H:%M:%S')) * 1000
+        log['value'] = float(log['value'])
+
+    sql = '''select substr(create_time, 1, 16) as time, timeout as value
+        from grab_statistics where tid = %s and create_time between %s and %s
+            order by time
+    '''
+    print sql, tid, begin.strftime('%Y-%m-%d %H:%M:%S'), end.strftime('%Y-%m-%d %H:%M:%S')
+    timeout_stats = dbpc.handler.queryAll(sql, (tid, begin, end))
+    for log in timeout_stats:
+        # log['time'] = parser.parse(log['time']+'0')
+        log['time'] = time.mktime(time.strptime(log['time']+ ':00', '%Y-%m-%d %H:%M:%S')) * 1000
+        log['value'] = float(log['value'])
+
+    chart = dict(
+        title='a',
+        subtitle='b',
+        ytitle='c',
+    )
+    dataset=[
+        {'name':'succ', 'stats':succ_stats, 'color':'green'},
+        {'name':'fail', 'stats':fail_stats, 'color':'blue'},
+        {'name':'timeout', 'stats':timeout_stats, 'color':'red'},
+    ]
+    return render_template("mtaskdetail.html", dataset=dataset, request=request, chart=chart, unit='', begin=begin, end=end)
 
 @monitor.route('/task/change/<tid>', methods=['POST'])
 @withMysql(WDB, resutype='DICT', autocommit=True)
