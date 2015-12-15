@@ -45,7 +45,7 @@ def cached(func):
     return decorator
 
 app = Flask(__name__, static_folder='static', static_path='/gds/static', template_folder='templates')
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://hotel2:hotel0115@58.83.130.112:3306/hotel20'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://hotel2:hotel0115@localhost:3306/hotel20'
 # db = SQLAlchemy(app)
 # g['db'] = db
 app.register_blueprint(admin, url_prefix='/gds/a')

@@ -326,7 +326,8 @@ class Workflows(object):
         if worktype == 'COROUTINE':
             monkey.patch_all(Event=True)
             gid = threading._get_ident()
-            threading._active[gid] = threading._active[MTID]
+            # threading._active[gid] = threading._active[MTID]
+            print 'gid==----', gid
             PriorjoinQueue = GPriorjoinQueue
         else:
             PriorjoinQueue = TPriorjoinQueue
@@ -514,7 +515,8 @@ class Workflows(object):
         self.queue.join()
 
     def __del__(self):
-        del threading._active[MTID]
+        pass
+        # del threading._active[MTID]
 
 if __name__ == '__main__':
     pass

@@ -2,6 +2,7 @@
 #!/usr/bin/python
 # coding=utf-8
 from task.hotel.spiderRujia import SpiderHomeinns
+# from task.hotel.spiderHanting import SpiderHomeinns
 
 if __name__ == '__main__':
     spider = SpiderHomeinns(worknum=6, queuetype='P', worktype='COROUTINE')

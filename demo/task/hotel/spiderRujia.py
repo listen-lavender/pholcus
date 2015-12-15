@@ -8,7 +8,6 @@ from webcrawl.handleRequest import requGet
 from webcrawl.handleRequest import requPost
 from webcrawl.handleRequest import getHtmlNodeContent
 from webcrawl.handleRequest import getXmlNodeContent
-from task.config.db.mysql import _DBCONN as mysql
 from webcrawl.work import retry
 from webcrawl.work import index
 from webcrawl.work import initflow
@@ -18,8 +17,9 @@ from webcrawl.work import timelimit
 from webcrawl.work import next
 from webcrawl.handleRequest import ensureurl
 from webcrawl.handleRequest import parturl
-from datakit.mysql.suit import withMysql
 from hotelspider import Data
+from hotelspider import withDB
+from hotelspider import DBCONN
 from hotelspider import SpiderHotelOrigin
 
 class SpiderHomeinns(SpiderHotelOrigin):
@@ -30,7 +30,7 @@ class SpiderHomeinns(SpiderHotelOrigin):
         self.clsname = self.__class__.__name__
 
     @timelimit(30)
-    @store(update=True, method="MANY", way=Data.insert, db=withMysql(mysql['use']['wdb']))
+    @store(update=True, method="MANY", way=Data.insert, db=withDB(DBCONN['use']['wdb']))
     def fetchWWWHotelone(self, url):
         rqp = parturl(url=url)
         hotel = requGet(url=url, format="HTML", timeout=TIMEOUT)
@@ -65,7 +65,7 @@ class SpiderHomeinns(SpiderHotelOrigin):
         print url
         result = requGet(url=url, timeout=TIMEOUT, format="HTML")
         citys = result.findall(".//ul[@class='ml_order_link']//a")
-        for one in citys:
+        for one in citys[:5]:
             city = getHtmlNodeContent(one, {'ATTR':'href'})
             city = ensureurl(refurl=url, objurl=city)
             print city
