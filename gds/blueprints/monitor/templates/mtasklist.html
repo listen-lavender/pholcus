@@ -9,7 +9,7 @@
             $('#task_' + id).dropdown({
                 action: function(value, text) {
                     $('#task_' + id + ' input[type="hidden"]').val(text);
-                    $('#task_' + id + ' .text').text(value);;
+                    $('#task_' + id + ' .text').text(value);
                     $.ajax({
                         url:'/gds/m/task/change/'+$('#task_' + id + ' span[name="tid"]').text(),
                         type:'post',
@@ -23,6 +23,10 @@
                             $("#task_" + id).removeClass("visible");
                             $("#task_" + id + " div[data-value='"+text+"']").addClass("active");
                             $("#task_" + id + " div[data-value='"+text+"']").addClass("selected");
+                            if(text == '0')
+                                $("#status_"+id).text("stopped");
+                            else
+                                $("#status_"+id).text("started");
                         },
                         error:function(XMLHttpRequest, status, thrown){
                             ;
@@ -38,34 +42,46 @@
         <div class="ui large header">任务</div>
     </div>
     <div>
-        <a href="detail" class="ui button">新建任务</a>
+        <a href="/gds/p/task/detail" class="ui button">新建任务</a>
     </div>
     <ul class="ui list" style="margin-left: 5%;">
     {% for one in tasks %}
-        <li><a href="detail/{{one['id']}}"><span>{{one['task_name']}}</span></a><span>{{one['status_desc']}}</span><span>管理任务:&nbsp;&nbsp;</span>
-        <div id="task_{{loop.index}}" class="ui selection dropdown" tabindex="0">
-            <span name="tid" style="display:none;">{{one['id']}}</span>
-            {% if one['status'] == 0 %}
-                <input type="hidden" value="0">
-            {% else %}
-                <input type="hidden" value="1">
+        <li>
+            <span>{{one['task_name']}}</span>
+            <a href="time/detail/{{one['id']}}"><span style="margin-left:20px;">耗时统计</span></a>
+            <a href="count/detail/{{one['id']}}"><span style="margin-left:20px;">数量统计</span></a>
+            <a href="data/{{one['id']}}"><span style="margin-left:20px;">查看数据</span></a>
+            <span style="margin-left:20px;">最大抓取量-{{one['max']}}</span>
+            <span id="status_{{loop.index}}" style="margin-left:20px;">{{one['status_desc']}}</span>
+            {% if one['status'] == 0 or one['status'] == 1 %}
+                <span style="margin-left:20px;">管理任务:&nbsp;&nbsp;</span>
+                <div id="task_{{loop.index}}" class="ui selection dropdown" tabindex="0">
+                    <span name="tid" style="display:none;">{{one['id']}}</span>
+                    {% if one['status'] == 0 %}
+                        <input type="hidden" value="0">
+                    {% else %}
+                        <input type="hidden" value="1">
+                    {% endif %}
+                    <i class="dropdown icon"></i>
+                    <div class="default text">
+                        {% if one['status'] == 0 %}
+                            关闭
+                        {% else %}
+                            启动
+                        {% endif %}
+                    </div>
+                    <div class="menu">
+                        <div class="item" data-value="0">关闭</div>
+                        <div class="item" data-value="1">启动</div>
+                    </div>
+                </div>
             {% endif %}
-            <i class="dropdown icon"></i>
-            <div class="default text">
-                {% if one['status'] == 0 %}
-                    关闭
-                {% else %}
-                    启动
-                {% endif %}
-            </div>
-            <div class="menu">
-                <div class="item" data-value="0">关闭</div>
-                <div class="item" data-value="1">启动</div>
-            </div>
-        </div></li>
-        <script type="text/javascript">
-            dropdown({{loop.index}});
-        </script>
+        </li>
+        {% if one['status'] == 0 or one['status'] == 1 %}
+            <script type="text/javascript">
+                dropdown({{loop.index}});
+            </script>
+        {% endif %}
     {% endfor %}
     </ul>
     <div class="ui page grid" style="text-align: center; margin-bottom: 150px; margin-top: 50px;">

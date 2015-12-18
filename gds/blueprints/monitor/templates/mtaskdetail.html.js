@@ -50,7 +50,6 @@ function loadGraph() {
                 point: {
                     events: {
                         click: function() {
-                            alert('abc');
                             // var query = {
                             //     dtype:this.series.name,
                             //     service:document.getElementById('service').value,
