@@ -19,6 +19,7 @@ _DBCONN = {"host": "127.0.0.1",
                 "use_unicode":False
             }
 
+
 def initDB():
     dbpc.addDB(RDB, LIMIT, host=_DBCONN['host'],
                 port=_DBCONN['port'],
@@ -96,7 +97,7 @@ _DBCONN = {"local":{"host": "127.0.0.1",
                 "port": 3306,
                 "user": "root",
                 "passwd": "",
-                "db": "kuaijie",
+                "db": "dandan-jiang",
                 "charset": "utf8",
                 "use_unicode":False,},
             "use":{
@@ -158,16 +159,47 @@ def initModel():
     fi.close()
 
 @withMysql(WDB, resutype='DICT', autocommit=True)
+def setModel(filepath):
+    print filepath
+    fi = open(filepath, 'r')
+    data = fi.read()
+    fi.close()
+    for txt in data.split('@'):
+        if 'comment(' in txt:
+            comment = None
+            model = None
+            for line in txt.split('\n'):
+                if 'comment' in line:
+                    info = line.replace('(', '').replace(')', '').split("'")
+                    comment = info[1]
+                if 'class' in line:
+                    info = line.replace('(', ' ').replace(')', '').replace(',', '').split(' ')
+                    model = info[1].lower()
+                    break
+            if model is not None:
+                if dbpc.handler.queryOne(""" select * from grab_datamodel where name = %s """, (model,)):
+                    continue
+                dbpc.handler.insert("""insert into grab_datamodel(`name`, `table`, `comment`, `autocreate`, `iscreated`, `status`, `extra`, `creator`, `updator`, `create_time`)
+                                                           values(    %s,      %s,        %s,           1,      1,   1, null, 0, 0, now()) """, (model, model, comment))
+
+@withMysql(WDB, resutype='DICT', autocommit=True)
 def setUnit(filepath, comment):
     name = filepath[filepath.rindex('/')+1:].replace('spider.py', '')
     u = dbpc.handler.queryOne(""" select * from grab_unit where `name` = %s """, (name, ))
     if u is None:
-        dmid = 0
+        dmid = None
+        fi = open(filepath, 'r')
+        for one in fi.readlines():
+            if 'as Data' in one:
+                model = one.replace('as Data', '').split('import')[-1].strip().lower()
+                dmid = dbpc.handler.queryOne(""" select id from grab_datamodel where name = %s """, (model,)).get('id')
+                break
+        fi.close()
         dirpath = name + '/'
         filepath = filepath[filepath.rindex('/')+1:]
         extra = comment
         create_time = datetime.datetime.now()
-        dbpc.handler.insert(""" insert into grab_unit(`name`, `dirpath`, `filepath`, `extra`, `create_time`) values(%s, %s, %s, %s, %s) """, (name, dirpath, filepath, extra, create_time))
+        dbpc.handler.insert(""" insert into grab_unit(`dmid`, `name`, `dirpath`, `filepath`, `extra`, `creator`, `updator`, `create_time`) values(%s, %s, %s, %s, %s, 0, 0, now()) """, (dmid, name, dirpath, filepath, extra))
         print 'Unit is set successfully.'
     else:
         print 'Unit has been set.'
@@ -182,16 +214,23 @@ def setArticle(filepath, pinyin, host):
     if u is None:
         print 'Please set unit firstly.'
     else:
-        name = host.split('.')[1]
+        name = host.split('.')
+        if len(name) > 2:
+            name = name[1]
+        else:
+            name = name[0]
         article = dbpc.handler.queryOne(""" select * from grab_article where `name` = %s and uid = %s """, (name, u['id']))
         sections = []
         flow = ''
         fi = open(filepath, 'r')
+        flag = False
         for line in fi.readlines():
-            if 'def ' in line and not '__init__' in line:
-                sections.append(line.replace('\n', '').replace('  ', ''))
             if '@' in line and not 'find' in line and not 'findall' in line:
                 sections.append(line.replace('\n', '').replace('  ', ''))
+                flag = True
+            if 'def ' in line and flag:
+                sections.append(line.replace('\n', '').replace('  ', ''))
+                flag = False
             if 'initflow' in line:
                 flow = line.replace('\n', '').replace('  ', '').replace('@initflow(', '').replace(')', '').replace('"', '').replace("'", '')
         fi.close()

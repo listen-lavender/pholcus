@@ -1,11 +1,13 @@
 #!/usr/bin/python
 # coding=utf-8
 import time, datetime
-import sys
+import sys, json
+import random
 import traceback
 
 from datakit.mysql.suit import withMysql, dbpc
 from hawkeye import initDB
+from webcrawl.handleRequest import PROXY
 import task
 
 WDB = 'local'
@@ -13,7 +15,29 @@ RDB = 'local'
 initDB()
 
 @withMysql(WDB, resutype='DICT', autocommit=True)
-def log(tid, succ, fail, timeout, elapse=None, sname=None, create_time=None):
+def choose():
+    limit = datetime.datetime.now() - datetime.timedelta(days=3)
+    # proxys = dbpc.handler.queryAll(""" select * from grab_proxy where usespeed < 1 and update_time > '2015-12-15 01:11:00' order by usespeed asc, refspeed asc limit 200; """)
+    proxys = dbpc.handler.queryAll(""" select * from grab_proxy where usespeed < 1 and update_time > '2015-12-15 01:11:00' order by update_time desc; """)
+    # return random.choice(proxys)
+    return proxys[0]
+
+@withMysql(WDB, resutype='DICT', autocommit=True)
+def log(pid, elapse):
+    create_time = datetime.datetime.now()
+    dbpc.handler.insert(""" insert into grab_proxy_log(`pid`, `elapse`, `create_time`)values(%s, %s, %s) """, (pid, elapse, create_time))
+    proxy = dbpc.handler.queryOne(""" select * from grab_proxy_log where id = %s """, (pid, ))
+    proxy['usespeed'] = (proxy['usespeed'] * proxy['usenum'] + elapse)/float(proxy['usenum']+1)
+    proxy['usenum'] = proxy['usenum'] + 1
+    dbpc.handler.update(""" update grab_proxy_log set usespeed = %s, usenum = %s, update_time=now() where id = %s """, (usespeed, usenum, pid))
+
+# PROXY.use = True
+# PROXY.choose = choose
+# PROXY.log = log
+# PROXY.worker.start()
+
+@withMysql(WDB, resutype='DICT', autocommit=True)
+def record(tid, succ, fail, timeout, elapse=None, sname=None, create_time=None):
     create_time = create_time or datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     if sname is None:
         dbpc.handler.insert(""" insert into grab_statistics(`tid`,`succ`,`fail`,`timeout`,`elapse`,`create_time`)
@@ -35,24 +59,31 @@ def changestate(tid, status, extra=None):
 
 def task():
     while True:
-        for t in schedule():
-            md = __import__('task.%s.%s' % (t['u'], t['filepath'].replace('.py', '')), fromlist=['task.%s' % t['u']])
-            cls = getattr(md, 'Spider%s' % t['a'].capitalize())
+        for task in schedule():
+            md = __import__('task.%s.%s' % (task['u'], task['filepath'].replace('.py', '')), fromlist=['task.%s' % task['u']])
+            cls = getattr(md, 'Spider%s' % task['a'].capitalize())
             try:
-                changestate(t['id'], 2)
-                spider = cls(worknum=int(t['worknum']), queuetype=t['queuetype'], worktype=t['worktype'], tid=int(t['id']))
-                spider.fetchDatas(t['flow'], t['params'])
+                changestate(task['id'], 2)
+                spider = cls(worknum=int(task['worknum']), queuetype=task['queuetype'], worktype=task['worktype'], tid=int(task['id']))
+                if '{' in task['params']:
+                    spider.fetchDatas(task['flow'], **json.loads(task['params']))
+                elif '(' in task['params']:
+                    spider.fetchDatas(task['flow'], *tuple(task['params'][1:-1].split(',')))
+                else:
+                    spider.fetchDatas(task['flow'], task['params'])
                 spider.statistic()
-                changestate(t['id'], 1)
+                changestate(task['id'], 1)
             except:
                 t, v, b = sys.exc_info()
                 err_messages = traceback.format_exception(t, v, b)
                 extra = ','.join(err_messages)
-                changestate(t['id'], 3, extra=extra)
-            gsid = log(t['id'], spider.stat['total']['succ'], spider.stat['total']['fail'], spider.stat['total']['timeout'], spider.totaltime)
+                print extra
+                changestate(task['id'], 3, extra=extra)
+            print dir(spider)
+            gsid = record(task['id'], spider.stat['total']['succ'], spider.stat['total']['fail'], spider.stat['total']['timeout'], spider.totaltime)
             for name in spider.stat.keys():
                 if not name == 'total':
-                    log(gsid, spider.stat[name]['succ'], spider.stat[name]['fail'], spider.stat[name]['timeout'], sname=name.lower().replace('fetch', '').replace(t['flow'], ''))
+                    record(gsid, spider.stat[name]['succ'], spider.stat[name]['fail'], spider.stat[name]['timeout'], sname=name.lower().replace('fetch', '').replace(task['flow'], ''))
         time.sleep(60)
 
 if __name__ == '__main__':

@@ -1,0 +1,96 @@
+Exception in thread Thread-9:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/work.py", line 316, in run
+    geventwork(self.__workqueue)
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/work.py", line 293, in geventwork
+    workqueue.task_done()
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/queue.py", line 153, in task_done
+    raise ValueError('task_done() called too many times')
+ValueError: task_done() called too many times
+
+Exception in thread Thread-12:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/work.py", line 316, in run
+    geventwork(self.__workqueue)
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/work.py", line 293, in geventwork
+    workqueue.task_done()
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/queue.py", line 153, in task_done
+    raise ValueError('task_done() called too many times')
+ValueError: task_done() called too many times
+
+Exception in thread Thread-13:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/work.py", line 316, in run
+    geventwork(self.__workqueue)
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/work.py", line 293, in geventwork
+    workqueue.task_done()
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/queue.py", line 153, in task_done
+    raise ValueError('task_done() called too many times')
+ValueError: task_done() called too many times
+
+Exception in thread Thread-10:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/work.py", line 316, in run
+    geventwork(self.__workqueue)
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/work.py", line 293, in geventwork
+    workqueue.task_done()
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/queue.py", line 153, in task_done
+    raise ValueError('task_done() called too many times')
+ValueError: task_done() called too many times
+
+Exception in thread Thread-15:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/work.py", line 316, in run
+    geventwork(self.__workqueue)
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/work.py", line 293, in geventwork
+    workqueue.task_done()
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/queue.py", line 153, in task_done
+    raise ValueError('task_done() called too many times')
+ValueError: task_done() called too many times
+
+Exception in thread Thread-11:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/work.py", line 316, in run
+    geventwork(self.__workqueue)
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/work.py", line 293, in geventwork
+    workqueue.task_done()
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/queue.py", line 153, in task_done
+    raise ValueError('task_done() called too many times')
+ValueError: task_done() called too many times
+
+Exception in thread Thread-8:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/work.py", line 316, in run
+    geventwork(self.__workqueue)
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/work.py", line 293, in geventwork
+    workqueue.task_done()
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/queue.py", line 153, in task_done
+    raise ValueError('task_done() called too many times')
+ValueError: task_done() called too many times
+
+Exception in thread Thread-4:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/work.py", line 316, in run
+    geventwork(self.__workqueue)
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/work.py", line 293, in geventwork
+    workqueue.task_done()
+  File "/Users/haokuan/workspace/wecatch/wecatch-test/lib/python2.7/site-packages/webcrawl-0.0.5-py2.7.egg/webcrawl/queue.py", line 153, in task_done
+    raise ValueError('task_done() called too many times')
+ValueError: task_done() called too many times
+
