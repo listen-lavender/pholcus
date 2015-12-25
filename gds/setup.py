@@ -7,7 +7,6 @@
 from setuptools import setup, find_packages
 
 requires = [
-    'datakit',
     'flask-script',
     'flask-sqlalchemy',
     'datakit',
