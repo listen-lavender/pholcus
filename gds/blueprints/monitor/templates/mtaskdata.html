@@ -25,7 +25,11 @@
             {% for row in rows %}
                 <tr>
                     {% for col in columns %}
-                        <td style="padding-right:10px;">{{row[col]}}</td>
+                        {% if row[col] is string and row[col].startswith('http') %}
+                            <td style="padding-right:10px;"><a href="{{row[col]}}">{{row[col]}}</a></td>
+                        {% else %}
+                            <td style="padding-right:10px;">{{row[col]}}</td>
+                        {% endif %}
                     {% endfor %}
                 </tr>
             {% endfor %}
