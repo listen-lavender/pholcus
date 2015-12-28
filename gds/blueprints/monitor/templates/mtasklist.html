@@ -21,6 +21,7 @@
                             $("#task_" + id + " .menu").addClass("hidden");
                             $("#task_" + id).removeClass("active");
                             $("#task_" + id).removeClass("visible");
+                            $("#task_" + id + " div[data-value='"+(parseInt(text) + 1)%2+"']").removeClass("selected");
                             $("#task_" + id + " div[data-value='"+text+"']").addClass("active");
                             $("#task_" + id + " div[data-value='"+text+"']").addClass("selected");
                             if(text == '0')
