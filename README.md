@@ -32,4 +32,4 @@ Client of pholcus.
 
 ## Discussion and support
 
-Report bugs on the *GitHub issue tracker <https://github.com/UniqueHK/pholcus/issues*. 
+Report bugs on the *GitHub issue tracker <https://github.com/listen-lavender/pholcus/issues*. 
