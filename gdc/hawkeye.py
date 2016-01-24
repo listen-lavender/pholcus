@@ -240,12 +240,12 @@ def setArticle(filepath, pinyin, host):
             article = dbpc.handler.queryOne(""" select * from grab_article where `name` = %s and uid = %s """, (name, u['id']))
             section = {}
             flow = ''
-            for one in sections:
+            for index, one in enumerate(sections):
                 if 'next' in one:
                     if flows[0] in one.lower():
                         flow = flows[0]
                         flows.remove(flows[0])
-                    section['next_id'] = dbpc.handler.queryOne(""" select id from grab_section where `name` = %s and aid = %s """, (one.replace('@next(', '').replace(')', '').lower().replace(flow, '').replace('fetch', ''), article['id']))['id']
+                    section['next_id'] = dbpc.handler.queryOne(""" select id from grab_section where `name` = %s and aid = %s """, (one.replace('@next(', '').replace(')', ''), article['id']))['id']
                 if 'index' in one:
                     section['index'] = one.replace('@index(', '').replace(')', '')
                 if 'retry' in one:
@@ -258,20 +258,21 @@ def setArticle(filepath, pinyin, host):
                     if flows and flows[0] in one.lower():
                         flow = flows[0]
                         flows.remove(flows[0])
-                    section_name = one.lower().replace('def ', '').replace('fetch', '').replace(flow.lower(), '').split('(')[0]
-                    dbpc.handler.insert(""" insert into grab_section(`aid`,`next_id`,`name`,`flow`,`index`,`retry`,`timelimit`,`store`,`distribute`,`creator`,`updator`,`create_time`)
-                    values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) """, (article['id'], section.get('next_id'), section_name, flow, section.get('index'), section.get('retry', 0), section.get('timelimit', 30), section.get('store', 0), 'SN', 0, 0, datetime.datetime.now()))
+                    section_name = one.replace('def ', '').split('(')[0]
+                    step = len(sections) - index
+                    dbpc.handler.insert(""" insert into grab_section(`aid`,`next_id`,`name`,`flow`,`step`,`index`,`retry`,`timelimit`,`store`,`distribute`,`creator`,`updator`,`create_time`)
+                    values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) """, (article['id'], section.get('next_id'), section_name, flow, step, section.get('index'), section.get('retry', 0), section.get('timelimit', 30), section.get('store', 0), 'SN', 0, 0, datetime.datetime.now()))
                     section = {}
             print 'Article is set successfully.'
         else:
             section = {}
             flow = ''
-            for one in sections:
+            for index, one in enumerate(sections):
                 if 'next' in one:
                     if flows and flows[0] in one.lower():
                         flow = flows[0]
                         flows.remove(flows[0])
-                    section['next_id'] = dbpc.handler.queryOne(""" select id from grab_section where `name` = %s and aid = %s and flow = %s limit 1 """, (one.replace('@next(', '').replace(')', '').lower().replace(flow, '').replace('fetch', ''), article['id'], flow))['id']
+                    section['next_id'] = dbpc.handler.queryOne(""" select id from grab_section where `name` = %s and aid = %s and flow = %s limit 1 """, (one.replace('@next(', '').replace(')', ''), article['id'], flow))['id']
                 if 'index' in one:
                     section['index'] = one.replace('@index(', '').replace(')', '')
                 if 'retry' in one:
@@ -284,10 +285,11 @@ def setArticle(filepath, pinyin, host):
                     if flows and flows[0] in one.lower():
                         flow = flows[0]
                         flows.remove(flows[0])
-                    section_name = one.lower().replace('def ', '').replace('fetch', '').replace(flow.lower(), '').split('(')[0]
+                    section_name = one.replace('def ', '').split('(')[0]
+                    step = len(sections) - index
                     if dbpc.handler.queryOne(""" select * from grab_section where `name` = %s and aid = %s and flow = %s limit 1 """, (section_name, article['id'], flow)) is None:
-                        dbpc.handler.insert(""" insert into grab_section(`aid`,`next_id`,`name`,`flow`,`index`,`retry`,`timelimit`,`store`,`distribute`,`creator`,`updator`,`create_time`)
-                        values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) """, (article['id'], section.get('next_id'), section_name, flow, section.get('index'), section.get('retry', 0), section.get('timelimit', 30), section.get('store', 0), 'SN', 0, 0, datetime.datetime.now()))
+                        dbpc.handler.insert(""" insert into grab_section(`aid`,`next_id`,`name`,`flow`,`step`,`index`,`retry`,`timelimit`,`store`,`distribute`,`creator`,`updator`,`create_time`)
+                        values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) """, (article['id'], section.get('next_id'), section_name, flow, step, section.get('index'), section.get('retry', 0), section.get('timelimit', 30), section.get('store', 0), 'SN', 0, 0, datetime.datetime.now()))
                     section = {}
             print 'Article has been set.'
 

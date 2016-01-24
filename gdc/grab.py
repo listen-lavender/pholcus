@@ -50,16 +50,16 @@ def record(tid, succ, fail, timeout, elapse=None, sname=None, create_time=None):
 
 @withMysql(WDB, resutype='DICT', autocommit=True)
 def schedule():
-    return dbpc.handler.queryAll(""" select gt.id, gt.aid, gt.sid, gt.flow, gt.params, gt.worknum, gt.queuetype, gt.worktype, gt.timeout, ga.name as a, ga.filepath, gu.name as u, gt.update_time from grab_task gt join grab_article ga join grab_unit gu on gt.aid = ga.id and ga.uid = gu.id and gt.status > 0; """)
+    return dbpc.handler.queryAll(""" select gt.id, gt.type, gt.period, gt.aid, gt.sid, gt.flow, gs.step, gt.params, gt.worknum, gt.queuetype, gt.worktype, gt.timeout, ga.name as a, ga.filepath, gu.name as u, gt.update_time from grab_task gt join grab_section gs on gt.sid = gs.id join grab_article ga on gt.aid = ga.id join grab_unit gu on ga.uid = gu.id where gt.status > 0; """)
 
 @withMysql(WDB, resutype='DICT', autocommit=True)
 def changestate(tid, status, extra=None):
     return dbpc.handler.update(""" update grab_task set `status`=%s where id = %s; """, (status, tid))
 
 def task():
-    workflow = Workflows(20, 'R', 'THREAD')
+    workflow = Workflows(6, 'R', 'THREAD')
     workflow.start()
-    load_spider = {}
+    local_spider = {}
     while True:
         for task in schedule():
             module_name = 'task.%s.%s' % (task['u'], task['filepath'].replace('.py', ''))
@@ -69,32 +69,38 @@ def task():
                 module = __import__(module_name, fromlist=['task.%s' % task['u']])
                 cls = getattr(module, cls_name)
                 spider = cls(worknum=int(task['worknum']), queuetype=task['queuetype'], worktype=task['worktype'], tid=int(task['id']))
-                local_spider.set(cls_name, spider)
+                local_spider[cls_name] = spider
             try:
                 changestate(task['id'], 2)
-                if task.get('type', 'forever') == 'forever':
+                step = task.get('step', 1) - 1
+                if task.get('type', 'FOREVER') == 'FOREVER':
                     span = ((datetime.datetime.now() - task['update_time']).seconds)/3600
                     if span < task.get('period', 12):
+                        print '------0', span
                         continue
                     weight = spider.weight(task['flow'], once=True)
-                    section = spider.section(task['flow'], task.get('step', 0))
+                    section = spider.section(task['flow'], step)
                     if task['params'] is None or task['params'].strip() == '':
-                        workflow.task(weight, task['flow'], task.get('step', 0))
+                        print '-----1'
+                        workflow.task(weight, section)
                     elif task['params'].startswith('{'):
-                        workflow.task(weight, task['flow'], task.get('step', 0), **json.loads(task['params']))
+                        print '-----2'
+                        workflow.task(weight, section, **json.loads(task['params']))
                     elif task['params'].startswith('('):
-                        workflow.task(weight, task['flow'], task.get('step', 0), *tuple(task['params'][1:-1].split(',')))
+                        print '-----3'
+                        workflow.task(weight, section, *tuple(task['params'][1:-1].split(',')))
                     else:
-                        workflow.task(weight, task['flow'], task.get('step', 0), task['params'])
+                        print '-----4'
+                        workflow.task(weight, section, task['params'])
                 else:
                     if task['params'] is None or task['params'].strip() == '':
-                        spider.fetchDatas(task['flow'], task.get('step', 0))
+                        spider.fetchDatas(task['flow'], step)
                     elif task['params'].startswith('{'):
-                        spider.fetchDatas(task['flow'], task.get('step', 0), **json.loads(task['params']))
+                        spider.fetchDatas(task['flow'], step, **json.loads(task['params']))
                     elif task['params'].startswith('('):
-                        spider.fetchDatas(task['flow'], task.get('step', 0), *tuple(task['params'][1:-1].split(',')))
+                        spider.fetchDatas(task['flow'], step, *tuple(task['params'][1:-1].split(',')))
                     else:
-                        spider.fetchDatas(task['flow'], task.get('step', 0), task['params'])
+                        spider.fetchDatas(task['flow'], step, task['params'])
                     spider.statistic()
                     changestate(task['id'], 0)
             except:
@@ -104,10 +110,11 @@ def task():
                 print extra
                 changestate(task['id'], 3, extra=extra)
             else:
-                gsid = record(task['id'], spider.stat['total']['succ'], spider.stat['total']['fail'], spider.stat['total']['timeout'], spider.totaltime)
-                for name in spider.stat.keys():
-                    if not name == 'total':
-                        record(gsid, spider.stat[name]['succ'], spider.stat[name]['fail'], spider.stat[name]['timeout'], sname=name.lower().replace('fetch', '').replace(task['flow'], ''))
+                pass
+                # gsid = record(task['id'], spider.stat['total']['succ'], spider.stat['total']['fail'], spider.stat['total']['timeout'], spider.totaltime)
+                # for name in spider.stat.keys():
+                #     if not name == 'total':
+                #         record(gsid, spider.stat[name]['succ'], spider.stat[name]['fail'], spider.stat[name]['timeout'], sname=name.lower().replace('fetch', '').replace(task['flow'], ''))
         time.sleep(60)
 
 if __name__ == '__main__':
