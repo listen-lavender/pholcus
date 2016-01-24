@@ -13,7 +13,7 @@ create table `grab_config` (
   `update_time` timestamp not null default current_timestamp on update current_timestamp comment '更新时间',
   primary key (`id`),
   unique key `name` (`type`,`name`,`key`)
-) engine=innodb auto_increment=11 default charset=utf8 comment='配置文件信息表';
+) engine=innodb auto_increment=0 default charset=utf8 comment='配置文件信息表';
 
 create table `grab_waycon` (
   `id` int(11) not null auto_increment,
@@ -200,6 +200,8 @@ create table `grab_dataitem` (
 
 create table `grab_task` (
   `id` int(11) not null auto_increment,
+  `type` varchar(8) default 'once' comment '任务类型，forever周期，once一次',
+  `period` int(4) not null default '12' comment 'forever任务周期，单位小时，默认12小时',
   `aid` int(11) not null comment '工作篇id',
   `sid` int(11) not null comment '起始工作段id',
   `name` varchar(50) not null default '' comment '任务名称',
@@ -220,7 +222,7 @@ create table `grab_task` (
   `update_time` timestamp not null default current_timestamp on update current_timestamp comment '更新时间',
   primary key (`id`),
   unique key `task` (`aid`,`sid`)
-) engine=innodb auto_increment=3 default charset=utf8 comment='抓取任务表';
+) engine=innodb auto_increment=4 default charset=utf8 comment='抓取任务表';
 
 create table `grab_statistics` (
   `id` int(11) not null auto_increment,
