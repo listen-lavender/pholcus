@@ -77,10 +77,10 @@ def task():
                 if spider is None:
                     module = __import__(module_name, fromlist=['task.%s' % task['u']])
                     cls = getattr(module, cls_name)
-                    spider = cls(worknum=int(task['worknum']), queuetype=task['queuetype'], worktype='R', tid=int(task['id']))
+                    spider = cls(worknum=int(task['worknum']), queuetype='R', worktype='THREAD', tid=int(task['id']))
                     local_spider[cls_name] = spider
             else:
-                spider = cls(worknum=int(task['worknum']), queuetype=task['queuetype'], worktype='P', tid=int(task['id']))
+                spider = cls(worknum=int(task['worknum']), queuetype='P', worktype='THREAD', tid=int(task['id']))
             try:
                 changestate(task['id'], 2)
                 step = task.get('step', 1) - 1
