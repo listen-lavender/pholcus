@@ -61,7 +61,7 @@ def schedule():
 
 @withMysql(WDB, resutype='DICT', autocommit=True)
 def changestate(tid, status, extra=None):
-    return dbpc.handler.update(""" update grab_task set `status`=%s where id = %s; """, (status, tid))
+    return dbpc.handler.update(""" update grab_task set `status`=%s, `update_time`=now() where id = %s; """, (status, tid))
 
 def task():
     workflow = Workflows(6, 'R', 'THREAD')
