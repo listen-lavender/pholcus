@@ -18,8 +18,9 @@ def tasklist():
     if total == 0:
         total = dbpc.handler.queryOne(""" select count(gt.id) as total from grab_task gt; """)['total']
     count = (total - 1)/pagetotal + 1
-    tasks = dbpc.handler.queryAll(""" select gt.id, gt.name as task_name, gt.status from grab_task gt order by gt.update_time desc limit %s, %s; """, ((page-1)*pagetotal, pagetotal))
+    tasks = dbpc.handler.queryAll(""" select gt.id, gt.name as task_name, gt.type, gt.status from grab_task gt order by gt.update_time desc limit %s, %s; """, ((page-1)*pagetotal, pagetotal))
     for one in tasks:
+        one['change'] = (one['status'] in (0, 1, 2) and one['type'] == 'FOREVER') or (one['status'] in (0, 1) and one['type'] == 'ONCE')
         one['status_desc'] = STATDESC.get(one['status'], '')
         one['max'] = (dbpc.handler.queryOne(""" select max(succ) as succ from grab_statistics where tid = %s; """, (one['id'], )) or {'succ':0})['succ']
     return render_template('mtasklist.html', tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)

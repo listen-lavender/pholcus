@@ -48,13 +48,14 @@
     <ul class="ui list" style="margin-left: 5%;">
     {% for one in tasks %}
         <li>
+            <span>{{one['type']}}</span>
             <span>{{one['task_name']}}</span>
             <a href="time/detail/{{one['id']}}"><span style="margin-left:20px;">耗时统计</span></a>
             <a href="count/detail/{{one['id']}}"><span style="margin-left:20px;">数量统计</span></a>
             <a href="data/{{one['id']}}"><span style="margin-left:20px;">查看数据</span></a>
             <span style="margin-left:20px;">最大抓取量-{{one['max']}}</span>
             <span id="status_{{loop.index}}" style="margin-left:20px;">{{one['status_desc']}}</span>
-            {% if one['status'] == 0 or one['status'] == 1 %}
+            {% if one['change'] %}
                 <span style="margin-left:20px;">管理任务:&nbsp;&nbsp;</span>
                 <div id="task_{{loop.index}}" class="ui selection dropdown" tabindex="0">
                     <span name="tid" style="display:none;">{{one['id']}}</span>
@@ -78,7 +79,7 @@
                 </div>
             {% endif %}
         </li>
-        {% if one['status'] == 0 or one['status'] == 1 %}
+        {% if one['change'] %}
             <script type="text/javascript">
                 dropdown({{loop.index}});
             </script>
