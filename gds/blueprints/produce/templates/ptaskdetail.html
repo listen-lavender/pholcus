@@ -34,6 +34,9 @@
                 }
             });
         }
+        function clone(){
+            location.href = '/gds/p/task/detail?tid={{task["id"]}}';
+        }
         function reset(){
             $("#task_name").val("");
             $("#extra").val("");
@@ -199,6 +202,7 @@
     </div> -->
     <button class="ui primary button" onclick="save()">保存</button>
     <button class="ui button" onclick="reset()">重置</button>
+    <button class="ui button" onclick="clone()">克隆任务</button>
 {% endblock %}
 {% block postjs %}
     <script type="text/javascript">

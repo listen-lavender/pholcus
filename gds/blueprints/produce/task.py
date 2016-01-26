@@ -28,6 +28,8 @@ def tasklist():
 def taskdetail(tid=None):
     if request.method == 'GET':
         if tid is None:
+            tid = request.args.get('tid')
+        if tid is None:
             task = {'id':'', 'aid':'', 'sid':'', 'task_name':'', 'extra':'', 'type':'ONCE', 'period':0, 'flow':'', 'params':'', 'worknum':6, 'queuetype':'P', 'worktype':'THREAD', 'trace':0, 'timeout':30, 'category':'', 'tag':''}
         else:
             task = dbpc.handler.queryOne(""" select gt.id, gt.aid, concat(gc.val, gu.dirpath, ga.filepath) as article_name, gs.name as section_name, gt.sid, gt.name as task_name, gt.extra, gt.type, gt.period, gt.flow, gt.params, gt.worknum, gt.queuetype, gt.worktype, gt.trace, gt.timeout, gt.category, gt.tag from grab_task gt join grab_article ga on gt.aid = ga.id join grab_section gs  on gt.sid = gs.id join grab_unit gu on ga.uid =gu.id join grab_config gc on gc.type='ROOT' and gc.key ='dir' where gt.id = %s; """, (tid,))
