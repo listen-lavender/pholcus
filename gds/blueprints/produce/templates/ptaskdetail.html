@@ -96,16 +96,31 @@
         <div class="ui large header">任务</div>
     </div>
     <div class="ui input" style="width:100%; margin:15px 20px;">
-        <span >任务名称:&nbsp;&nbsp;</span><input id="task_name" type="text" style="width:60%;" value="{{task['task_name']}}">
+        <span >名称:&nbsp;&nbsp;</span><input id="task_name" type="text" style="width:60%;" value="{{task['task_name']}}">
     </div>
     <div class="ui input" style="width:100%; margin:15px 20px;">
-        <span>任务描述:&nbsp;&nbsp;</span><input id="extra" type="text" style="width:60%;" value="{{task['extra']|default('', true)}}">
+        <span>描述:&nbsp;&nbsp;</span><input id="extra" type="text" style="width:60%;" value="{{task['extra']|default('', true)}}">
     </div>
     <div class="ui input" style="width:100%; margin:15px 20px;">
         <span>分类:&nbsp;&nbsp;</span><input id="category" type="text" style="width:60%;" value="{{task['category']|default('', true)}}">
     </div>
     <div class="ui input" style="width:100%; margin:15px 20px;">
         <span>标签:&nbsp;&nbsp;</span><input id="tag" type="text" style="width:60%;" value="{{task['tag']|default('', true)}}">
+    </div>
+    <div class="ui input" style="width:100%; margin:15px 20px;">
+        <span>任务类型:&nbsp;&nbsp;</span>
+        <div id="tasktype" class="ui selection dropdown" tabindex="0">
+            <input type="hidden" id="type" value="{{task['type']|default('', 'ONCE')}}">
+            <i class="dropdown icon"></i>
+            <div class="default text">{{task['type']|default('', 'ONCE')}}</div>
+            <div id="tmenu" class="menu">
+                <div class="item" data-value="ONCE">ONCE</div>
+                <div class="item" data-value="FOREVER">FOREVER</div>
+            </div>
+        </div>
+    </div>
+    <div class="ui input" style="width:100%; margin:15px 20px;">
+        <span>执行间隔:&nbsp;&nbsp;</span><input id="period" type="text" style="width:60%;" value="{{task['period']|default('', true)}}">
     </div>
     <div class="ui input" style="width:100%; margin:15px 20px;">
         <span>article:&nbsp;&nbsp;</span>
@@ -140,7 +155,7 @@
     <div class="ui input" style="width:100%; margin:15px 20px;">
         <span>params:&nbsp;&nbsp;</span><input id="params" type="text" style="width:60%;" value="{{task['params']|default('', true)}}">
     </div>
-    <div class="ui input" style="width:100%; margin:15px 20px;">
+    <!-- <div class="ui input" style="width:100%; margin:15px 20px;">
         <span>worknum:&nbsp;&nbsp;</span><input id="worknum" type="text" style="width:60%;" value="{{task['worknum']}}">
     </div>
     <div class="ui input" style="width:100%; margin:15px 20px;">
@@ -181,7 +196,7 @@
                 <div class="item" data-value="1">是</div>
             </div>
         </div>
-    </div>
+    </div> -->
     <button class="ui primary button" onclick="save()">保存</button>
     <button class="ui button" onclick="reset()">重置</button>
 {% endblock %}

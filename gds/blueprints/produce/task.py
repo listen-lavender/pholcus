@@ -28,9 +28,9 @@ def tasklist():
 def taskdetail(tid=None):
     if request.method == 'GET':
         if tid is None:
-            task = {'id':'', 'aid':'', 'sid':'', 'task_name':'', 'extra':'', 'flow':'', 'params':'', 'worknum':6, 'queuetype':'P', 'worktype':'THREAD', 'trace':0, 'timeout':30, 'category':'', 'tag':''}
+            task = {'id':'', 'aid':'', 'sid':'', 'task_name':'', 'extra':'', 'type':'ONCE', 'period':0, 'flow':'', 'params':'', 'worknum':6, 'queuetype':'P', 'worktype':'THREAD', 'trace':0, 'timeout':30, 'category':'', 'tag':''}
         else:
-            task = dbpc.handler.queryOne(""" select gt.id, gt.aid, concat(gc.val, gu.dirpath, ga.filepath) as article_name, gs.name as section_name, gt.sid, gt.name as task_name, gt.extra, gt.flow, gt.params, gt.worknum, gt.queuetype, gt.worktype, gt.trace, gt.timeout, gt.category, gt.tag from grab_task gt join grab_article ga on gt.aid = ga.id join grab_section gs  on gt.sid = gs.id join grab_unit gu on ga.uid =gu.id join grab_config gc on gc.type='ROOT' and gc.key ='dir' where gt.id = %s; """, (tid,))
+            task = dbpc.handler.queryOne(""" select gt.id, gt.aid, concat(gc.val, gu.dirpath, ga.filepath) as article_name, gs.name as section_name, gt.sid, gt.name as task_name, gt.extra, gt.type, gt.period, gt.flow, gt.params, gt.worknum, gt.queuetype, gt.worktype, gt.trace, gt.timeout, gt.category, gt.tag from grab_task gt join grab_article ga on gt.aid = ga.id join grab_section gs  on gt.sid = gs.id join grab_unit gu on ga.uid =gu.id join grab_config gc on gc.type='ROOT' and gc.key ='dir' where gt.id = %s; """, (tid,))
         task['queuetype_name'] = QUEUETYPE.get(task['queuetype'], '')
         task['worktype_name'] = WORKTYPE.get(task['worktype'], '')
         task['trace_name'] = TRACE.get(task['trace'], '')
@@ -38,17 +38,24 @@ def taskdetail(tid=None):
     elif request.method == 'POST':
         task_name = request.form.get('task_name')
         extra = request.form.get('extra')
+        tasktype = request.form.get('type')
+        period = request.form.get('period')
         category = request.form.get('category')
         tag = request.form.get('tag')
         aid = request.form.get('aid')
         flow = request.form.get('flow')
         sid = request.form.get('sid')
         params = request.form.get('params')
-        timeout = request.form.get('timeout')
-        worknum = request.form.get('worknum')
-        queuetype = request.form.get('queuetype')
-        worktype = request.form.get('worktype')
-        trace = request.form.get('trace')
+        timeout = request.form.get('timeout', 30)
+        worknum = request.form.get('worknum', 6)
+        queuetype = request.form.get('queuetype', 'P')
+        worktype = request.form.get('worktype', 'THREAD')
+        trace = request.form.get('trace', 0)
+        if tasktype == 'ONCE':
+            period = 0
+            queuetype = 'P'
+        else:
+            queuetype = 'R'
         if tid is None:
             dbpc.handler.insert(""" insert into `grab_task` (`name`,`extra`,`category`,`tag`,`aid`,`flow`,`sid`,`params`,`timeout`,`worknum`,`queuetype`,`worktype`,`trace`, `creator`, `updator`, `create_time`)
                                                       values(%s,         %s,        %s,   %s,   %s,    %s,   %s,      %s,       %s,        %s,        %s,        %s,     %s,         0,         0,         now()); """, 
