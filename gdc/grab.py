@@ -77,10 +77,10 @@ def task():
                 if spider is None:
                     module = __import__(module_name, fromlist=['task.%s' % task['u']])
                     cls = getattr(module, cls_name)
-                    spider = cls(worknum=int(task['worknum']), queuetype='R', worktype='THREAD', tid=int(task['id']))
+                    spider = cls(worknum=20, queuetype='R', worktype='THREAD', tid=int(task['id']))
                     local_spider[cls_name] = spider
             else:
-                spider = cls(worknum=int(task['worknum']), queuetype='P', worktype='THREAD', tid=int(task['id']))
+                spider = cls(worknum=6, queuetype='P', worktype='THREAD', tid=int(task['id']))
             try:
                 changestate(task['id'], 2)
                 step = task.get('step', 1) - 1
@@ -98,14 +98,18 @@ def task():
                     else:
                         workflow.task(weight, section, task['params'])
                 else:
+                    additions = {}
+                    additions['name'] = task['name']
+                    additions['cat'] = task['category'].split(',')
+                    additions['tag'] = task['tag'].split(',')
                     if task['params'] is None or task['params'].strip() == '':
-                        spider.fetchDatas(task['flow'], step)
+                        spider.fetchDatas(task['flow'], step, **{'additions':additions})
                     elif task['params'].startswith('{'):
-                        spider.fetchDatas(task['flow'], step, **json.loads(task['params']))
+                        spider.fetchDatas(task['flow'], step, **dict(json.loads(task['params']), **{'additions':additions}))
                     elif task['params'].startswith('('):
-                        spider.fetchDatas(task['flow'], step, *tuple(task['params'][1:-1].split(',')))
+                        spider.fetchDatas(task['flow'], step, *tuple(task['params'][1:-1].split(',')), **{'additions':additions})
                     else:
-                        spider.fetchDatas(task['flow'], step, task['params'])
+                        spider.fetchDatas(task['flow'], step, task['params'], **{'additions':additions})
                     spider.statistic()
                     changestate(task['id'], 0)
             except:
