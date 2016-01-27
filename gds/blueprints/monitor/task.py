@@ -4,7 +4,7 @@ import json
 import time, datetime
 from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
 from webcrawl.character import unicode2utf8
-from flask import Blueprint, request, Response, render_template
+from flask import Blueprint, request, Response, render_template, g
 from views import monitor
 
 STATDESC = {0:'stopped', 1:'started', 2:'running', 3:'error'}
@@ -23,12 +23,12 @@ def tasklist():
         one['change'] = (one['status'] in (0, 1, 2) and one['type'] == 'FOREVER') or (one['status'] in (0, 1) and one['type'] == 'ONCE')
         one['status_desc'] = STATDESC.get(one['status'], '')
         one['max'] = (dbpc.handler.queryOne(""" select max(succ) as succ from grab_statistics where tid = %s; """, (one['id'], )) or {'succ':0})['succ']
-    return render_template('mtasklist.html', tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
+    return render_template('mtasklist.html', appname=g.appname, logined=True, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @monitor.route('/task/time/detail/<tid>', methods=['GET'])
 @withMysql(RDB, resutype='DICT')
 def tasktimedetail(tid):
-    title = '耗时统计'
+    title = '任务耗时统计'
     end = request.args.get('end')
     begin = request.args.get('begin')
 
@@ -58,13 +58,12 @@ def tasktimedetail(tid):
     dataset=[
         {'name':'elapse state', 'stats':stats, 'color':'#229933'},
     ]
-    title = '耗时统计'
-    return render_template("mtaskdetail.html", title=title, dataset=dataset, request=request, chart=chart, unit='s', begin=begin, end=end)
+    return render_template("mtaskdetail.html", appname=g.appname, logined=True, title=title, dataset=dataset, request=request, chart=chart, unit='s', begin=begin, end=end)
 
 @monitor.route('/task/count/detail/<tid>', methods=['GET'])
 @withMysql(RDB, resutype='DICT')
 def taskcountdetail(tid):
-    title = '数量统计'
+    title = '任务数量统计'
     end = request.args.get('end')
     begin = request.args.get('begin')
 
@@ -118,8 +117,7 @@ def taskcountdetail(tid):
         {'name':'fail', 'stats':fail_stats, 'color':'blue'},
         {'name':'timeout', 'stats':timeout_stats, 'color':'red'},
     ]
-    
-    return render_template("mtaskdetail.html", title=title, dataset=dataset, request=request, chart=chart, unit='', begin=begin, end=end)
+    return render_template("mtaskdetail.html", appname=g.appname, logined=True, title=title, dataset=dataset, request=request, chart=chart, unit='', begin=begin, end=end)
 
 @monitor.route('/task/change/<tid>', methods=['POST'])
 @withMysql(WDB, resutype='DICT', autocommit=True)

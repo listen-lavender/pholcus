@@ -3,14 +3,14 @@
 import json
 from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
 from webcrawl.character import unicode2utf8
-from flask import Blueprint, request, Response, render_template
+from flask import Blueprint, request, Response, render_template, g
 from views import produce
 
 @produce.route('/datamodel/list', methods=['GET'])
 @withMysql(RDB, resutype='DICT')
 def modellist():
     datamodels = dbpc.handler.queryAll(""" select * from grab_datamodel; """)
-    return render_template('pdatamodellist.html', datamodels=datamodels)
+    return render_template('pdatamodellist.html', appname=g.appname, logined=True, datamodels=datamodels)
 
 @produce.route('/datamodel/detail/<dmid>', methods=['GET'])
 @withMysql(WDB, resutype='DICT', autocommit=True)
@@ -29,4 +29,4 @@ def modeldetail(dmid=None):
     cols.remove('dmid')
     cols.remove('id')
     rows.remove('id')
-    return render_template('pdatamodeldetail.html', rows=rows, cols=cols, rowvals=unicode2utf8(rowvals), colvals=unicode2utf8(colvals), colspan=len(cols)-1)
+    return render_template('pdatamodeldetail.html', appname=g.appname, logined=True, rows=rows, cols=cols, rowvals=unicode2utf8(rowvals), colvals=unicode2utf8(colvals), colspan=len(cols)-1)

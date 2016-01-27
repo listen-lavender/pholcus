@@ -4,7 +4,7 @@ import json
 from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
 from webcrawl.character import unicode2utf8
 from hawkeye import seesection
-from flask import Blueprint, request, Response, render_template
+from flask import Blueprint, request, Response, render_template, g
 from views import produce
 
 @produce.route('/section/list/<aid>', methods=['GET', 'POST', 'DELETE'])
@@ -31,7 +31,7 @@ def sectionlist(aid):
             dataextract = dbpc.handler.queryAll(""" select * from grab_dataextract where sid = %s """, (section['pid'], ))
             datasource = dbpc.handler.queryAll(""" select * from grab_datasource where sid = %s """, (section['pid'], ))
             sections[flow['flow']].append({'id':section['pid'], 'aid':section['paid'], 'name':section['pname'], 'flow':section['pflow'], 'index':section['pindex'], 'retry':section['pretry'], 'timelimit':section['ptimelimit'], 'store':section['pstore'], 'dataextract':dataextract, 'datasource':datasource})
-        return render_template('psectionlist.html', aid=aid, flows=flows, sections=sections)
+        return render_template('psectionlist.html', appname=g.appname, logined=True, aid=aid, flows=flows, sections=sections)
     elif request.method == 'POST':
         flow = request.form.get('flow', '')
         sections = json.loads(request.form.get('sections', '[]'))
@@ -67,7 +67,7 @@ def sectiondetail(sid=None):
             dataextract = dbpc.handler.queryAll(""" select * from grab_dataextract where sid = %s """, (sid, ))
             section['datasource'] = datasource
             section['dataextract'] = dataextract
-        return render_template('psectiondetail.html', aid=aid, sid=sid, section=section)
+        return render_template('psectiondetail.html', appname=g.appname, logined=True, aid=aid, sid=sid, section=section)
     elif request.method == 'POST':
         if request.form.get('type') == 'source':
             sid = request.form.get('sid')

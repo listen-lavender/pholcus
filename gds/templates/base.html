@@ -7,10 +7,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
     <meta name="format-detection" content="teleusername=no"/>
     <meta name="format-detection" content="address=no"/>
-    {% if title %}
-    <title>{{title}}</title>
+    {% if appname %}
+        <title>{{appname}}</title>
     {% else %}
-    <title>wecatch</title>
+        <title>pholcus</title>
     {% endif %}
     <link rel="stylesheet" type="text/css" href="/gds/static/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="/gds/static/css/semantic.min.css">
@@ -21,7 +21,32 @@
     {% block prejs %}{% endblock %}
 </head>
 <body>
-    <div><a href="/gds/a/logout">退出登录</a></div>
+    {% if logined %}
+        <div class="another">
+          <div class="ui secondary pointing menu">
+            <a class="item" href="/gds/m/task/list">
+              <!-- <i class="home icon"></i> --> 任务监控
+            </a>
+            <a class="item" href="/gds/p/task/list">
+              <!-- <i class="mail icon"></i> --> 任务管理
+            </a>
+            <a class="item" href="/gds/a/info">
+              <!-- <i class="user icon"></i> --> 我的
+            </a>
+            <div class="right menu">
+              <div class="item">
+                <div class="ui icon input">
+                  <input type="text" placeholder="搜索...">
+                  <i class="search link icon"></i>
+                </div>
+              </div>
+              <a class="ui item" href="/gds/a/logout">
+                退出
+              </a>
+            </div>
+          </div>
+        </div>
+    {% endif %}
     {% block content %}{% endblock %}
     {% block postcss %}{% endblock %}
     {% block postjs %}{% endblock %}

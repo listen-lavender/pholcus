@@ -4,7 +4,7 @@ import json
 from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
 from webcrawl.character import unicode2utf8
 from hawkeye import seearticle
-from flask import Blueprint, request, Response, render_template
+from flask import Blueprint, request, Response, render_template, g
 from views import produce
 
 @produce.route('/article/list', methods=['GET'])
@@ -18,7 +18,7 @@ def articlelist(uid):
         total = dbpc.handler.queryOne(""" select count(id) as total from grab_article where uid = %s or '' = %s; """, (uid, uid))['total']
     count = (total - 1)/pagetotal + 1
     articles = dbpc.handler.queryAll(""" select `id`, `name`, `filepath`, `uid` from grab_article where uid = %s or '' = %s order by update_time desc limit %s, %s; """, (uid, uid, (page-1)*pagetotal, pagetotal))
-    return render_template('particlelist.html', uid=uid, articles=articles, pagetotal=pagetotal, page=page, total=total, count=count)
+    return render_template('particlelist.html', appname=g.appname, logined=True, uid=uid, articles=articles, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @produce.route('/article/detail', methods=['GET', 'POST'])
 @produce.route('/article/detail/<aid>', methods=['GET', 'POST'])
@@ -31,7 +31,7 @@ def articledetail(aid=None):
         else:
             article = dbpc.handler.queryOne(""" select `id`, `host`, `pinyin` from grab_article where id = %s; """, (aid,))
         print aid, article
-        return render_template('particledetail.html', uid=uid, article=article)
+        return render_template('particledetail.html', appname=g.appname, logined=True, uid=uid, article=article)
     elif request.method == 'POST':
         user = request.user
         host = request.form.get('host')

@@ -9,7 +9,11 @@
 {% endblock %}
 {% block content %}
     <div class="ui sizer vertical segment" style="font-size: 20px; text-align: center;">
-        <div class="ui large header">登陆</div>
+      {% if appname %}
+          <div class="ui large header">{{appname}}</div>
+      {% else %}
+          <div class="ui large header">pholcus</div>
+      {% endif %}
     </div>
     <div>
         <form class="ui form segment" action="/gds/a/login" method="POST">

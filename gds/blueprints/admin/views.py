@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # coding=utf8
-from flask import Blueprint, request, Response, render_template, redirect, make_response, session
+from flask import Blueprint, request, Response, render_template, redirect, make_response, session, g
 from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
 from flask.helpers import send_from_directory
 import types, datetime, uuid
@@ -50,7 +50,7 @@ def login():
         response.set_cookie('sid', sid)
         return response
     else:
-        return render_template('login.html')
+        return render_template('login.html', appname=g.appname, logined=False)
 
 @admin.route('/logout', methods=['GET'])
 def logout():
@@ -63,10 +63,7 @@ def logout():
 def register():
     pass
 
-@admin.route('/config/list', methods=['GET'])
-def configlist():
-    pass
-
-@admin.route('/config/detail/<cid>', methods=['GET', 'POST'])
-def configdetail(cid):
-    render_template('')
+@admin.route('/info', methods=['GET'])
+def info():
+    user = request.user
+    return render_template('info.html', appname=g.appname, logined=True, user=user)

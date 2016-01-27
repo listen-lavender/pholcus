@@ -4,7 +4,7 @@ import json
 import time, datetime
 from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
 from webcrawl.character import unicode2utf8
-from flask import Blueprint, request, Response, render_template
+from flask import Blueprint, request, Response, render_template, g
 from views import monitor
 
 @monitor.route('/task/data/<tid>', methods=['GET'])
@@ -25,4 +25,4 @@ def taskdata(tid):
     page = 0
     total = 0
     count =0 
-    return render_template('mtaskdata.html', title=model['name'], columns=columns, rows=datas, pagetotal=pagetotal, page=page, total=total, count=count)
+    return render_template('mtaskdata.html', appname=g.appname, logined=True, title=model['name'], columns=columns, rows=datas, pagetotal=pagetotal, page=page, total=total, count=count)

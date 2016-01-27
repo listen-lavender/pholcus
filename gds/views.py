@@ -87,6 +87,7 @@ app.url_map.converters['regex'] = RegexConverter
 def is_login():
     sid = request.cookies.get('sid')
     user = session.get(sid, None)
+    g.appname = 'pholcus'
     if '/static/' in request.url:
         pass
     elif '/a/login' in request.url or user is not None:

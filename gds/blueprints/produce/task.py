@@ -3,7 +3,7 @@
 import json
 from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
 from webcrawl.character import unicode2utf8
-from flask import Blueprint, request, Response, render_template
+from flask import Blueprint, request, Response, render_template, g
 from views import produce
 
 QUEUETYPE = {'P':'本地队列', 'B':'beanstalk队列'}
@@ -20,7 +20,7 @@ def tasklist():
         total = dbpc.handler.queryOne(""" select count(gt.id) as total from grab_task gt; """)['total']
     count = (total - 1)/pagetotal + 1
     tasks = dbpc.handler.queryAll(""" select gt.id, gt.name as task_name from grab_task gt order by gt.update_time desc limit %s, %s; """, ((page-1)*pagetotal, pagetotal))
-    return render_template('ptasklist.html', tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
+    return render_template('ptasklist.html', appname=g.appname, logined=True, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @produce.route('/task/detail', methods=['GET', 'POST'])
 @produce.route('/task/detail/<tid>', methods=['GET', 'POST'])
@@ -36,7 +36,7 @@ def taskdetail(tid=None):
         task['queuetype_name'] = QUEUETYPE.get(task['queuetype'], '')
         task['worktype_name'] = WORKTYPE.get(task['worktype'], '')
         task['trace_name'] = TRACE.get(task['trace'], '')
-        return render_template('ptaskdetail.html', task=task)
+        return render_template('ptaskdetail.html', appname=g.appname, logined=True, task=task)
     elif request.method == 'POST':
         user = request.user
         task_name = request.form.get('task_name')
