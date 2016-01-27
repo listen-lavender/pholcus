@@ -3,10 +3,11 @@
 import json, sys, os
 from settings import staticfilepath, useport, CACHE_TIMEOUT, _DBCONN_R, _DBCONN_W, LIMIT
 from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
-from flask import Flask, g, request, Response
+from flask import Flask, g, request, Response, session, redirect
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug.contrib.cache import SimpleCache
 from werkzeug.routing import BaseConverter
+from util.session import Session
 
 
 dbpc.addDB(RDB, LIMIT, host=_DBCONN_R['host'],
@@ -45,7 +46,12 @@ def cached(func):
     return decorator
 
 app = Flask(__name__, static_folder='static', static_path='/gds/static', template_folder='templates')
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost:3306/pholcus'
+app.config.from_object(__name__)
+app.secret_key = 'super secret key'
+app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_PERMANENT'] = True
+Session(app)
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://hotel2:hotel0115@58.83.130.112:3306/hotel20'
 # db = SQLAlchemy(app)
 # g['db'] = db
 app.register_blueprint(admin, url_prefix='/gds/a')
@@ -71,18 +77,23 @@ class RegexConverter(BaseConverter):
         self.regex = args[0]
 app.url_map.converters['regex'] = RegexConverter
 
-def after_this_request(f):
-    if not hasattr(g, 'after_request_callbacks'):
-        g.after_request_callbacks = []
-    g.after_request_callbacks.append(f)
-    return f
+# def after_this_request(f):
+#     if not hasattr(g, 'after_request_callbacks'):
+#         g.after_request_callbacks = []
+#     g.after_request_callbacks.append(f)
+#     return f
 
-# @app.before_request
-# def docrypt():
-#     pass
-#     @after_this_request
-#     def encrypt(response):
-#         pass
+@app.before_request
+def is_login():
+    sid = request.cookies.get('sid')
+    user = session.get(sid, None)
+    if '/static/' in request.url:
+        pass
+    elif '/a/login' in request.url or user is not None:
+        request.sid = sid
+        request.user = user
+    else:
+        return redirect('/gds/a/login')
 
 # @app.after_request
 # def call_after_request_callbacks(response):
