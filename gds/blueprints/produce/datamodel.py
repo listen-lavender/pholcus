@@ -12,7 +12,7 @@ def modellist():
     datamodels = dbpc.handler.queryAll(""" select * from grab_datamodel; """)
     return render_template('pdatamodellist.html', datamodels=datamodels)
 
-@produce.route('/datamodel/detail/<dmid>', methods=['GET', 'POST'])
+@produce.route('/datamodel/detail/<dmid>', methods=['GET'])
 @withMysql(WDB, resutype='DICT', autocommit=True)
 def modeldetail(dmid=None):
     rows = ['id', 'name', 'extra']

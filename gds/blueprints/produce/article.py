@@ -33,16 +33,17 @@ def articledetail(aid=None):
         print aid, article
         return render_template('particledetail.html', uid=uid, article=article)
     elif request.method == 'POST':
+        user = request.user
         host = request.form.get('host')
         article_name = host.split('.')[1]
         pinyin = request.form.get('pinyin')
         filepath = 'spider%s.py' % pinyin.capitalize()
         if aid is None:
-            dbpc.handler.insert(""" insert into `grab_article` (`uid`, `name`, `host`, `pinyin`, `filepath`, `filepath`, `status`, `extra`, `creator`, `updator`, `create_time`, `update_time`)values(%s, %s, %s, %s, %s, 1, null, 0, 0, now(), now()); """, (uid, article_name, host, pinyin, filepath))
+            dbpc.handler.insert(""" insert into `grab_article` (`uid`, `name`, `host`, `pinyin`, `filepath`, `filepath`, `status`, `extra`, `creator`, `updator`, `create_time`, `update_time`)values(%s, %s, %s, %s, %s, 1, null, %s, %s, now(), now()); """, (uid, article_name, host, pinyin, filepath, user['id'], user['id']))
             aid = dbpc.handler.queryOne(""" select * from grab_article where `uid` = %s and `name` = %s """, (uid, article_name))['id']
             # seearticle(dbpc, uid, aid)
         else:
-            dbpc.handler.update(""" update `grab_article` set `name` = %s, `host` = %s, `pinyin` = %s, `filepath` = %s, update_time=now() where `id` = %s """, (article_name, host, pinyin, filepath, aid))
+            dbpc.handler.update(""" update `grab_article` set `name` = %s, `host` = %s, `pinyin` = %s, `filepath` = %s, `updator` = %s, update_time=now() where `id` = %s """, (article_name, host, pinyin, filepath, user['id'], aid))
             # seearticle(dbpc, uid, aid)
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:

@@ -31,6 +31,7 @@ def unitdetail(uid=None):
             unit = dbpc.handler.queryOne(""" select gu.id, gu.name as unit_name, gdm.name as datamodel_name, gu.extra, gdm.id as dmid from grab_unit gu join grab_datamodel gdm on gu.dmid = gdm.id where gu.id = %s; """, (uid,))
         return render_template('punitdetail.html', unit=unit, datamodels=datamodels)
     elif request.method == 'POST':
+        user = request.user
         unit_name = request.form.get('unit_name')
         dirpath = request.form.get('dirpath')
         filepath = request.form.get('filepath')
@@ -38,11 +39,11 @@ def unitdetail(uid=None):
         dmid = request.form.get('dmid')
         print request.form
         if uid is None:
-            dbpc.handler.insert(""" insert into `grab_unit` (`dmid`, `name`, `dirpath`, `filepath`, `status`, `extra`, `dmid`, `creator`, `updator`, `create_time`, `update_time`)values(1, %s, %s, %s, 1, %s, 0, 0, now(), now()); """, (unit_name, dirpath, filepath, extra, dmid))
+            dbpc.handler.insert(""" insert into `grab_unit` (`dmid`, `name`, `dirpath`, `filepath`, `status`, `extra`, `dmid`, `creator`, `updator`, `create_time`, `update_time`)values(1, %s, %s, %s, 1, %s, %s, %s, now(), now()); """, (unit_name, dirpath, filepath, extra, dmid, user['id'], user['id']))
             uid = dbpc.handler.queryOne(""" select * from grab_unit where `name` = %s """, (unit_name,))['id']
             # seeunit(dbpc, uid)
         else:
-            dbpc.handler.update(""" update `grab_unit` set `name` = %s, `dirpath` = %s, `filepath` = %s, `extra` = %s, `dmid` = %s, update_time=now() where `id` = %s """, (unit_name, dirpath, filepath, extra, dmid, uid))
+            dbpc.handler.update(""" update `grab_unit` set `name` = %s, `dirpath` = %s, `filepath` = %s, `extra` = %s, `dmid` = %s, `updator` = %s, update_time=now() where `id` = %s """, (unit_name, dirpath, filepath, extra, dmid, user['id'], uid))
             # seeunit(dbpc, uid)
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:

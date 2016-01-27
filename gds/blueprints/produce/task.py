@@ -38,6 +38,7 @@ def taskdetail(tid=None):
         task['trace_name'] = TRACE.get(task['trace'], '')
         return render_template('ptaskdetail.html', task=task)
     elif request.method == 'POST':
+        user = request.user
         task_name = request.form.get('task_name')
         extra = request.form.get('extra')
         tasktype = request.form.get('type')
@@ -60,11 +61,11 @@ def taskdetail(tid=None):
             queuetype = 'R'
         if tid is None:
             dbpc.handler.insert(""" insert into `grab_task` (`name`,`extra`,`category`,`tag`,`aid`,`flow`,`sid`,`params`,`timeout`,`worknum`,`queuetype`,`worktype`,`trace`, `creator`, `updator`, `create_time`)
-                                                      values(%s,         %s,        %s,   %s,   %s,    %s,   %s,      %s,       %s,        %s,        %s,        %s,     %s,         0,         0,         now()); """, 
-                                                         (task_name, extra, category, tag, aid, flow, sid, params, timeout, worknum, queuetype, worktype, trace))
+                                                      values(%s,         %s,        %s,   %s,   %s,    %s,   %s,      %s,       %s,        %s,        %s,        %s,     %s,        %s,        %s,         now()); """, 
+                                                         (task_name, extra, category, tag, aid, flow, sid, params, timeout, worknum, queuetype, worktype, trace, user['id'], user['id']))
             tid = dbpc.handler.queryOne(""" select * from grab_task where `name` = %s """, (task_name,))['id']
         else:
-            dbpc.handler.update(""" update `grab_task` set `name`=%s,`extra`=%s,`category`=%s,`tag`=%s,`aid`=%s,`flow`=%s,`sid`=%s,`params`=%s,`timeout`=%s,`worknum`=%s,`queuetype`=%s,`worktype`=%s,`trace`=%s, update_time=now() where `id` = %s """, (task_name,extra,category,tag,aid,flow,sid,params,timeout,worknum,queuetype,worktype,trace, tid))
+            dbpc.handler.update(""" update `grab_task` set `name`=%s,`extra`=%s,`category`=%s,`tag`=%s,`aid`=%s,`flow`=%s,`sid`=%s,`params`=%s,`timeout`=%s,`worknum`=%s,`queuetype`=%s,`worktype`=%s,`trace`=%s, `updator`=%s, update_time=now() where `id` = %s """, (task_name,extra,category,tag,aid,flow,sid,params,timeout,worknum,queuetype,worktype,trace,user['id'], tid))
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         pass
