@@ -44,20 +44,21 @@ def record(tid, succ, fail, timeout, elapse=None, sname=None, create_time=None):
     if sname is None:
         dbpc.handler.insert(""" insert into grab_statistics(`tid`,`succ`,`fail`,`timeout`,`elapse`,`create_time`)
                                                     values( %s,   %s,    %s,    %s,   %s,        %s)""", (tid, succ, fail, timeout, elapse, create_time))
-        return dbpc.handler.queryOne(""" select * from grab_statistics where tid = %s and create_time = %s """, (tid, create_time))['id']
+        return dbpc.handler.queryOne(""" select * from grab_statistics where tid = %s and create_time = %s """, (tid, create_time.strftime('%Y-%m-%d %H:%M:%S')))['id']
     else:
         dbpc.handler.insert(""" insert into grab_log(`gsid`,`sname`,`succ`,`fail`,`timeout`,`create_time`)
                                                     values( %s, %s,   %s,    %s,    %s,    %s)""", (tid, sname, succ, fail, timeout, create_time))
 
-def stat(task, spider, create_time):
-    gsid = record(task['id'], spider.stat['total']['succ'], spider.stat['total']['fail'], spider.stat['total']['timeout'], spider.totaltime, create_time=create_time)
+def stat(task, spider, create_time=None):
+    create_time = create_time or datetime.datetime.now()
+    gsid = record(task['id'], spider.stat['total']['succ'], spider.stat['total']['fail'], spider.stat['total']['timeout'], elapse=spider.totaltime, create_time=create_time)
     for name in spider.stat.keys():
         if not name == 'total':
             record(gsid, spider.stat[name]['succ'], spider.stat[name]['fail'], spider.stat[name]['timeout'], sname=name, create_time=create_time)
 
 @withMysql(WDB, resutype='DICT', autocommit=True)
 def schedule():
-    return dbpc.handler.queryAll(""" select gt.id, gt.type, gt.period, gt.aid, gt.sid, gt.flow, gs.step, gt.params, gt.worknum, gt.queuetype, gt.worktype, gt.timeout, ga.name as a, ga.filepath, gu.name as u, gt.update_time from grab_task gt join grab_section gs on gt.sid = gs.id join grab_article ga on gt.aid = ga.id join grab_unit gu on ga.uid = gu.id where gt.status > 0; """)
+    return dbpc.handler.queryAll(""" select gt.id, gt.type, gt.period, gt.aid, gt.sid, gt.flow, gs.step, gt.params, gt.worknum, gt.queuetype, gt.worktype, gt.timeout, ga.name as a, ga.filepath, gu.name as u, gt.category, gt.tag, gt.name, gt.extra, gt.update_time from grab_task gt join grab_section gs on gt.sid = gs.id join grab_article ga on gt.aid = ga.id join grab_unit gu on ga.uid = gu.id where gt.status > 0; """)
 
 @withMysql(WDB, resutype='DICT', autocommit=True)
 def changestate(tid, status, extra=None):
@@ -72,11 +73,11 @@ def task():
         for task in schedule():
             module_name = 'task.%s.%s' % (task['u'], task['filepath'].replace('.py', ''))
             cls_name = 'Spider%s' % task['a'].capitalize()
+            module = __import__(module_name, fromlist=['task.%s' % task['u']])
+            cls = getattr(module, cls_name)
             if task.get('type', 'FOREVER') == 'FOREVER':
                 spider = local_spider.get(cls_name, None)
                 if spider is None:
-                    module = __import__(module_name, fromlist=['task.%s' % task['u']])
-                    cls = getattr(module, cls_name)
                     spider = cls(worknum=20, queuetype='R', worktype='THREAD', tid=int(task['id']))
                     local_spider[cls_name] = spider
             else:
@@ -125,9 +126,11 @@ def task():
                 if ((datetime.datetime.now() - last_stat).seconds) >= LIMIT:
                     last_stat = datetime.datetime.now()
                     for spider in local_spider.values():
+                        spider.statistic()
                         stat(task, spider, last_stat)
                     
         time.sleep(60)
 
 if __name__ == '__main__':
     task()
+    
