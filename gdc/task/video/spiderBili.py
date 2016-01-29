@@ -67,9 +67,12 @@ class SpiderBilibili(SpiderVideoOrigin):
     @timelimit(3)
     def fetchDetail(self, url, additions={}, timeout=TIMEOUT, implementor=None):
         cat = additions['cat']
-
-        outid = url[url.rindex('/')+1:url.rindex('.')].replace('av', '')
-        page_result = requGet('http://app.bilibili.com/bangumi/avseason/%s.ver' % outid, timeout=TIMEOUT, format='JSON')
+        if 'mobile' in url:
+            outid = url[url.rindex('/')+1:url.rindex('.')].replace('av', '')
+        else:
+            outid = url.strip('/').split('/')[-1]
+            url = 'http://www.bilibili.com/mobile/video/%s.html' % outid
+        page_result = requGet('http://app.bilibili.com/bangumi/avseason/%s.ver' % outid, dirtys=[('seasonJsonCallback({', '{'), ('});', '}')], timeout=TIMEOUT, format='JSON')
         # if not page_result['code'] == '0':
         #     www_result = requGet(url[:url.rindex('.')].replace('/mobile', '') + '/', timeout=TIMEOUT, format='HTML')
 
@@ -86,7 +89,7 @@ class SpiderBilibili(SpiderVideoOrigin):
         data_result = requGet('http://www.bilibili.com/m/html5?aid=%s' % outid, headers=headers, timeout=TIMEOUT, format='JSON')
         
         page_url = url
-        url = data_result['src']
+        url = data_result.get('src')
         format = 'mp4'
         size = 0
         durtxt = ''.join(getHtmlNodeContent(one, 'TEXT') for one in wap_result.findall('.//script'))
@@ -97,7 +100,7 @@ class SpiderBilibili(SpiderVideoOrigin):
         tag = [getHtmlNodeContent(one, 'TEXT') for one in wap_result.findall('.//div[@class="tag-wrap"]//li')]
         name = additions['name']
         desc = getHtmlNodeContent(wap_result.find('.//meta[@name="description"]'), {'ATTR':'content'})
-        cover = getHtmlNodeContent(wap_result.find('.//img[@id="share_pic"]'), {'ATTR':'src'}) or data_result['img']
+        cover = getHtmlNodeContent(wap_result.find('.//img[@id="share_pic"]'), {'ATTR':'src'}) or data_result.get('img')
         author = ''
         owner = {'avatar':'', 'name':'', 'url':''}
         owner['avatar'] = getHtmlNodeContent(wap_result.find('.//div[@class="up-pic"]//img'), {'ATTR':'src'})
@@ -121,44 +124,58 @@ class SpiderBilibili(SpiderVideoOrigin):
             src=src, host=host, page_url=page_url,
             page_id=page_id, parent_page_id=parent_page_id,
             atime=atime, tid=self.tid)
+        print self.tid
 
-        if page_result['code'] == '0':
-            first = page_result['episodes'][-1]['av_id']
-            parent_page_id = hash('http://www.bilibili.com/mobile/video/av%s.html' % first)
-            for one in page_result['episodes']:
-                data_result = requGet('http://www.bilibili.com/m/html5?aid=%s' % one['av_id'], headers=headers, timeout=TIMEOUT, format='JSON')
+        pages = wap_result.findall('.//div[@id="part_list"]//li')
+        if pages:
+            first = getHtmlNodeContent(pages[0], {'ATTR':'page'})
+            parent_page_id = hash('http://www.bilibili.com/mobile/video/av%s.html#page=%s' % (outid, first))
+            for one in pages:
+                pagenum = getHtmlNodeContent(one, {'ATTR':'page'})
+                print 'http://www.bilibili.com/m/html5?aid=%s&page=%s' % (outid, pagenum)
+                data_result = requGet('http://www.bilibili.com/m/html5?aid=%s&page=%s' % (outid, pagenum), headers=headers, timeout=TIMEOUT, format='JSON')
                 page_data = copy.deepcopy(data)
-                page_data['url'] = data_result['src']
-                page_data['page_url'] = 'http://www.bilibili.com/mobile/video/av%s.html' % one['av_id']
+                page_data['name'] = getHtmlNodeContent(one.find('.//a'), 'TEXT')
+                try:
+                    page_data['url'] = data_result['src']
+                except:
+                    page_data['url'] = ''
+                page_data['page_url'] = 'http://www.bilibili.com/mobile/video/av%s.html#page=%s' % (outid, pagenum)
                 page_data['page_id'] = hash(page_data['page_url'])
                 page_data['parent_page_id'] = parent_page_id
+                page_data['snum'] = int(pagenum)
+                page_data['cover'] = data_result.get('img')
+                print page_data
+                yield page_data
+        elif page_result['code'] == 0:
+            first = page_result['result']['episodes'][-1]['av_id']
+            first = page_result['result']['episodes'][-1]['danmaku'] if first == outid else first
+            parent_page_id = hash('http://www.bilibili.com/mobile/video/av%s.html' % first)
+            for one in page_result['result']['episodes']:
+                aid = one['danmaku'] if one['av_id'] == outid else one['av_id']
+                data_result = requGet('http://www.bilibili.com/m/html5?aid=%s&page=%s' % (one['av_id'], one['page']), headers=headers, timeout=TIMEOUT, format='JSON')
+                page_data = copy.deepcopy(data)
+                try:
+                    page_data['url'] = data_result['src']
+                except:
+                    page_data['url'] = ''
+                page_data['page_url'] = 'http://www.bilibili.com/mobile/video/av%s.html#page=%s' % (one['av_id'], one['page'])
+                page_data['page_id'] = hash('http://www.bilibili.com/mobile/video/av%s.html' % aid)
+                page_data['parent_page_id'] = parent_page_id
                 if page_data['page_id'] == page_data['parent_page_id']:
-                    page_data['desc'] = result['evaluate']
+                    page_data['desc'] = page_result['result']['evaluate']
                 else:
                     page_data['desc'] = ''
-                page_data['snum'] = int(one['index'])
-                page_data['name'] = one['index_title']
+                try:
+                    page_data['snum'] = int(one['index'])
+                except:
+                    page_data['snum'] = len(page_result['result']['episodes'])
+                page_data['name'] = one.get('index_title')
                 page_data['atime'] = datetime.strptime(one['update_time'][:one['update_time'].rindex('.')], '%Y-%m-%d %H:%M:%S')
                 page_data['cover'] = one['cover']
                 yield page_data
         else:
-            pages = wap_result.findall('.//div[@id="part_list"]//li')
-            if pages:
-                first = getHtmlNodeContent(pages[0], {'ATTR':'page'})
-                parent_page_id = hash('http://www.bilibili.com/mobile/video/av%s.html#page=%s' % (outid, first))
-                for one in pages:
-                    pagenum = getHtmlNodeContent(one, {'ATTR':'page'})
-                    data_result = requGet('http://www.bilibili.com/m/html5?aid=%s&page=%s' % (outid, pagenum), headers=headers, timeout=TIMEOUT, format='JSON')
-                    page_data = copy.deepcopy(data)
-                    page_data['url'] = data_result['src']
-                    page_data['page_url'] = 'http://www.bilibili.com/mobile/video/av%s.html#page=%s' % (outid, pagenum)
-                    page_data['page_id'] = hash(page_data['page_url'])
-                    page_data['parent_page_id'] = parent_page_id
-                    page_data['snum'] = int(pagenum)
-                    page_data['cover'] = data_result['img']
-                    yield page_data
-            else:
-                yield data
+            yield data
 
     @next(fetchDetail)
     @timelimit(20)
@@ -170,8 +187,12 @@ class SpiderBilibili(SpiderVideoOrigin):
             nextpage = None
         else:
             index = url.split('-')
-            index[2] = str(int(index[2]) + 1)
-            nextpage = '-'.join(index)
+            index[2] = int(index[2]) + 1
+            if index[2] >5:
+                nextpage = None
+            else:
+                index[2] = str(index[2])
+                nextpage = '-'.join(index)
         yield nextpage
         for one in videos:
             url = 'http://www.bilibili.com%s' % getHtmlNodeContent(one, {'ATTR':'href'})
@@ -192,7 +213,7 @@ class SpiderBilibili(SpiderVideoOrigin):
 if __name__ == '__main__':
 
     print 'start'
-    spider = SpiderBili(worknum=6, queuetype='P', worktype='COROUTINE')
+    spider = SpiderBilibili(worknum=6, queuetype='P', worktype='COROUTINE')
     spider.fetchDatas('www', 'http://www.bilibili.com/html/js/types.json')
     spider.statistic()
     print 'end'

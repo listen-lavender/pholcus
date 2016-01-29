@@ -16,7 +16,7 @@ from task.config.db.mongo import WDB
 from task.config.db.mongo import _DBCONN as DBCONN
 from datakit.mongo.suit import withMongo as withDB
 
-TIMEOUT = 10
+TIMEOUT = 120
 
 class SpiderAudioOrigin(SpiderOrigin):
 

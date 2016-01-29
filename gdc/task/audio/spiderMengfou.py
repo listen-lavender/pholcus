@@ -51,7 +51,6 @@ class SpiderMoe(SpiderAudioOrigin):
         self.clsname = self.__class__.__name__
         initDB()
         self.api_key = '3e304078c769743445311c894eb221d90566aa33b'
-        self.tid = 0
 
     @store(withDB(WDB, conn), Data.insert, update=True, method='MANY')
     @timelimit(3)
@@ -106,8 +105,12 @@ class SpiderMoe(SpiderAudioOrigin):
             nextpage = None
         else:
             index = url.split('=')
-            index[-1] = str(int(index[-1]) + 1)
-            nextpage = '='.join(index)
+            index[-1] = int(index[-1]) + 1
+            if index[-1] > 5:
+                nextpage = None
+            else:
+                index[-1] = str(index[-1])
+                nextpage = '='.join(index)
         yield nextpage
         for one in audios:
             yield {'url': 'http://api.moefou.org/music/subs.json?sub_type=song,ep&api_key={{api_key}}&wiki_id=%s'.replace('{{api_key}}', self.api_key) % str(one['wiki_id'])}
