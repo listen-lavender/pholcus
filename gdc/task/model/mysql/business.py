@@ -54,7 +54,7 @@ class Proxy(MarkModel):
     port = IntField(ddl='int(5)', unique='daili')
     location = StrField(ddl='varchar(30)')
     safetype = StrField(ddl='varchar(30)')
-    usetype = StrField(ddl='varchar(30)')
+    protocol = StrField(ddl='varchar(30)')
     refspeed = FloatField(ddl='float')
     usespeed = FloatField(ddl='float')
     usenum = IntField(ddl='int(10)')

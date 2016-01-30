@@ -33,6 +33,8 @@ create table `grab_creator` (
   `id` int(11) not null auto_increment,
   `username` varchar(20) not null comment '用户名',
   `password` varchar(20) not null comment '密码',
+  `authority` int(3) not null default '0' comment '权重，0-15',
+  `desc` char(4) not null default '----' comment '权重描述，aduq，-au-，a---',
   `contact` varchar(500) default '{}' comment '联系方式',
   `notify` varchar(100) default '{}' comment '通知条件',
   `status` tinyint(1) not null default '1' comment '是否有效，1：有效，0：无效',
@@ -43,31 +45,15 @@ create table `grab_creator` (
   `update_time` timestamp not null default current_timestamp on update current_timestamp comment '更新时间',
   primary key (`id`),
   unique key `user` (`username`)
-) engine=innodb default charset=utf8 comment='用户表';
-
-create table `grab_group` (
-  `id` int(11) not null auto_increment,
-  `gid` int(11) not null comment '用户组id',
-  `cid` int(11) not null comment '用户id',
-  `status` tinyint(1) not null default '1' comment '是否有效，1：有效，0：无效',
-  `extra` varchar(300) default null comment '附加内容',
-  `creator` int(11) not null comment '创建者id',
-  `updator` int(11) not null comment '更新者id',
-  `create_time` datetime not null comment '创建时间',
-  `update_time` timestamp not null default current_timestamp on update current_timestamp comment '更新时间',
-  primary key (`id`),
-  unique key `gc` (`gid`,`cid`)
-) engine=innodb default charset=utf8 comment='用户分组表';
+) engine=innodb auto_increment=10 default charset=utf8 comment='用户表';
 
 create table `grab_permit` (
   `id` int(11) not null auto_increment,
-  `sid` int(11) not null comment '权限所有者id',
-  `stype` char(1) not null comment '权限所有者类型，c：creator，g：group',
+  `cid` int(11) not null comment '权限所有者id',
   `oid` int(11) not null comment '权限对象id',
   `otype` char(1) not null comment '权限对象类型，u：unit，a：article，s：section',
-  `weight` tinyint(1) not null default '1' comment '权重，0-7',
-  `desc` char(4) not null default '---q' comment '权重描述，---q，-au-，d---',
-  `notify` varchar(300) default '{}' comment '通知条件',
+  `authority` int(3) not null default '0' comment '权重，0-15',
+  `desc` char(4) not null default '---q' comment '权重描述，aduq，-au-，a---',
   `status` tinyint(1) not null default '1' comment '是否有效，1：有效，0：无效',
   `extra` varchar(300) default null comment '附加内容',
   `creator` int(11) not null comment '创建者id',
@@ -75,7 +61,7 @@ create table `grab_permit` (
   `create_time` datetime not null comment '创建时间',
   `update_time` timestamp not null default current_timestamp on update current_timestamp comment '更新时间',
   primary key (`id`),
-  unique key `so` (`sid`,`stype`,`oid`,`otype`)
+  unique key `so` (`cid`,`oid`,`otype`)
 ) engine=innodb default charset=utf8 comment='用户权限表';
 
 create table `grab_unit` (
@@ -85,7 +71,6 @@ create table `grab_unit` (
   `dirpath` varchar(64) not null default '' comment '任务业务分类目录路径',
   `filepath` varchar(64) not null default '' comment '任务业务分类脚本路径',
   `status` tinyint(1) not null default '1' comment '是否有效，1：有效，0：无效',
-  `distribute` char(2) not null default 'sc' comment '分布方式，sc共享代码配置；sf，共享文件配置；sn，不共享',
   `extra` varchar(300) default null comment '附加内容',
   `creator` int(11) not null comment '创建者id',
   `updator` int(11) not null comment '更新者id',
@@ -103,7 +88,6 @@ create table `grab_article` (
   `host` varchar(50) not null default '' comment '抓取网站域名',
   `filepath` varchar(64) not null default '' comment '任务脚本文件路径',
   `status` tinyint(1) not null default '1' comment '是否有效，1：有效，0：无效',
-  `distribute` char(2) not null default 'sc' comment '分布方式，sc共享代码配置；sf，共享文件配置；sn，不共享',
   `extra` varchar(300) default null comment '附加内容',
   `creator` int(11) not null default '0' comment '创建者id',
   `updator` int(11) not null default '0' comment '更新者id',
@@ -124,8 +108,8 @@ create table `grab_section` (
   `timelimit` int(4) not null default '30' comment '任务超时时间',
   `store` tinyint(1) not null default '0' comment '工作流存储id',
   `status` tinyint(1) not null default '1' comment '是否有效，1：有效，0：无效',
-  `distribute` char(2) not null default 'sc' comment '分布方式，sc共享代码配置；sf，共享文件配置；sn，不共享',
   `extra` varchar(300) default null comment '附加内容',
+  `step` int(2) not null default '0',
   `creator` int(11) not null comment '创建者id',
   `updator` int(11) not null comment '更新者id',
   `create_time` datetime not null comment '创建时间',
@@ -273,6 +257,16 @@ create table `grab_log` (
   `create_time` datetime not null comment '创建时间',
   primary key (`id`)
 ) engine=innodb auto_increment=2550 default charset=utf8 comment='抓取任务日志表';
+
+create table `grab_hash` (
+  `id` int(11) not null auto_increment,
+  `sid` int(11) not null comment '工作流段id',
+  `hashweb` int(30) not null comment '抓取内容hash',
+  `create_time` datetime not null comment '创建时间',
+  `update_time` timestamp not null default current_timestamp on update current_timestamp comment '更新时间',
+  primary key (`id`),
+  key `hashid` (`sid`,`hashweb`)
+) engine=innodb default charset=utf8 comment='抓取内容hash表';
 
 insert into `grab_config` (`id`, `type`, `name`, `key`, `val`, `filepath`, `status`, `extra`, `creator`, `updator`, `create_time`, `update_time`)
 values
