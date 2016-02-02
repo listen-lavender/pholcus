@@ -58,7 +58,7 @@ def stat(task, spider, create_time=None):
 
 @withMysql(WDB, resutype='DICT', autocommit=True)
 def schedule():
-    return dbpc.handler.queryAll(""" select gt.id, gt.type, gt.period, gt.aid, gt.sid, gt.flow, gs.step, gt.params, gt.worknum, gt.queuetype, gt.worktype, gt.timeout, ga.name as a, ga.filepath, gu.name as u, gt.category, gt.tag, gt.name, gt.extra, gt.update_time from grab_task gt join grab_section gs on gt.sid = gs.id join grab_article ga on gt.aid = ga.id join grab_unit gu on ga.uid = gu.id where gt.status > 0; """)
+    return dbpc.handler.queryAll(""" select gt.id, gt.type, gt.period, gt.aid, gt.sid, gt.flow, gs.step, gs.index, gt.params, gt.worknum, gt.queuetype, gt.worktype, gt.timeout, ga.name as a, ga.filepath, gu.name as u, gt.category, gt.tag, gt.name, gt.extra, gt.update_time from grab_task gt join grab_section gs on gt.sid = gs.id join grab_article ga on gt.aid = ga.id join grab_unit gu on ga.uid = gu.id where gt.status > 0; """)
 
 @withMysql(WDB, resutype='DICT', autocommit=True)
 def changestate(tid, status, extra=None):
@@ -110,7 +110,10 @@ def task():
                     elif task['params'].startswith('('):
                         spider.fetchDatas(task['flow'], step, *tuple(task['params'][1:-1].split(',')), **{'additions':additions})
                     else:
-                        spider.fetchDatas(task['flow'], step, task['params'], **{'additions':additions})
+                        if task['index'].isdigit():
+                            spider.fetchDatas(task['flow'], step, task['params'], **{'additions':additions})
+                        else:
+                            spider.fetchDatas(task['flow'], step, **{task['index']:task['params'], 'additions':additions})
                     spider.statistic()
                     changestate(task['id'], 0)
             except:
