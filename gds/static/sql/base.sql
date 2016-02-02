@@ -206,8 +206,7 @@ create table `grab_task` (
   `updator` int(11) not null comment '更新者id',
   `create_time` datetime not null comment '创建时间',
   `update_time` timestamp not null default current_timestamp on update current_timestamp comment '更新时间',
-  primary key (`id`),
-  unique key `task` (`aid`,`sid`)
+  primary key (`id`)
 ) engine=innodb auto_increment=4 default charset=utf8 comment='抓取任务表';
 
 create table `grab_statistics` (

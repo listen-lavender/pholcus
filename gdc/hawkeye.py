@@ -247,7 +247,7 @@ def setArticle(filepath, pinyin, host):
                         flows.remove(flows[0])
                     section['next_id'] = dbpc.handler.queryOne(""" select id from grab_section where `name` = %s and aid = %s """, (one.replace('@next(', '').replace(')', ''), article['id']))['id']
                 if 'index' in one:
-                    section['index'] = one.replace('@index(', '').replace(')', '')
+                    section['index'] = one.replace('@index(', '').replace(')', '').replace('"', '').replace("'", "")
                 if 'retry' in one:
                     section['retry'] = one.replace('@retry(', '').replace(')', '')
                 if 'timelimit' in one:
@@ -274,7 +274,7 @@ def setArticle(filepath, pinyin, host):
                         flows.remove(flows[0])
                     section['next_id'] = dbpc.handler.queryOne(""" select id from grab_section where `name` = %s and aid = %s and flow = %s limit 1 """, (one.replace('@next(', '').replace(')', ''), article['id'], flow))['id']
                 if 'index' in one:
-                    section['index'] = one.replace('@index(', '').replace(')', '')
+                    section['index'] = one.replace('@index(', '').replace(')', '').replace('"', '').replace("'", "")
                 if 'retry' in one:
                     section['retry'] = one.replace('@retry(', '').replace(')', '')
                 if 'timelimit' in one:
