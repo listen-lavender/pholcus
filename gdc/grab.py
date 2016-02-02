@@ -110,7 +110,7 @@ def task():
                     elif task['params'].startswith('('):
                         spider.fetchDatas(task['flow'], step, *tuple(task['params'][1:-1].split(',')), **{'additions':additions})
                     else:
-                        if task['index'].isdigit():
+                        if task['index'] is None or task['index'].isdigit():
                             spider.fetchDatas(task['flow'], step, task['params'], **{'additions':additions})
                         else:
                             spider.fetchDatas(task['flow'], step, **{task['index']:task['params'], 'additions':additions})
