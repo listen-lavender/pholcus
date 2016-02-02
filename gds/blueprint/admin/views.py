@@ -20,7 +20,7 @@ def send_static_file(self, filename):
     return send_from_directory(self.static_folder, filename,
                                cache_timeout=1)
 
-admin = Blueprint('admin', __name__, template_folder='templates')
+admin = Blueprint('admin', __name__, template_folder='template')
 admin.send_static_file  = types.MethodType(send_static_file, admin)
 
 @admin.route('/login', methods=['GET', 'POST'])

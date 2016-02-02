@@ -2,7 +2,7 @@
 
 Server of pholcus.
 
-## blueprints/produce
+## blueprint/produce
 
 - list and detail of datamodel, model of datas
 - list and detail of unit, class of datas
@@ -10,11 +10,11 @@ Server of pholcus.
 - list and detail of section, fetching step of datas and several steps make up a flow
 - hawkeye.py, transfer setting datas from web page to element datas of code tree
 
-## blueprints/monitor
+## blueprint/monitor
 
     TODO
 
-## blueprints/admin
+## blueprint/admin
 
     TODO
 

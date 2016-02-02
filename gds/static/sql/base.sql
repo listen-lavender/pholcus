@@ -39,6 +39,8 @@ create table `grab_creator` (
   `notify` varchar(100) default '{}' comment '通知条件',
   `status` tinyint(1) not null default '1' comment '是否有效，1：有效，0：无效',
   `extra` varchar(300) default null comment '附加内容',
+  `key` varchar(100) default null comment 'key',
+  `secret` varchar(100) default null comment 'secret',
   `creator` int(11) not null comment '创建者id',
   `updator` int(11) not null comment '更新者id',
   `create_time` datetime not null comment '创建时间',

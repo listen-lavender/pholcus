@@ -7,7 +7,7 @@ from flask import Blueprint, request, Response, render_template, g
 
 from hawkeye import init
 
-produce = Blueprint('produce', __name__, template_folder='templates')
+produce = Blueprint('produce', __name__, template_folder='template')
 
 from datamodel import *
 from unit import *

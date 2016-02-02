@@ -28,9 +28,9 @@ dbpc.addDB(WDB, LIMIT, host=_DBCONN_W['host'],
                     use_unicode=_DBCONN_W['use_unicode'],
                     override=False)
 
-from blueprints.admin.views import admin
-from blueprints.monitor.views import monitor
-from blueprints.produce.views import produce
+from blueprint.admin.views import admin
+from blueprint.monitor.views import monitor
+from blueprint.produce.views import produce
 
 cache = SimpleCache()
 def cached(func):
