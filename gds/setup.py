@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 requires = [
     'flask-script',
     'flask-sqlalchemy',
-    'datakit',
+    'dbskit',
     'webcrawl'
     ]
 

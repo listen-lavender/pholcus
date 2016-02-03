@@ -7,7 +7,7 @@
 from setuptools import setup, find_packages
 
 requires = [
-    'datakit',
+    'dbskit',
     'webcrawl'
     ]
 
