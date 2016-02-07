@@ -22,8 +22,8 @@ values
     (0, 'article', 0, 'module', '', 'timedelta', '', 'import', 'from datetime import', null, 'timedelta', 'function'),
     (0, 'article', 0, 'module', '', 'timelimit', '', 'import', 'from webcrawl.work import', null, 'timelimit', 'function'),
     (0, 'article', 0, 'module', '', 'TIMEOUT', '', 'import', 'from task.config.web.hotel import', null, 'TIMEOUT', 'int'),
-    (0, 'article', 0, 'module', '', 'withMongo', '', 'import', 'from datakit.mongo.suit import', null, 'withMongo', 'function'),
-    (0, 'article', 0, 'module', '', 'withMysql', '', 'import', 'from datakit.mysql.suit import', null, 'withMysql', 'function'),
+    (0, 'article', 0, 'module', '', 'withMongo', '', 'import', 'from dbskit.mongo.suit import', null, 'withMongo', 'function'),
+    (0, 'article', 0, 'module', '', 'withMysql', '', 'import', 'from dbskit.mysql.suit import', null, 'withMysql', 'function'),
     (0, 'unit', 0, 'module', '', 'SpiderOrigin', '', 'import', 'from webcrawl.spider import', null, 'SpiderOrigin', 'class');
 """,
 """
@@ -44,7 +44,7 @@ values
 """
 insert into `grab_datapath` (`bid`, `btype`, `sid`, `stype`, `pid`, `name`, `index`, `method`, `xpath`, `default`, `content`, `datatype`)
 values
-  ({{uid}}, 'unit', {{mid}}, 'module', '', 'withDB', '', 'import', 'from datakit.mysql.suit import', null, 'withMysql', 'decorator'),
+  ({{uid}}, 'unit', {{mid}}, 'module', '', 'withDB', '', 'import', 'from dbskit.mysql.suit import', null, 'withMysql', 'decorator'),
   ({{uid}}, 'unit', {{mid}}, 'module', '', 'Data', '', 'import', 'from task.model.mysql import', null, '%s', 'class'),
   ({{uid}}, 'unit', {{mid}}, 'module', '', 'initDB', '', 'import', 'from task.model.mysql import', null, 'initDB', 'function'),
   ({{uid}}, 'unit', {{mid}}, 'module', '', 'WDB', '', 'import', 'from task.config.db.mysql import', null, 'WDB', 'str'),

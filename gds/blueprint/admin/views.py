@@ -1,10 +1,10 @@
 #!/usr/bin/python
 # coding=utf8
-from flask import Blueprint, request, Response, render_template, redirect, make_response, session, g
-from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
-from flask.helpers import send_from_directory
 import types, datetime, uuid
-
+from flask import Blueprint, request, Response, render_template, redirect, make_response, session, g
+from dbskit.mysql.suit import withMysql, dbpc, RDB, WDB
+from flask.helpers import send_from_directory
+from model.base import Creator
 
 def send_static_file(self, filename):
     """Function used internally to send static files from the static
@@ -41,7 +41,7 @@ def login():
     user = request.user
     if user is not None:
         return redirect('/gds/m/task/list')
-    user = dbpc.handler.queryOne(""" select * from grab_creator where username = %s and password = %s """, (username, password))
+    user = Creator.queryOne({'username':username, 'password':password})
     if user is not None:
         user = {'name':user['username'], 'id':user['id']}
         response = make_response(redirect('/gds/m/task/list'))

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding=utf8
 import json
-from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
+from dbskit.mysql.suit import withMysql, dbpc, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 

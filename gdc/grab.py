@@ -5,7 +5,7 @@ import sys, json
 import random
 import traceback
 
-from datakit.mysql.suit import withMysql, dbpc
+from dbskit.mysql.suit import withMysql, dbpc
 from hawkeye import initDB
 from webcrawl.handleRequest import PROXY
 from webcrawl.work import Workflows

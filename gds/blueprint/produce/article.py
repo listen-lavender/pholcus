@@ -1,36 +1,36 @@
 #!/usr/bin/python
 # coding=utf8
-import json
-from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
+import json, datetime
+from dbskit.mysql.suit import withMysql, dbpc, RDB, WDB
 from webcrawl.character import unicode2utf8
 from hawkeye import seearticle
 from flask import Blueprint, request, Response, render_template, g
 from views import produce
+from model.base import Article
 
 @produce.route('/article/list', methods=['GET'])
 @produce.route('/article/list/<uid>', methods=['GET'])
 @withMysql(RDB, resutype='DICT')
-def articlelist(uid):
+def articlelist(uid=''):
     pagetotal = int(request.args.get('pagetotal', 10))
     page = int(request.args.get('page', 1))
     total = int(request.args.get('total', 0))
     if total == 0:
-        total = dbpc.handler.queryOne(""" select count(id) as total from grab_article where uid = %s or '' = %s; """, (uid, uid))['total']
+        total = Article.count({'$or':[{'uid':uid}, {'""':uid}]})
     count = (total - 1)/pagetotal + 1
-    articles = dbpc.handler.queryAll(""" select `id`, `name`, `filepath`, `uid` from grab_article where uid = %s or '' = %s order by update_time desc limit %s, %s; """, (uid, uid, (page-1)*pagetotal, pagetotal))
+    articles = Article.queryAll({'$or':[{'uid':uid}, {'""':uid}]}, projection={'id':1, 'name':1, 'filepath':1, 'uid':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     return render_template('particlelist.html', appname=g.appname, logined=True, uid=uid, articles=articles, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @produce.route('/article/detail', methods=['GET', 'POST'])
 @produce.route('/article/detail/<aid>', methods=['GET', 'POST'])
 @withMysql(WDB, resutype='DICT', autocommit=True)
 def articledetail(aid=None):
-    uid = int(request.args.get('uid', 0))
+    uid = int(request.args.get('uid') or 0)
     if request.method == 'GET':
         if aid is None:
             article = {'id':'', 'host':'', 'pinyin':''}
         else:
-            article = dbpc.handler.queryOne(""" select `id`, `host`, `pinyin` from grab_article where id = %s; """, (aid,))
-        print aid, article
+            article = Article.queryOne({'id':aid}, projection={'id':1, 'host':1, 'pinyin':1})
         return render_template('particledetail.html', appname=g.appname, logined=True, uid=uid, article=article)
     elif request.method == 'POST':
         user = request.user
@@ -39,12 +39,20 @@ def articledetail(aid=None):
         pinyin = request.form.get('pinyin')
         filepath = 'spider%s.py' % pinyin.capitalize()
         if aid is None:
-            dbpc.handler.insert(""" insert into `grab_article` (`uid`, `name`, `host`, `pinyin`, `filepath`, `filepath`, `status`, `extra`, `creator`, `updator`, `create_time`, `update_time`)values(%s, %s, %s, %s, %s, 1, null, %s, %s, now(), now()); """, (uid, article_name, host, pinyin, filepath, user['id'], user['id']))
-            aid = dbpc.handler.queryOne(""" select * from grab_article where `uid` = %s and `name` = %s """, (uid, article_name))['id']
-            # seearticle(dbpc, uid, aid)
+            article = Article(
+                uid=uid,
+                name=name,
+                host=host,
+                pinyin=pinyin,
+                filepath=filepath,
+                status=status,
+                creator=user['id'],
+                updator=user['id'],
+                create_time=datetime.datetime.now(),
+                update_time=datetime.datetime.now())
+            aid = Article.insert(article)
         else:
-            dbpc.handler.update(""" update `grab_article` set `name` = %s, `host` = %s, `pinyin` = %s, `filepath` = %s, `updator` = %s, update_time=now() where `id` = %s """, (article_name, host, pinyin, filepath, user['id'], aid))
-            # seearticle(dbpc, uid, aid)
+            Article.update({'id':aid}, {'$set':{'name':article_name, 'host':host, 'pinyin':pinyin, 'filepath':filepath, 'updator':user['id'], 'update_time':datetime.datetime.now()}})
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         pass

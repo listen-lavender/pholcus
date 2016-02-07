@@ -1,11 +1,12 @@
 #!/usr/bin/python
 # coding=utf8
 import json
-from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
+from dbskit.mysql.suit import withMysql, dbpc, RDB, WDB
 from webcrawl.character import unicode2utf8
 from hawkeye import seesection
 from flask import Blueprint, request, Response, render_template, g
 from views import produce
+from model.base import Section, Dataextract, Datasource
 
 @produce.route('/section/list/<aid>', methods=['GET', 'POST', 'DELETE'])
 @withMysql(WDB, resutype='DICT', autocommit=True)
@@ -17,20 +18,30 @@ def sectionlist(aid):
      where gs.flow = 'www';
     """
     if request.method == 'GET':
-        flows = dbpc.handler.queryAll(""" select distinct flow from grab_section where aid = %s; """, (aid, ))
+        flows = Section.queryAll({'aid':aid}, projection={'flow':1})
+        flows = set(one['flow'] for one in flows)
         sections = {}
+        projection = {'id':1, 'aid':1, 'name':1, 'flow':1, 'index':1, 'retry':1, 'timelimit':1, 'store':1, 'next_id':1}
         for flow in flows:
-            sections[flow['flow']] = []
-            for section in dbpc.handler.queryAll(""" select gs.id, gs.aid, gs.name, gs.flow, gs.index, gs.retry, gs.timelimit, gs.store, gsp.id as pid, gsp.aid as paid, gsp.name as pname, gsp.flow as pflow, gsp.index as pindex, gsp.retry as pretry, gsp.timelimit as ptimelimit, gsp.store as pstore
-                                        from grab_section gs join grab_section gsp
-                                            on gs.next_id = gsp.id
-                                         where gs.aid = %s and gs.flow = %s; """, (aid, flow['flow'])):
-                dataextract = dbpc.handler.queryAll(""" select * from grab_dataextract where sid = %s """, (section['id'], ))
-                datasource = dbpc.handler.queryAll(""" select * from grab_datasource where sid = %s """, (section['id'], ))
-                sections[flow['flow']].append({'id':section['id'], 'aid':section['aid'], 'name':section['name'], 'flow':section['flow'], 'index':section['index'], 'retry':section['retry'], 'timelimit':section['timelimit'], 'store':section['store'], 'dataextract':dataextract, 'datasource':datasource})
-            dataextract = dbpc.handler.queryAll(""" select * from grab_dataextract where sid = %s """, (section['pid'], ))
-            datasource = dbpc.handler.queryAll(""" select * from grab_datasource where sid = %s """, (section['pid'], ))
-            sections[flow['flow']].append({'id':section['pid'], 'aid':section['paid'], 'name':section['pname'], 'flow':section['pflow'], 'index':section['pindex'], 'retry':section['pretry'], 'timelimit':section['ptimelimit'], 'store':section['pstore'], 'dataextract':dataextract, 'datasource':datasource})
+            sections[flow] = []
+            currs = Section.queryAll({'aid':aid, 'flow':flow}, projection=projection)
+            for section in currs:
+                next = Section.queryOne({'id':section['next_id']}, projection=projection)
+                if next:
+                    section['pid'] = next['id']
+                    section['paid'] = next['aid']
+                    section['pname'] = next['name']
+                    section['pflow'] = next['flow']
+                    section['pindex'] = next['index']
+                    section['pretry'] = next['retry']
+                    section['ptimelimit'] = next['timelimit']
+                    section['pstore'] = next['store']
+                dataextract = Dataextract.queryAll({'sid':section['id']})
+                datasource = Datasource.queryAll({'sid':section['id']})
+                sections[flow].append({'id':section['id'], 'aid':section['aid'], 'name':section['name'], 'flow':section['flow'], 'index':section['index'], 'retry':section['retry'], 'timelimit':section['timelimit'], 'store':section['store'], 'dataextract':dataextract, 'datasource':datasource})
+            dataextract = Dataextract.queryAll({'sid':section['pid']})
+            datasource = Datasource.queryAll({'sid':section['pid']})
+            sections[flow].append({'id':section['pid'], 'aid':section['paid'], 'name':section['pname'], 'flow':section['pflow'], 'index':section['pindex'], 'retry':section['pretry'], 'timelimit':section['ptimelimit'], 'store':section['pstore'], 'dataextract':dataextract, 'datasource':datasource})
         return render_template('psectionlist.html', appname=g.appname, logined=True, aid=aid, flows=flows, sections=sections)
     elif request.method == 'POST':
         flow = request.form.get('flow', '')
@@ -57,14 +68,15 @@ def sectiondetail(sid=None):
         if sid is None:
             section = {'id':'', 'aid':'', 'next_id':'', 'name':'', 'flow':'', 'index':'', 'retry':'', 'timelimit':'', 'store':'', 'datasource':[], 'dataextract':[]}
         else:
-            section = dbpc.handler.queryOne(""" select `id`, `aid`,`next_id`,`name`,`flow`,`index`,`retry`,`timelimit`,`store` from grab_section where id = %s; """, sid)
-            next = dbpc.handler.queryOne(""" select `id`, `aid`,`next_id`,`name`,`flow`,`index`,`retry`,`timelimit`,`store` from grab_section where id = %s; """, (section['next_id'],))
+            projection = {'id':1 ,'aid':1 ,'next_id':1 ,'name':1 ,'flow':1 ,'index':1 ,'retry':1 ,'timelimit':1 ,'store':1}
+            section = Section.queryOne({'id':sid}, projection=projection)
+            next = Section.queryOne({'id':section['next_id']}, projection=projection)
             if next is None:
                 section['next'] = ''
             else:
                 section['next'] = next['name']
-            datasource = dbpc.handler.queryAll(""" select * from grab_datasource where sid = %s """, (sid, ))
-            dataextract = dbpc.handler.queryAll(""" select * from grab_dataextract where sid = %s """, (sid, ))
+            dataextract = Dataextract.queryAll({'sid':sid})
+            datasource = Datasource.queryAll({'sid':sid})
             section['datasource'] = datasource
             section['dataextract'] = dataextract
         return render_template('psectiondetail.html', appname=g.appname, logined=True, aid=aid, sid=sid, section=section)
@@ -84,10 +96,6 @@ def sectiondetail(sid=None):
             retry = request.form.get('retry')
             timelimit = request.form.get('timelimit')
             store = request.form.get('store')
-            # if aid is None:
-            #     dbpc.handler.insert(""" insert into `grab_section` (`aid`, `name`, `next_id`, `flow`, `index`, `retry`, `timelimit`, `store`, `creator`, `updator`, `create_time`, `update_time`)values(%s, %s, %s, %s, %s, %s, %s, %s, 1, null, 0, 0, now(), now()); """, (aid, section_name, next_id, flow, index, retry, timelimit, store))
-            # else:
-            #     dbpc.handler.update(""" update `grab_section` set `name` = %s, `next_id` = %s, `flow` = %s, `index` = %s, `retry` = %s, `timelimit` = %s, `store` = %s, update_time=now() where `id` = %s """, (section_name, next_id, flow, index, retry, timelimit, store, sid))
         # seesection(dbpc, aid, sid)
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     elif request.method == 'DELETE':

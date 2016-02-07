@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # coding=utf-8
 
-from datakit.mongo.orm import *
-from datakit.mongo.suit import dbpc
+from dbskit.mongo.orm import *
+from dbskit.mongo.suit import dbpc
 from task.config.db.mongo import RDB, WDB, LIMIT, _DBCONN, USE
 
 

@@ -1,11 +1,12 @@
 #!/usr/bin/python
 # coding=utf8
 import json
-from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
+from dbskit.mysql.suit import withMysql, dbpc, RDB, WDB
 from webcrawl.character import unicode2utf8
 from hawkeye import seeunit
 from flask import Blueprint, request, Response, render_template, g
 from views import produce
+from model.base import Unit, Datamodel
 
 @produce.route('/unit/list', methods=['GET'])
 @withMysql(RDB, resutype='DICT')
@@ -14,21 +15,30 @@ def unitlist():
     page = int(request.args.get('page', 1))
     total = int(request.args.get('total', 0))
     if total == 0:
-        total = dbpc.handler.queryOne(""" select count(gu.id) as total from grab_unit gu join grab_datamodel gdm on gu.dmid = gdm.id; """)['total']
+        total = Unit.count({})
     count = (total - 1)/pagetotal + 1
-    units = dbpc.handler.queryAll(""" select gu.id, gu.name as unit_name, gdm.name as datamodel_name from grab_unit gu join grab_datamodel gdm on gu.dmid = gdm.id order by gu.update_time desc limit %s, %s; """, ((page-1)*pagetotal, pagetotal))
+    units = []
+    for unit in Unit.queryAll({}, projection={'dmid':1, 'name':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal):
+        datamodel = Datamodel.queryOne({'id':unit['dmid']}, projection={'name':1})
+        unit['unit_name'] = unit['name']
+        unit['datamodel_name'] = datamodel['name']
+        units.append(unit)
     return render_template('punitlist.html', appname=g.appname, logined=True, units=units, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @produce.route('/unit/detail', methods=['GET', 'POST'])
 @produce.route('/unit/detail/<uid>', methods=['GET', 'POST'])
 @withMysql(WDB, resutype='DICT', autocommit=True)
 def unitdetail(uid=None):
-    datamodels = dbpc.handler.queryAll(""" select `id`, `name` from grab_datamodel where `status` = 1 order by `id` desc; """)
+    datamodels = Datamodel.queryAll({'status':1}, projection={'id':1, 'name':1}, sort=[('id', -1)])
     if request.method == 'GET':
         if uid is None:
             unit = {'id':'', 'unit_name':'', 'datamodel_name':'', 'extra':'', 'dmid':''}
         else:
-            unit = dbpc.handler.queryOne(""" select gu.id, gu.name as unit_name, gdm.name as datamodel_name, gu.extra, gdm.id as dmid from grab_unit gu join grab_datamodel gdm on gu.dmid = gdm.id where gu.id = %s; """, (uid,))
+            unit = Unit.queryOne({'id':uid}, projection={'id':1, 'name':1, 'extra':1})
+            datamodel = Datamodel.queryOne({'id':unit['dmid']}, projection={'name':1, 'id':1})
+            unit['unit_name'] = unit['name']
+            unit['datamodel_name'] = datamodel['name']
+            unit['dmid'] = datamodel['id']
         return render_template('punitdetail.html', appname=g.appname, logined=True, unit=unit, datamodels=datamodels)
     elif request.method == 'POST':
         user = request.user
@@ -39,11 +49,30 @@ def unitdetail(uid=None):
         dmid = request.form.get('dmid')
         print request.form
         if uid is None:
-            dbpc.handler.insert(""" insert into `grab_unit` (`dmid`, `name`, `dirpath`, `filepath`, `status`, `extra`, `dmid`, `creator`, `updator`, `create_time`, `update_time`)values(1, %s, %s, %s, 1, %s, %s, %s, now(), now()); """, (unit_name, dirpath, filepath, extra, dmid, user['id'], user['id']))
-            uid = dbpc.handler.queryOne(""" select * from grab_unit where `name` = %s """, (unit_name,))['id']
+            unit = Unit(name=unit_name,
+                dirpath=dirpath,
+                filepath=filepath,
+                status=1, 
+                extra=extra,
+                dmid=dmid,
+                creator=user['id'],
+                updator=user['id'],
+                create_time=datetime.datetime.now(),
+                update_time=datetime.datetime.now()
+            )
+            uid = Unit.insert(unit)
             # seeunit(dbpc, uid)
         else:
-            dbpc.handler.update(""" update `grab_unit` set `name` = %s, `dirpath` = %s, `filepath` = %s, `extra` = %s, `dmid` = %s, `updator` = %s, update_time=now() where `id` = %s """, (unit_name, dirpath, filepath, extra, dmid, user['id'], uid))
+            doc = {
+                'name':unit_name,
+                'dirpath':dirpath,
+                'filepath':filepath,
+                'extra':extra,
+                'dmid':dmid,
+                'updator':user['id'],
+                'update_time':datetime.datetime.now()
+            }
+            dbpc.handler.update({'id':uid}, doc)
             # seeunit(dbpc, uid)
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:

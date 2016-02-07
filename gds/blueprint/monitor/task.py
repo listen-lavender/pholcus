@@ -2,10 +2,11 @@
 # coding=utf8
 import json
 import time, datetime
-from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
+from dbskit.mysql.suit import withMysql, dbpc, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import monitor
+from model.base import Task, Statistics
 
 STATDESC = {0:'stopped', 1:'started', 2:'running', 3:'error'}
 
@@ -16,13 +17,13 @@ def tasklist():
     page = int(request.args.get('page', 1))
     total = int(request.args.get('total', 0))
     if total == 0:
-        total = dbpc.handler.queryOne(""" select count(gt.id) as total from grab_task gt; """)['total']
+        total = Task.count({})
     count = (total - 1)/pagetotal + 1
-    tasks = dbpc.handler.queryAll(""" select gt.id, gt.name as task_name, gt.type, gt.status from grab_task gt order by gt.update_time desc limit %s, %s; """, ((page-1)*pagetotal, pagetotal))
+    tasks = Task.queryAll({}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     for one in tasks:
         one['change'] = (one['status'] in (0, 1, 2) and one['type'] == 'FOREVER') or (one['status'] in (0, 1) and one['type'] == 'ONCE')
         one['status_desc'] = STATDESC.get(one['status'], '')
-        one['max'] = (dbpc.handler.queryOne(""" select max(succ) as succ from grab_statistics where tid = %s; """, (one['id'], )) or {'succ':0})['succ']
+        one['max'] = (Statistics.queryOne({'tid':one['id']}, projection={'succ':1}, sort=[('succ', -1)]) or {'succ':0})['succ']
     return render_template('mtasklist.html', appname=g.appname, logined=True, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @monitor.route('/task/time/detail/<tid>', methods=['GET'])
@@ -33,7 +34,7 @@ def tasktimedetail(tid):
     begin = request.args.get('begin')
 
     if end is None:
-        end = (dbpc.handler.queryOne(''' select create_time from grab_statistics where tid = %s order by id desc limit 1; ''', (tid, )) or {'create_time':datetime.datetime.now()})['create_time']
+        end = (Statistics.queryOne({'tid':tid}, projection={'create_time':1}, sort=[('id', -1)]) or {'create_time':datetime.datetime.now()})['create_time']
     else:
         end = datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S')
     begin = end - datetime.timedelta(seconds=48*600)
@@ -68,7 +69,7 @@ def taskcountdetail(tid):
     begin = request.args.get('begin')
 
     if end is None:
-        end = (dbpc.handler.queryOne(''' select create_time from grab_statistics where tid = %s order by id desc limit 1; ''', (tid, )) or {'create_time':datetime.datetime.now()})['create_time']
+        end = (Statistics.queryOne({'tid':tid}, projection={'create_time':1}, sort=[('id', -1)]) or {'create_time':datetime.datetime.now()})['create_time']
     else:
         end = datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S')
     begin = end - datetime.timedelta(seconds=48*600)

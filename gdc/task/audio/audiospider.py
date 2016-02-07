@@ -7,14 +7,14 @@ from webcrawl.spider import SpiderOrigin
 # from task.config.db.mysql import RDB
 # from task.config.db.mysql import WDB
 # from task.config.db.mysql import _DBCONN as DBCONN
-# from datakit.mysql.suit import withMysql as withDB
+# from dbskit.mysql.suit import withMysql as withDB
 
 from task.model.mongo import initDB
 from task.model.mongo import Audio as Data
 from task.config.db.mongo import RDB
 from task.config.db.mongo import WDB
 from task.config.db.mongo import _DBCONN as DBCONN
-from datakit.mongo.suit import withMongo as withDB
+from dbskit.mongo.suit import withMongo as withDB
 
 TIMEOUT = 120
 

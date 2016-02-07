@@ -1,6 +1,9 @@
 #!/usr/bin/python
 # coding=utf8
 
+from dbskit.mysql import orm as mysql_orm
+from dbskit.mongo import orm as mongo_orm
+
 # cache timeout, 30 mins
 CACHE_TIMEOUT = 60 * 30
 
@@ -34,3 +37,4 @@ _DBCONN = {"localhost":{"host": "127.0.0.1",
 _DBCONN_R = _DBCONN["localhost"]
 _DBCONN_W = _DBCONN["localhost"]
 LIMIT = 20
+orm = mysql_orm

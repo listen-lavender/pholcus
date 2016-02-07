@@ -22,4 +22,4 @@ Server of pholcus.
 
 pip install webcrawl
 
-pip install datakit
+pip install dbskit

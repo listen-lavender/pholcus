@@ -2,7 +2,7 @@
 # coding=utf8
 import json, sys, os
 from settings import staticfilepath, useport, CACHE_TIMEOUT, _DBCONN_R, _DBCONN_W, LIMIT
-from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
+from dbskit.mysql.suit import withMysql, dbpc, RDB, WDB
 from flask import Flask, g, request, Response, session, redirect
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug.contrib.cache import SimpleCache
@@ -45,7 +45,7 @@ def cached(func):
         return response
     return decorator
 
-app = Flask(__name__, static_folder='static', static_path='/gds/static', template_folder='templates')
+app = Flask(__name__, static_folder='static', static_path='/gds/static', template_folder='template')
 app.config.from_object(__name__)
 app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'redis'

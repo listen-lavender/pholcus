@@ -1,10 +1,11 @@
 #!/usr/bin/python
 # coding=utf8
-import json
-from datakit.mysql.suit import withMysql, dbpc, RDB, WDB
+import json, datetime
+from dbskit.mysql.suit import withMysql, dbpc, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import produce
+from model.base import Task, Section, Article, Unit, Config
 
 QUEUETYPE = {'P':'本地队列', 'B':'beanstalk队列'}
 WORKTYPE = {'THREAD':'线程', 'COROUTINE':'协程'}
@@ -17,9 +18,9 @@ def tasklist():
     page = int(request.args.get('page', 1))
     total = int(request.args.get('total', 0))
     if total == 0:
-        total = dbpc.handler.queryOne(""" select count(gt.id) as total from grab_task gt; """)['total']
+        total = Task.count({})
     count = (total - 1)/pagetotal + 1
-    tasks = dbpc.handler.queryAll(""" select gt.id, gt.name as task_name from grab_task gt order by gt.update_time desc limit %s, %s; """, ((page-1)*pagetotal, pagetotal))
+    tasks = Task.queryAll({}, projection={'id':1, 'name':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     return render_template('ptasklist.html', appname=g.appname, logined=True, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @produce.route('/task/detail', methods=['GET', 'POST'])
@@ -32,7 +33,19 @@ def taskdetail(tid=None):
         if tid is None:
             task = {'id':'', 'aid':'', 'sid':'', 'task_name':'', 'extra':'', 'type':'ONCE', 'period':0, 'flow':'', 'params':'', 'worknum':6, 'queuetype':'P', 'worktype':'THREAD', 'trace':0, 'timeout':30, 'category':'', 'tag':''}
         else:
-            task = dbpc.handler.queryOne(""" select gt.id, gt.aid, concat(gc.val, gu.dirpath, ga.filepath) as article_name, gs.name as section_name, gt.sid, gt.name as task_name, gt.extra, gt.type, gt.period, gt.flow, gt.params, gt.worknum, gt.queuetype, gt.worktype, gt.trace, gt.timeout, gt.category, gt.tag from grab_task gt join grab_article ga on gt.aid = ga.id join grab_section gs  on gt.sid = gs.id join grab_unit gu on ga.uid =gu.id join grab_config gc on gc.type='ROOT' and gc.key ='dir' where gt.id = %s; """, (tid,))
+            projection = {'id':1, 'aid':1, 'sid':1, 'name':1, 'extra':1, 'type':1, 'period':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'trace':1, 'timeout':1, 'category':1, 'tag':1}
+            task = Task.queryOne({'id':tid}, projection=projection)
+            task['task_name'] = task['name']
+            projection = {'name':1}
+            section = Section.queryOne({'id':task['sid']}, projection=projection)
+            projection = {'filepath':1, 'uid':1}
+            article = Article.queryOne({'id':task['aid']}, projection=projection)
+            projection = {'dirpath':1}
+            unit = Unit.queryOne({'id':article['uid']}, projection=projection)
+            projection = {'val':1}
+            config = Config.queryOne({'type':'ROOT', 'key':'dir'}, projection=projection)
+            task['section_name'] = section['name']
+            task['article_name'] = config['val'] + unit['dirpath'] + article['filepath']
         task['queuetype_name'] = QUEUETYPE.get(task['queuetype'], '')
         task['worktype_name'] = WORKTYPE.get(task['worktype'], '')
         task['trace_name'] = TRACE.get(task['trace'], '')
@@ -60,12 +73,45 @@ def taskdetail(tid=None):
         else:
             queuetype = 'R'
         if tid is None:
-            dbpc.handler.insert(""" insert into `grab_task` (`name`,`extra`,`category`,`tag`,`type`,`period`,`aid`,`flow`,`sid`,`params`,`timeout`,`worknum`,`queuetype`,`worktype`,`trace`, `creator`, `updator`, `create_time`)
-                                                      values(%s,         %s,        %s,   %s,        %s,      %s,   %s,    %s,   %s,      %s,       %s,        %s,        %s,        %s,     %s,        %s,        %s,         now()); """, 
-                                                         (task_name, extra, category, tag, tasktype, period, aid, flow, sid, params, timeout, worknum, queuetype, worktype, trace, user['id'], user['id']))
-            tid = dbpc.handler.queryOne(""" select * from grab_task where `name` = %s """, (task_name,))['id']
+            task = Task(name=task_name,
+                extra=extra,
+                category=category,
+                tag=tag,
+                type=tasktype,
+                period=period,
+                aid=aid,
+                flow=flow,
+                sid=sid,
+                params=params,
+                timeout=timeout,
+                worknum=worknum,
+                queuetype=queuetype,
+                worktype=worktype,
+                trace=trace,
+                creator=user['id'],
+                updator=user['id'],
+                create_time=datetime.datetime.now())
+            tid = Task.insert(task)
         else:
-            dbpc.handler.update(""" update `grab_task` set `name`=%s,`extra`=%s,`category`=%s,`tag`=%s,`type`=%s,`period`=%s,`aid`=%s,`flow`=%s,`sid`=%s,`params`=%s,`timeout`=%s,`worknum`=%s,`queuetype`=%s,`worktype`=%s,`trace`=%s, `updator`=%s, update_time=now() where `id` = %s """, (task_name,extra,category,tag,tasktype,period,aid,flow,sid,params,timeout,worknum,queuetype,worktype,trace,user['id'], tid))
+            doc = {'name':task_name,
+                'extra':extra,
+                'category':category,
+                'tag':tag,
+                'type':tasktype,
+                'period':period,
+                'aid':aid,
+                'flow':flow,
+                'sid':sid,
+                'params':params,
+                'timeout':timeout,
+                'worknum':worknum,
+                'queuetype':queuetype,
+                'worktype':worktype,
+                'trace':trace,
+                'updator':user['id'],
+                'update_time':datetime.datetime.now()
+            }
+            Task.update({'id':tid}, doc)
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         pass

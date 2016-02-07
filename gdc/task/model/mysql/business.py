@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # coding=utf-8
 
-from datakit.mysql.orm import *
-from datakit.mysql.suit import dbpc
+from dbskit.mysql.orm import *
+from dbskit.mysql.suit import dbpc
 from task.config.db.mysql import RDB, WDB, LIMIT, _DBCONN, USE
 
 

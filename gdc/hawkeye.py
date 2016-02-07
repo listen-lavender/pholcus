@@ -3,7 +3,7 @@
 import time, datetime
 import os
 from optparse import OptionParser
-from datakit.mysql.suit import withMysql, dbpc
+from dbskit.mysql.suit import withMysql, dbpc
 from godhand import cook
 import task
 
@@ -43,8 +43,8 @@ initDB()
 models = ["""#!/usr/bin/python
 # coding=utf-8
 
-from datakit.mysql.orm import Model, Field
-from datakit.mysql.suit import dbpc
+from dbskit.mysql.orm import Model, Field
+from dbskit.mysql.suit import dbpc
 from task.config.db.mysql import RDB, WDB, LIMIT, _DBCONN, USE
 
 def initDB():

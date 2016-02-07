@@ -7,7 +7,7 @@ from task.model.mysql import Proxy as Data
 from task.config.db.mysql import RDB
 from task.config.db.mysql import WDB
 from task.config.db.mysql import _DBCONN as DBCONN
-from datakit.mysql.suit import withMysql as withDB
+from dbskit.mysql.suit import withMysql as withDB
 
 TIMEOUT = 10
 
