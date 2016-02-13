@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding=utf8
 import json
-from dbskit.mysql.suit import withMysql, dbpc, RDB, WDB
+from settings import withBase, withData, baseConn, dataConn, _BASE_R, _BASE_W
 from webcrawl.character import unicode2utf8
 from hawkeye import seeunit
 from flask import Blueprint, request, Response, render_template, g
@@ -61,7 +61,7 @@ def unitdetail(uid=None):
                 update_time=datetime.datetime.now()
             )
             uid = Unit.insert(unit)
-            # seeunit(dbpc, uid)
+            # seeunit(baseConn, uid)
         else:
             doc = {
                 'name':unit_name,
@@ -72,8 +72,8 @@ def unitdetail(uid=None):
                 'updator':user['id'],
                 'update_time':datetime.datetime.now()
             }
-            dbpc.handler.update({'id':uid}, doc)
-            # seeunit(dbpc, uid)
+            baseConn.handler.update({'id':uid}, doc)
+            # seeunit(baseConn, uid)
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         pass

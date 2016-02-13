@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding=utf8
 import json, datetime
-from dbskit.mysql.suit import withMysql, dbpc, RDB, WDB
+from settings import withBase, withData, baseConn, dataConn, _BASE_R, _BASE_W
 from webcrawl.character import unicode2utf8
 from hawkeye import seearticle
 from flask import Blueprint, request, Response, render_template, g

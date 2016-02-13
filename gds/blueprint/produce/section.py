@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding=utf8
 import json
-from dbskit.mysql.suit import withMysql, dbpc, RDB, WDB
+from settings import withBase, withData, baseConn, dataConn, _BASE_R, _BASE_W
 from webcrawl.character import unicode2utf8
 from hawkeye import seesection
 from flask import Blueprint, request, Response, render_template, g
@@ -96,7 +96,7 @@ def sectiondetail(sid=None):
             retry = request.form.get('retry')
             timelimit = request.form.get('timelimit')
             store = request.form.get('store')
-        # seesection(dbpc, aid, sid)
+        # seesection(baseConn, aid, sid)
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     elif request.method == 'DELETE':
         iid = request.form.get('id', '')

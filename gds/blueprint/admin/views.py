@@ -2,7 +2,7 @@
 # coding=utf8
 import types, datetime, uuid
 from flask import Blueprint, request, Response, render_template, redirect, make_response, session, g
-from dbskit.mysql.suit import withMysql, dbpc, RDB, WDB
+from settings import withBase, withData, baseConn, dataConn, _BASE_R, _BASE_W
 from flask.helpers import send_from_directory
 from model.base import Creator
 
@@ -37,7 +37,7 @@ def login():
     # sql = """insert ignore into grab_creator(`username`,`password`,`contact`,`notify`,`status`,`creator`,`updator`,`create_time`)
     #                            values(%s        ,        %s,       %s,      %s,      %s,       %s,       %s,           %s);
     # """
-    # dbpc.handler.insert(sql, (username, password, contact, notify, status, creator, updator, create_time))
+    # baseConn.handler.insert(sql, (username, password, contact, notify, status, creator, updator, create_time))
     user = request.user
     if user is not None:
         return redirect('/gds/m/task/list')

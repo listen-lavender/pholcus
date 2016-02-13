@@ -2,7 +2,7 @@
 # coding=utf8
 import json
 import time, datetime
-from dbskit.mysql.suit import withMysql, dbpc, RDB, WDB
+from settings import withBase, withData, baseConn, dataConn, _BASE_R, _BASE_W
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import monitor
@@ -45,7 +45,7 @@ def tasktimedetail(tid):
     '''
 
     print sql, tid, begin, end
-    stats = dbpc.handler.queryAll(sql, (tid, begin, end))
+    stats = baseConn.handler.queryAll(sql, (tid, begin, end))
     for log in stats:
         # log['time'] = parser.parse(log['time']+'0')
         log['time'] = time.mktime(time.strptime(log['time']+ ':00', '%Y-%m-%d %H:%M:%S')) * 1000
@@ -80,7 +80,7 @@ def taskcountdetail(tid):
     '''
 
     print sql, tid, begin, end
-    succ_stats = dbpc.handler.queryAll(sql, (tid, begin, end))
+    succ_stats = baseConn.handler.queryAll(sql, (tid, begin, end))
     for log in succ_stats:
         # log['time'] = parser.parse(log['time']+'0')
         log['time'] = time.mktime(time.strptime(log['time']+ ':00', '%Y-%m-%d %H:%M:%S')) * 1000
@@ -91,7 +91,7 @@ def taskcountdetail(tid):
             order by time
     '''
     print sql, tid, begin, end
-    fail_stats = dbpc.handler.queryAll(sql, (tid, begin, end))
+    fail_stats = baseConn.handler.queryAll(sql, (tid, begin, end))
     for log in fail_stats:
         # log['time'] = parser.parse(log['time']+'0')
         log['time'] = time.mktime(time.strptime(log['time']+ ':00', '%Y-%m-%d %H:%M:%S')) * 1000
@@ -102,7 +102,7 @@ def taskcountdetail(tid):
             order by time
     '''
     print sql, tid, begin, end
-    timeout_stats = dbpc.handler.queryAll(sql, (tid, begin, end))
+    timeout_stats = baseConn.handler.queryAll(sql, (tid, begin, end))
     for log in timeout_stats:
         # log['time'] = parser.parse(log['time']+'0')
         log['time'] = time.mktime(time.strptime(log['time']+ ':00', '%Y-%m-%d %H:%M:%S')) * 1000
@@ -127,6 +127,6 @@ def taskchange(tid):
     sql = '''
         update grab_task set status = %s where id = %s
     '''
-    dataset = dbpc.handler.update(sql, (status, tid))
+    dataset = baseConn.handler.update(sql, (status, tid))
     return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 

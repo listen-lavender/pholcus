@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding=utf8
 import json, datetime
-from dbskit.mysql.suit import withMysql, dbpc, RDB, WDB
+from settings import withBase, withData, baseConn, dataConn, _BASE_R, _BASE_W
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import produce
@@ -119,7 +119,7 @@ def taskdetail(tid=None):
 @produce.route('/task/articles', methods=['GET'])
 @withMysql(RDB, resutype='DICT')
 def taskarticles():
-    articles = dbpc.handler.queryAll(""" select ga.id, concat(gc.val, gu.dirpath, ga.filepath) as article_name from grab_unit gu join grab_config gc join grab_article ga on gc.type='ROOT' and gc.key ='dir' and ga.uid =gu.id; """)
+    articles = baseConn.handler.queryAll(""" select ga.id, concat(gc.val, gu.dirpath, ga.filepath) as article_name from grab_unit gu join grab_config gc join grab_article ga on gc.type='ROOT' and gc.key ='dir' and ga.uid =gu.id; """)
     # return jsonify(articles)
     return json.dumps(articles, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
@@ -127,7 +127,7 @@ def taskarticles():
 @withMysql(RDB, resutype='DICT')
 def taskflows():
     aid = request.args.get('aid', 0)
-    flows = dbpc.handler.queryAll(""" select distinct flow from grab_section where aid = %s; """, (aid, ))
+    flows = baseConn.handler.queryAll(""" select distinct flow from grab_section where aid = %s; """, (aid, ))
     return json.dumps(flows, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     # return jsonify(flows)
 
@@ -136,6 +136,6 @@ def taskflows():
 def tasksections():
     aid = request.args.get('aid', 0)
     flow = request.args.get('flow', '')
-    sections = dbpc.handler.queryAll(""" select `id`, `name` as section_name from grab_section where aid = %s and flow = %s; """, (aid, flow))
+    sections = baseConn.handler.queryAll(""" select `id`, `name` as section_name from grab_section where aid = %s and flow = %s; """, (aid, flow))
     return json.dumps(sections, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     # return jsonify(sections)

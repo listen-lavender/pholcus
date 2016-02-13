@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # coding=utf8
 import json, sys, os
-from settings import staticfilepath, useport, CACHE_TIMEOUT, _DBCONN_R, _DBCONN_W, LIMIT
-from dbskit.mysql.suit import withMysql, dbpc, RDB, WDB
+from settings import staticfilepath, useport, CACHE_TIMEOUT, LIMIT
+from settings import withBase, withData, baseConn, dataConn, _BASE_R, _BASE_W, _DATA_R
 from flask import Flask, g, request, Response, session, redirect
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug.contrib.cache import SimpleCache
@@ -10,22 +10,31 @@ from werkzeug.routing import BaseConverter
 from util.session import Session
 
 
-dbpc.addDB(RDB, LIMIT, host=_DBCONN_R['host'],
-                    port=_DBCONN_R['port'],
-                    user=_DBCONN_R['user'],
-                    passwd=_DBCONN_R['passwd'],
-                    db=_DBCONN_R['db'],
-                    charset=_DBCONN_R['charset'],
-                    use_unicode=_DBCONN_R['use_unicode'],
+baseConn.addDB(RDB, LIMIT, host=_BASE_R['host'],
+                    port=_BASE_R['port'],
+                    user=_BASE_R['user'],
+                    passwd=_BASE_R['passwd'],
+                    db=_BASE_R['db'],
+                    charset=_BASE_R['charset'],
+                    use_unicode=_BASE_R['use_unicode'],
                     override=False)
 
-dbpc.addDB(WDB, LIMIT, host=_DBCONN_W['host'],
-                    port=_DBCONN_W['port'],
-                    user=_DBCONN_W['user'],
-                    passwd=_DBCONN_W['passwd'],
-                    db=_DBCONN_W['db'],
-                    charset=_DBCONN_W['charset'],
-                    use_unicode=_DBCONN_W['use_unicode'],
+baseConn.addDB(WDB, LIMIT, host=_BASE_W['host'],
+                    port=_BASE_W['port'],
+                    user=_BASE_W['user'],
+                    passwd=_BASE_W['passwd'],
+                    db=_BASE_W['db'],
+                    charset=_BASE_W['charset'],
+                    use_unicode=_BASE_W['use_unicode'],
+                    override=False)
+
+dataConn.addDB(RDB, LIMIT, host=_DATA_R['host'],
+                    port=_DATA_R['port'],
+                    user=_DATA_R['user'],
+                    passwd=_DATA_R['passwd'],
+                    db=_DATA_R['db'],
+                    charset=_DATA_R['charset'],
+                    use_unicode=_DATA_R['use_unicode'],
                     override=False)
 
 from blueprint.admin.views import admin

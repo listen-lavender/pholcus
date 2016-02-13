@@ -197,96 +197,96 @@ values
 """
 ]
 
-def init(dbpc):
+def init(baseConn):
     try:
-        dbpc.handler.insert(initsqls[0]);
+        baseConn.handler.insert(initsqls[0]);
     except:
         pass
-    cid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype='unit' and `name` = 'SpiderOrigin'; """)['id']
+    cid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype='unit' and `name` = 'SpiderOrigin'; """)['id']
     try:
-        dbpc.handler.insert(initsqls[1].replace('{{cid}}', str(cid)))
+        baseConn.handler.insert(initsqls[1].replace('{{cid}}', str(cid)))
     except:
         pass
 
-def seeunit(dbpc, uid):
-    unit = dbpc.handler.queryOne(""" select * from grab_unit where id = %s """, (uid,))
+def seeunit(baseConn, uid):
+    unit = baseConn.handler.queryOne(""" select * from grab_unit where id = %s """, (uid,))
     try:
-        dbpc.handler.insert(units[0].replace('{{uid}}', str(uid)) % unit['filepath'].replace('.py', ''))
+        baseConn.handler.insert(units[0].replace('{{uid}}', str(uid)) % unit['filepath'].replace('.py', ''))
     except:
         raise
-    mid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='unit' and sid = 0 """, (uid,))['id']
+    mid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='unit' and sid = 0 """, (uid,))['id']
     try:
-        dbpc.handler.insert(units[1].replace('{{uid}}', str(uid)).replace('{{mid}}', str(mid)) % (unit['name'].capitalize(), unit['name'].capitalize()))
+        baseConn.handler.insert(units[1].replace('{{uid}}', str(uid)).replace('{{mid}}', str(mid)) % (unit['name'].capitalize(), unit['name'].capitalize()))
     except:
         raise
-    bcid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype='unit' and `name` = 'SpiderOrigin'; """)['id']
-    cid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='unit' and `name` = %s """, (uid, 'Spider%sOrigin' % unit['name'].capitalize()))['id']
+    bcid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype='unit' and `name` = 'SpiderOrigin'; """)['id']
+    cid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='unit' and `name` = %s """, (uid, 'Spider%sOrigin' % unit['name'].capitalize()))['id']
     try:
-        dbpc.handler.insert(units[2].replace('{{uid}}', str(uid)).replace('{{cid}}', str(cid)).replace('{{bcid}}', str(bcid)))
+        baseConn.handler.insert(units[2].replace('{{uid}}', str(uid)).replace('{{cid}}', str(cid)).replace('{{bcid}}', str(bcid)))
     except:
         raise
-    fid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='unit' and `sid` = %s and `name` = '__init__' """, (uid, cid))['id']
-    did = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='unit' and `sid` = %s and `name` = 'initDB' """, (uid, mid))['id']
+    fid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='unit' and `sid` = %s and `name` = '__init__' """, (uid, cid))['id']
+    did = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='unit' and `sid` = %s and `name` = 'initDB' """, (uid, mid))['id']
     try:
-        dbpc.handler.insert(units[3].replace('{{uid}}', str(uid)).replace('{{fid}}', str(fid)) % (did))
-    except:
-        raise
-
-def seearticle(dbpc, uid, aid):
-    unit = dbpc.handler.queryOne(""" select * from grab_unit where id = %s """, (uid,))
-    article = dbpc.handler.queryOne(""" select * from grab_article where id = %s """, (aid,))
-    try:
-        dbpc.handler.insert(articles[0].replace('{{aid}}', str(aid)) % article['filepath'].replace('.py', ''))
-    except:
-        raise
-    mid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and sid = 0 """, (aid,))['id']
-    try:
-        dbpc.handler.insert(articles[1].replace('{{aid}}', str(aid)).replace('{{mid}}', str(mid)) % (unit['filepath'].replace('.py', ''), 'Spider%s' % article['name'].capitalize(), 'Spider%sOrigin' % unit['name'].capitalize(), unit['filepath'].replace('.py', ''), 'Spider%sOrigin' % unit['name'].capitalize()))
-    except:
-        raise
-    pcid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `pid`='' and `name` = %s """, (aid, 'Spider%sOrigin' % unit['name'].capitalize()))['id']
-    try:
-        dbpc.handler.insert(articles[2].replace('{{aid}}', str(aid)).replace('{{pcid}}', str(pcid)))
-    except:
-        raise
-    cid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `name` = %s """, (aid, 'Spider%s' % article['name'].capitalize()))['id']
-    try:
-        dbpc.handler.insert(articles[3].replace('{{aid}}', str(aid)).replace('{{cid}}', str(cid)) % (pcid, 'Spider%sOrigin' % unit['name'].capitalize()))
-    except:
-        raise
-    fid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `sid` = %s and `name` = '__init__' """, (aid, cid))['id']
-    try:
-        dbpc.handler.insert(articles[4].replace('{{aid}}', str(aid)).replace('{{fid}}', str(fid)))
+        baseConn.handler.insert(units[3].replace('{{uid}}', str(uid)).replace('{{fid}}', str(fid)) % (did))
     except:
         raise
 
-def clearsection(dbpc, sid):
-    dbpc.handler.queryOne(""" delete from grab_datapath where btype='section' and bid = %d; """ % int(sid))
+def seearticle(baseConn, uid, aid):
+    unit = baseConn.handler.queryOne(""" select * from grab_unit where id = %s """, (uid,))
+    article = baseConn.handler.queryOne(""" select * from grab_article where id = %s """, (aid,))
+    try:
+        baseConn.handler.insert(articles[0].replace('{{aid}}', str(aid)) % article['filepath'].replace('.py', ''))
+    except:
+        raise
+    mid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and sid = 0 """, (aid,))['id']
+    try:
+        baseConn.handler.insert(articles[1].replace('{{aid}}', str(aid)).replace('{{mid}}', str(mid)) % (unit['filepath'].replace('.py', ''), 'Spider%s' % article['name'].capitalize(), 'Spider%sOrigin' % unit['name'].capitalize(), unit['filepath'].replace('.py', ''), 'Spider%sOrigin' % unit['name'].capitalize()))
+    except:
+        raise
+    pcid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `pid`='' and `name` = %s """, (aid, 'Spider%sOrigin' % unit['name'].capitalize()))['id']
+    try:
+        baseConn.handler.insert(articles[2].replace('{{aid}}', str(aid)).replace('{{pcid}}', str(pcid)))
+    except:
+        raise
+    cid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `name` = %s """, (aid, 'Spider%s' % article['name'].capitalize()))['id']
+    try:
+        baseConn.handler.insert(articles[3].replace('{{aid}}', str(aid)).replace('{{cid}}', str(cid)) % (pcid, 'Spider%sOrigin' % unit['name'].capitalize()))
+    except:
+        raise
+    fid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `sid` = %s and `name` = '__init__' """, (aid, cid))['id']
+    try:
+        baseConn.handler.insert(articles[4].replace('{{aid}}', str(aid)).replace('{{fid}}', str(fid)))
+    except:
+        raise
 
-def seesection(dbpc, aid, sid):
-    clearsection(dbpc, sid)
-    article = dbpc.handler.queryOne(""" select * from grab_article where id = %s """, (aid,))
-    section = dbpc.handler.queryOne(""" select * from grab_section where id = %s """, (sid,))
-    source = dbpc.handler.queryAll(""" select * from grab_datasource where sid = %s """, (sid,))
-    extract = dbpc.handler.queryAll(""" select * from grab_dataextract where sid = %s """, (sid,))
+def clearsection(baseConn, sid):
+    baseConn.handler.queryOne(""" delete from grab_datapath where btype='section' and bid = %d; """ % int(sid))
+
+def seesection(baseConn, aid, sid):
+    clearsection(baseConn, sid)
+    article = baseConn.handler.queryOne(""" select * from grab_article where id = %s """, (aid,))
+    section = baseConn.handler.queryOne(""" select * from grab_section where id = %s """, (sid,))
+    source = baseConn.handler.queryAll(""" select * from grab_datasource where sid = %s """, (sid,))
+    extract = baseConn.handler.queryAll(""" select * from grab_dataextract where sid = %s """, (sid,))
     print """ select * from grab_datapath where bid = %s and btype='article' and `name` = %s """ % (aid, 'Spider%s' % article['name'].capitalize())
-    cid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `name` = %s """, (aid, 'Spider%s' % article['name'].capitalize()))['id']
+    cid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `name` = %s """, (aid, 'Spider%s' % article['name'].capitalize()))['id']
     try:
         print sections[0].replace('{{sid}}', str(sid)).replace('{{cid}}', str(cid)) % ('fetch%s%s' % (section['flow'].upper(), section['name'].capitalize()))
-        dbpc.handler.insert(sections[0].replace('{{sid}}', str(sid)).replace('{{cid}}', str(cid)) % ('fetch%s%s' % (section['flow'].upper(), section['name'].capitalize())))
+        baseConn.handler.insert(sections[0].replace('{{sid}}', str(sid)).replace('{{cid}}', str(cid)) % ('fetch%s%s' % (section['flow'].upper(), section['name'].capitalize())))
     except:
         raise
-    fid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `name` = %s """, (sid, 'fetch%s%s' % (section['flow'].upper(), section['name'].capitalize())))['id']
+    fid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `name` = %s """, (sid, 'fetch%s%s' % (section['flow'].upper(), section['name'].capitalize())))['id']
     try:
-        presection = dbpc.handler.queryOne(""" select * from grab_section where aid = %s and next_id = %s """, (section['aid'], section['id']))
+        presection = baseConn.handler.queryOne(""" select * from grab_section where aid = %s and next_id = %s """, (section['aid'], section['id']))
         if section['store']:
-            section['store'] = dbpc.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype='article' and `name` = 'store' """)['id']
+            section['store'] = baseConn.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype='article' and `name` = 'store' """)['id']
         else:
             section['store'] = None
         if presection is not None:
             section['flow'] = None
-            dbpc.handler.update(""" update grab_datapath set pid = '%d' where bid = %d and btype='section' and `name`='next' and pid = '' """ % (fid, presection['id']))
-        #     puname = dbpc.handler.queryOne(""" select * from grab_dataextract where sid = %s and parameter = 1 """ % (presection['id']))['name']
+            baseConn.handler.update(""" update grab_datapath set pid = '%d' where bid = %d and btype='section' and `name`='next' and pid = '' """ % (fid, presection['id']))
+        #     puname = baseConn.handler.queryOne(""" select * from grab_dataextract where sid = %s and parameter = 1 """ % (presection['id']))['name']
         # else:
         #     puname = 'url'
         sql = sections[1].replace('{{sid}}', str(sid)).replace('{{fid}}', str(fid))
@@ -297,100 +297,100 @@ def seesection(dbpc, aid, sid):
         sql = sql.replace('{{store}}', section['store'] and "%s" % section['store'] or '')
         sql = sql % (section['store'] and 'execute' or 'None')
         print sql
-        dbpc.handler.insert(sql)
+        baseConn.handler.insert(sql)
     except:
         raise
     try:
         print sections[2].replace('{{sid}}', str(sid)).replace('{{fid}}', str(fid))
-        dbpc.handler.insert(sections[2].replace('{{sid}}', str(sid)).replace('{{fid}}', str(fid)))
+        baseConn.handler.insert(sections[2].replace('{{sid}}', str(sid)).replace('{{fid}}', str(fid)))
     except:
         raise
     print """select * from grab_datapath where method='params' and sid = %s and `name` = 'url' """, (fid, )
-    puid = dbpc.handler.queryOne(""" select * from grab_datapath where method='params' and sid = %s and `name` = 'url' """, (fid, ))['id']
+    puid = baseConn.handler.queryOne(""" select * from grab_datapath where method='params' and sid = %s and `name` = 'url' """, (fid, ))['id']
     print '>>>>', puid
     prid = None
     for s in source:
         if s['method'] == 'parameter' and s['format'] == 'PARAMETER':
-            ptid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = 0 and `btype` = 'article' and `name` = 'parturl'; """)['id']
+            ptid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = 0 and `btype` = 'article' and `name` = 'parturl'; """)['id']
             try:
-                dbpc.handler.insert(sections[13].replace('{{sid}}', str(sid)).replace('{{fid}}', str(fid)).replace('{{ptid}}', str(ptid)))
+                baseConn.handler.insert(sections[13].replace('{{sid}}', str(sid)).replace('{{fid}}', str(fid)).replace('{{ptid}}', str(ptid)))
             except:
                 raise
-            peid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and `btype` = 'section' and `sid` = %s and `name` = 'rqp'; """, (sid, fid))['id']
+            peid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and `btype` = 'section' and `sid` = %s and `name` = 'rqp'; """, (sid, fid))['id']
             try:
                 print sections[4].replace('{{sid}}', str(sid)).replace('{{peid}}', str(peid)).replace('{{puid}}', str(puid))
-                dbpc.handler.insert(sections[4].replace('{{sid}}', str(sid)).replace('{{peid}}', str(peid)).replace('{{puid}}', str(puid)))
+                baseConn.handler.insert(sections[4].replace('{{sid}}', str(sid)).replace('{{peid}}', str(peid)).replace('{{puid}}', str(puid)))
             except:
                 raise
         else:
             print """ select * from grab_datapath where bid = 0 and btype='article' and `name` = %s """, ('requ%s' % s['method'].capitalize(), )
-            mid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype='article' and `name` = %s """, ('requ%s' % s['method'].capitalize(), ))['id']
+            mid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype='article' and `name` = %s """, ('requ%s' % s['method'].capitalize(), ))['id']
             try:
                 print sections[3].replace('{{sid}}', str(sid)).replace('{{fid}}', str(fid)).replace('{{mid}}', str(mid)) % s['name']
-                dbpc.handler.insert(sections[3].replace('{{sid}}', str(sid)).replace('{{fid}}', str(fid)).replace('{{mid}}', str(mid)) % s['name'])
+                baseConn.handler.insert(sections[3].replace('{{sid}}', str(sid)).replace('{{fid}}', str(fid)).replace('{{mid}}', str(mid)) % s['name'])
             except:
                 raise
-            prid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and sid = %s and stype = 'function' and `name` = %s; """, (sid, fid, s['name']))['id']
+            prid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and sid = %s and stype = 'function' and `name` = %s; """, (sid, fid, s['name']))['id']
             try:
                 print sections[5].replace('{{sid}}', str(sid)).replace('{{fid}}', str(fid)).replace('{{prid}}', str(prid)).replace('{{puid}}', str(puid)) % (str(s['timeout']), s['format'])
-                dbpc.handler.insert(sections[5].replace('{{sid}}', str(sid)).replace('{{fid}}', str(fid)).replace('{{prid}}', str(prid)).replace('{{puid}}', str(puid)) % (str(s['timeout']), s['format']))
+                baseConn.handler.insert(sections[5].replace('{{sid}}', str(sid)).replace('{{fid}}', str(fid)).replace('{{prid}}', str(prid)).replace('{{puid}}', str(puid)) % (str(s['timeout']), s['format']))
             except:
                 raise
     for e in extract:
         if e['method'] == '.findall':
             try:
-                s = dbpc.handler.queryOne(""" select * from grab_datasource where id = %s """, (e['dsid'],))
-                prid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and sid = %s and stype = 'function' and `name` = %s; """, (sid, fid, s['name']))['id']
+                s = baseConn.handler.queryOne(""" select * from grab_datasource where id = %s """, (e['dsid'],))
+                prid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and sid = %s and stype = 'function' and `name` = %s; """, (sid, fid, s['name']))['id']
                 print sections[6].replace('{{sid}}', str(sid)).replace('{{fid}}', str(fid)).replace('{{prid}}', str(prid)) % (e['name'], '%s' % e['method'], e['path'].replace("'", '"'))
-                dbpc.handler.insert(sections[6].replace('{{sid}}', str(sid)).replace('{{fid}}', str(fid)).replace('{{prid}}', str(prid)) % (e['name'], '%s' % e['method'], e['path'].replace("'", '"')))
+                baseConn.handler.insert(sections[6].replace('{{sid}}', str(sid)).replace('{{fid}}', str(fid)).replace('{{prid}}', str(prid)) % (e['name'], '%s' % e['method'], e['path'].replace("'", '"')))
             except:
                 raise
             try:
-                plid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and sid = %s and stype = 'function' and `pid` = %s; """, (sid, fid, prid))['id']
+                plid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and sid = %s and stype = 'function' and `pid` = %s; """, (sid, fid, prid))['id']
                 print sections[7].replace('{{sid}}', str(sid)).replace('{{plid}}', str(plid))
-                dbpc.handler.insert(sections[7].replace('{{sid}}', str(sid)).replace('{{plid}}', str(plid)))
+                baseConn.handler.insert(sections[7].replace('{{sid}}', str(sid)).replace('{{plid}}', str(plid)))
             except:
                 raise
         elif e['method'] == '.find':
             boid = None
             if e['pdeid'] > 0:
-                pe = dbpc.handler.queryOne(""" select * from grab_dataextract where id = %s """, (e['pdeid'],))
-                ps = dbpc.handler.queryOne(""" select * from grab_datasource where id = %s """, (pe['dsid'],))
+                pe = baseConn.handler.queryOne(""" select * from grab_dataextract where id = %s """, (e['pdeid'],))
+                ps = baseConn.handler.queryOne(""" select * from grab_datasource where id = %s """, (pe['dsid'],))
                 if pe['method'] == '.findall':
-                    prid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and sid = %s and stype = 'function' and `name` = %s; """, (sid, fid, ps['name']))['id']
-                    plid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and sid = %s and stype = 'function' and `pid` = %s; """, (sid, fid, prid))['id']
-                    poid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and sid = %s and stype = 'list' and `pid` = %s; """, (sid, plid, plid))['id']
+                    prid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and sid = %s and stype = 'function' and `name` = %s; """, (sid, fid, ps['name']))['id']
+                    plid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and sid = %s and stype = 'function' and `pid` = %s; """, (sid, fid, prid))['id']
+                    poid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and sid = %s and stype = 'list' and `pid` = %s; """, (sid, plid, plid))['id']
                     boid = poid
                     btype = 'object'
                 else:
-                    poid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and sid = %s and stype = 'function' and `name` = %s; """, (sid, fid, ps['name']))['id']
+                    poid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and sid = %s and stype = 'function' and `name` = %s; """, (sid, fid, ps['name']))['id']
             else:
-                ps = dbpc.handler.queryOne(""" select * from grab_datasource where id = %s """, (e['dsid'],))
-                poid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and sid = %s and stype = 'function' and `name` = %s; """, (sid, fid, ps['name']))['id']
+                ps = baseConn.handler.queryOne(""" select * from grab_datasource where id = %s """, (e['dsid'],))
+                poid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and sid = %s and stype = 'function' and `name` = %s; """, (sid, fid, ps['name']))['id']
             if boid is None:
                 if e['store'] == 1:
-                    bo = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `method`='yield' """, (sid,))
-                    mcid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `name`='Data' """, (aid,))['id']
+                    bo = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `method`='yield' """, (sid,))
+                    mcid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `name`='Data' """, (aid,))['id']
                     if bo is None:
                         try:
                             print sections[9].replace('{{sid}}', str(sid)).replace('{{boid}}', str(fid)).replace('{{trid}}', str(mcid)) % ('function', '', 'object')
-                            dbpc.handler.insert(sections[9].replace('{{sid}}', str(sid)).replace('{{boid}}', str(fid)).replace('{{trid}}', str(mcid)) % ('function', '', 'object'))
+                            baseConn.handler.insert(sections[9].replace('{{sid}}', str(sid)).replace('{{boid}}', str(fid)).replace('{{trid}}', str(mcid)) % ('function', '', 'object'))
                         except:
                             raise
-                    boid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `method`='yield' """, (sid,))['id']
-                    fsid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `name`='store' and `method` = '@' """, (sid,))['id']
-                    fdb1 = dbpc.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype='article' and `name`='withMysql' """)['id']
-                    fdb2 = dbpc.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype='article' and `name`='mysql' """)['id']
-                    # fdb3 = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `name`='Data' """, (aid))['id']
+                    boid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `method`='yield' """, (sid,))['id']
+                    fsid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `name`='store' and `method` = '@' """, (sid,))['id']
+                    fdb1 = baseConn.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype='article' and `name`='withMysql' """)['id']
+                    fdb2 = baseConn.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype='article' and `name`='mysql' """)['id']
+                    # fdb3 = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `name`='Data' """, (aid))['id']
                     try:
                         print sections[14].replace('{{sid}}', str(sid)).replace('{{fdb1}}', str(fdb1)).replace('{{fdb2}}', str(fdb2))
-                        dbpc.handler.insert(sections[14].replace('{{sid}}', str(sid)).replace('{{fdb1}}', str(fdb1)).replace('{{fdb2}}', str(fdb2)))
+                        baseConn.handler.insert(sections[14].replace('{{sid}}', str(sid)).replace('{{fdb1}}', str(fdb1)).replace('{{fdb2}}', str(fdb2)))
                     except:
                         pass
-                    dbid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `xpath` = '["use"]["wdb"]'; """, (sid, ))['id']
+                    dbid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `xpath` = '["use"]["wdb"]'; """, (sid, ))['id']
                     try:
                         print sections[15].replace('{{sid}}', str(sid)).replace('{{fsid}}', str(fsid)).replace('{{mcid}}', str(mcid)).replace('{{dbid}}', str(dbid))
-                        dbpc.handler.insert(sections[15].replace('{{sid}}', str(sid)).replace('{{fsid}}', str(fsid)).replace('{{mcid}}', str(mcid)).replace('{{dbid}}', str(dbid)))
+                        baseConn.handler.insert(sections[15].replace('{{sid}}', str(sid)).replace('{{fsid}}', str(fsid)).replace('{{mcid}}', str(mcid)).replace('{{dbid}}', str(dbid)))
                     except:
                         pass
                     btype = 'object'
@@ -399,54 +399,54 @@ def seesection(dbpc, aid, sid):
                     btype = 'function'
             try:
                 print sections[8].replace('{{sid}}', str(sid)).replace('{{boid}}', str(boid)).replace('{{poid}}', str(poid)) % (btype, e['name'], '%s' % e['method'], e['path'] == '.' and 'null' or "'%s'" % e['path'].replace("'", '"'), e['content'].replace("'", '"'))
-                dbpc.handler.insert(sections[8].replace('{{sid}}', str(sid)).replace('{{boid}}', str(boid)).replace('{{poid}}', str(poid)) % (btype, e['name'], '%s' % e['method'], e['path'] == '.' and 'null' or "'%s'" % e['path'].replace("'", '"'), e['content'].replace("'", '"')))
+                baseConn.handler.insert(sections[8].replace('{{sid}}', str(sid)).replace('{{boid}}', str(boid)).replace('{{poid}}', str(poid)) % (btype, e['name'], '%s' % e['method'], e['path'] == '.' and 'null' or "'%s'" % e['path'].replace("'", '"'), e['content'].replace("'", '"')))
             except:
                 raise
             if e['parameter'] == 1:
                 print '________'
                 try:
-                    esid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype = 'article' and `name` = 'ensureurl'; """)['id']
+                    esid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype = 'article' and `name` = 'ensureurl'; """)['id']
                     print sections[10].replace('{{sid}}', str(sid)).replace('{{poid}}', str(poid)).replace('{{esid}}', str(esid)) % e['name']
-                    dbpc.handler.insert(sections[10].replace('{{sid}}', str(sid)).replace('{{poid}}', str(poid)).replace('{{esid}}', str(esid)) % e['name'])
+                    baseConn.handler.insert(sections[10].replace('{{sid}}', str(sid)).replace('{{poid}}', str(poid)).replace('{{esid}}', str(esid)) % e['name'])
                 except:
                     raise
-                trid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and `sid` = %s and pid = %s; """, (sid, poid, esid))['id']
+                trid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and `sid` = %s and pid = %s; """, (sid, poid, esid))['id']
                 try:
-                    pdid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and `sid` = %s and `pid` = %s; """, (sid, poid, poid))['id']
+                    pdid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype = 'section' and `sid` = %s and `pid` = %s; """, (sid, poid, poid))['id']
                     print sections[11].replace('{{sid}}', str(sid)).replace('{{trid}}', str(trid)).replace('{{puid}}', str(puid)).replace('{{pdid}}', str(pdid)) % ('url', e['name'])
-                    dbpc.handler.insert(sections[11].replace('{{sid}}', str(sid)).replace('{{trid}}', str(trid)).replace('{{puid}}', str(puid)).replace('{{pdid}}', str(pdid)) % ('url', e['name']))
+                    baseConn.handler.insert(sections[11].replace('{{sid}}', str(sid)).replace('{{trid}}', str(trid)).replace('{{puid}}', str(puid)).replace('{{pdid}}', str(pdid)) % ('url', e['name']))
                 except:
                     raise
                 try:
                     print sections[9].replace('{{sid}}', str(sid)).replace('{{boid}}', str(boid)).replace('{{trid}}', str(trid)) % (btype, e['name'], 'str')
-                    dbpc.handler.insert(sections[9].replace('{{sid}}', str(sid)).replace('{{boid}}', str(boid)).replace('{{trid}}', str(trid)) % (btype, e['name'], 'str'))
+                    baseConn.handler.insert(sections[9].replace('{{sid}}', str(sid)).replace('{{boid}}', str(boid)).replace('{{trid}}', str(trid)) % (btype, e['name'], 'str'))
                 except:
                     raise
         else:
             if e['store'] == 1:
-                bo = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `method`='yield' """, (sid,))
-                mcid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `name`='Data' """, (aid,))['id']
+                bo = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `method`='yield' """, (sid,))
+                mcid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `name`='Data' """, (aid,))['id']
                 if bo is None:
                     print '>>>>>>>>>'
                     try:
                         print sections[9].replace('{{sid}}', str(sid)).replace('{{boid}}', str(fid)).replace('{{trid}}', str(mcid)) % ('function', '', 'object')
-                        dbpc.handler.insert(sections[9].replace('{{sid}}', str(sid)).replace('{{boid}}', str(fid)).replace('{{trid}}', str(mcid)) % ('function', '', 'object'))
+                        baseConn.handler.insert(sections[9].replace('{{sid}}', str(sid)).replace('{{boid}}', str(fid)).replace('{{trid}}', str(mcid)) % ('function', '', 'object'))
                     except:
                         raise
-                boid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `method`='yield' """, (sid,))['id']
-                fsid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `name`='store' and `method` = '@' """, (sid,))['id']
-                fdb1 = dbpc.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype='article' and `name`='withMysql' """)['id']
-                fdb2 = dbpc.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype='article' and `name`='mysql' """)['id']
-                # fdb3 = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `name`='Data' """, (aid))['id']
+                boid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `method`='yield' """, (sid,))['id']
+                fsid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `name`='store' and `method` = '@' """, (sid,))['id']
+                fdb1 = baseConn.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype='article' and `name`='withMysql' """)['id']
+                fdb2 = baseConn.handler.queryOne(""" select * from grab_datapath where bid = 0 and btype='article' and `name`='mysql' """)['id']
+                # fdb3 = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `name`='Data' """, (aid))['id']
                 try:
                     print sections[14].replace('{{sid}}', str(sid)).replace('{{fdb1}}', str(fdb1)).replace('{{fdb2}}', str(fdb2))
-                    dbpc.handler.insert(sections[14].replace('{{sid}}', str(sid)).replace('{{fdb1}}', str(fdb1)).replace('{{fdb2}}', str(fdb2)))
+                    baseConn.handler.insert(sections[14].replace('{{sid}}', str(sid)).replace('{{fdb1}}', str(fdb1)).replace('{{fdb2}}', str(fdb2)))
                 except:
                     pass
-                dbid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `xpath` = '["use"]["wdb"]'; """, (sid, ))['id']
+                dbid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='section' and `xpath` = '["use"]["wdb"]'; """, (sid, ))['id']
                 try:
                     print sections[15].replace('{{sid}}', str(sid)).replace('{{fsid}}', str(fsid)).replace('{{mcid}}', str(mcid)).replace('{{dbid}}', str(dbid))
-                    dbpc.handler.insert(sections[15].replace('{{sid}}', str(sid)).replace('{{fsid}}', str(fsid)).replace('{{mcid}}', str(mcid)).replace('{{dbid}}', str(dbid)))
+                    baseConn.handler.insert(sections[15].replace('{{sid}}', str(sid)).replace('{{fsid}}', str(fsid)).replace('{{mcid}}', str(mcid)).replace('{{dbid}}', str(dbid)))
                 except:
                     pass
                 btype = 'object'
@@ -454,13 +454,13 @@ def seesection(dbpc, aid, sid):
                 boid = fid
                 btype = 'function'
             if e['path'] == 'self.tid':
-                poid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `default`='tid' """, (aid,))['id']
+                poid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and btype='article' and `default`='tid' """, (aid,))['id']
                 xpath = 'null'
                 default = 'null'
             elif e['dsid'] > 0:
-                s = dbpc.handler.queryOne(""" select * from grab_datasource where sid = %s and `id` = %s """, (sid, e['dsid']))
+                s = baseConn.handler.queryOne(""" select * from grab_datasource where sid = %s and `id` = %s """, (sid, e['dsid']))
                 if s['format'] == 'PARAMETER':
-                    poid = dbpc.handler.queryOne(""" select * from grab_datapath where bid = %s and `btype` = 'section' and `sid` = %s and `name` = 'rqp'; """, (sid, fid))['id']
+                    poid = baseConn.handler.queryOne(""" select * from grab_datapath where bid = %s and `btype` = 'section' and `sid` = %s and `name` = 'rqp'; """, (sid, fid))['id']
                 else:
                     poid = ''
                 xpath = "'%s'" % e['path']
@@ -471,7 +471,7 @@ def seesection(dbpc, aid, sid):
                 default = "'%s'" % e['path']
             try:
                 print sections[12].replace('{{sid}}', str(sid)).replace('{{boid}}', str(boid)).replace('{{poid}}', str(poid)) % (btype, e['name'], e['method'], xpath, default, e['content'])
-                dbpc.handler.insert(sections[12].replace('{{sid}}', str(sid)).replace('{{boid}}', str(boid)).replace('{{poid}}', str(poid)) % (btype, e['name'], e['method'], xpath, default, e['content']))
+                baseConn.handler.insert(sections[12].replace('{{sid}}', str(sid)).replace('{{boid}}', str(boid)).replace('{{poid}}', str(poid)) % (btype, e['name'], e['method'], xpath, default, e['content']))
             except:
                 raise
 

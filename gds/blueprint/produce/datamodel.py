@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding=utf8
 import json
-from dbskit.mysql.suit import withMysql, dbpc, RDB, WDB
+from settings import withBase, withData, baseConn, dataConn, _BASE_R, _BASE_W
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import produce
@@ -24,7 +24,7 @@ def modeldetail(dmid=None):
     rowvals = Datamodel.queryOne({'$or':[{'id':dmid}, {'id':''}]}, projection=dict(zip(rows, [1 for one in rows]))) or dict(zip(rows, ['' for one in rows]))
     colvals = Dataitem.queryAll({'$or':[{'id':rowvals['id']}, {'id':''}]}, projection=dict(zip(cols, [1 for one in cols])))
     for col in colvals:
-        # colvals[col]['datatypes'] = dbpc.handler.queryAll(""" select %s from grab_datatype where diid = %s; """, (','.join(''.join(('`', one, '`')) for one in adds), colvals[col]['id']))
+        # colvals[col]['datatypes'] = baseConn.handler.queryAll(""" select %s from grab_datatype where diid = %s; """, (','.join(''.join(('`', one, '`')) for one in adds), colvals[col]['id']))
         del col['dmid']
     cols.remove('dmid')
     cols.remove('id')

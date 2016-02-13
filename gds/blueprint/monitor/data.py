@@ -2,7 +2,7 @@
 # coding=utf8
 import json
 import time, datetime
-from dbskit.mysql.suit import withMysql, dbpc, RDB, WDB
+from settings import withBase, withData, baseConn, dataConn, _BASE_R, _BASE_W
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import monitor
@@ -14,7 +14,7 @@ def taskdata(tid):
     page = int(request.args.get('page', 1))
     total = int(request.args.get('total', 0))
     count = (total - 1)/pagetotal + 1
-    model = dbpc.handler.queryOne(""" select gdm.name 
+    model = baseConn.handler.queryOne(""" select gdm.name 
                                 from grab_task gt join grab_article ga join grab_unit gu join grab_datamodel gdm
                                     on gdm.id = gu.dmid and gu.id = ga.uid and gt.aid = ga.id where gt.id = %s; """, (tid, ))
 
