@@ -120,7 +120,7 @@ class Creator(AuthModel):
     password = orm.StrField(ddl='varchar', max_length=20)
     group = orm.StrField(ddl='varchar', max_length=20)
     desc = orm.StrField(ddl='varchar', max_length=128)
-    avartar = orm.StrField(ddl='varchar', max_length=128)
+    avatar = orm.StrField(ddl='varchar', max_length=128)
     contact = orm.StrField(ddl='varchar', max_length=500)
     notify = orm.StrField(ddl='varchar', max_length=100)
     status = orm.IntField(ddl='int', max_length=1)

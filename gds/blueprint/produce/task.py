@@ -11,6 +11,7 @@ QUEUETYPE = {'P':'本地队列', 'B':'beanstalk队列'}
 WORKTYPE = {'THREAD':'线程', 'COROUTINE':'协程'}
 TRACE = {0:'否', 1:'是'}
 
+
 @produce.route('/task/list', methods=['GET'])
 @withBase(RDB, resutype='DICT')
 def tasklist():
@@ -24,27 +25,29 @@ def tasklist():
     tasks = Task.queryAll(user['_id'], {}, projection={'_id':1, 'name':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     return render_template('ptasklist.html', appname=g.appname, logined=True, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
 
+
 @produce.route('/task/detail', methods=['GET', 'POST'])
 @produce.route('/task/detail/<tid>', methods=['GET', 'POST'])
 @withBase(WDB, resutype='DICT', autocommit=True)
 def taskdetail(tid=None):
     if request.method == 'GET':
+        user = request.user
         if tid is None:
             tid = request.args.get('tid')
         if tid is None:
             task = {'_id':'', 'aid':'', 'sid':'', 'task_name':'', 'extra':'', 'type':'ONCE', 'period':0, 'flow':'', 'params':'', 'worknum':6, 'queuetype':'P', 'worktype':'THREAD', 'trace':0, 'timeout':30, 'category':'', 'tag':''}
         else:
             projection = {'_id':1, 'aid':1, 'sid':1, 'name':1, 'extra':1, 'type':1, 'period':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'trace':1, 'timeout':1, 'category':1, 'tag':1}
-            task = Task.queryOne({'_id':tid}, projection=projection)
+            task = Task.queryOne(user['_id'], {'_id':tid}, projection=projection)
             task['task_name'] = task['name']
             projection = {'name':1}
-            section = Section.queryOne({'_id':task['sid']}, projection=projection)
+            section = Section.queryOne(user['_id'], {'_id':task['sid']}, projection=projection)
             projection = {'filepath':1, 'uid':1}
-            article = Article.queryOne({'_id':task['aid']}, projection=projection)
+            article = Article.queryOne(user['_id'], {'_id':task['aid']}, projection=projection)
             projection = {'dirpath':1}
-            unit = Unit.queryOne({'_id':article['uid']}, projection=projection)
+            unit = Unit.queryOne(user['_id'], {'_id':article['uid']}, projection=projection)
             projection = {'val':1}
-            config = Config.queryOne({'type':'ROOT', 'key':'dir'}, projection=projection)
+            config = Config.queryOne(user['_id'], {'type':'ROOT', 'key':'dir'}, projection=projection)
             task['section_name'] = section['name']
             task['article_name'] = config['val'] + unit['dirpath'] + article['filepath']
         task['queuetype_name'] = QUEUETYPE.get(task['queuetype'], '')
@@ -117,26 +120,37 @@ def taskdetail(tid=None):
     else:
         pass
 
+
 @produce.route('/task/articles', methods=['GET'])
 @withBase(RDB, resutype='DICT')
 def taskarticles():
-    articles = baseConn.handler.queryAll(""" select ga.id, concat(gc.val, gu.dirpath, ga.filepath) as article_name from grab_unit gu join grab_config gc join grab_article ga on gc.type='ROOT' and gc.key ='dir' and ga.uid =gu.id; """)
-    # return jsonify(articles)
+    user = request.user
+    config = Config.queryOne(user['_id'], {'type':'ROOT', 'key':'dir'}, projection={'val':1})
+    articles = Article.queryAll(user['_id'], {}, projection={'uid':1, '_id':1, 'filepath':1})
+    for article in articles:
+        unit = Unit.queryOne(user['_id'], {'_id':article['uid']}, projection={'dirpath':1})
+        article['article_name'] = config['val'] + unit['dirpath'] +  article['filepath']
     return json.dumps(articles, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+
 
 @produce.route('/task/flows', methods=['GET'])
 @withBase(RDB, resutype='DICT')
 def taskflows():
+    user = request.user
     aid = request.args.get('aid', 0)
-    flows = baseConn.handler.queryAll(""" select distinct flow from grab_section where aid = %s; """, (aid, ))
+    sections = Section.queryAll(user['_id'], {'aid':aid}, projection={'flow':1})
+    flows = list(set([section['flow'] for section in sections]))
+    print flows
     return json.dumps(flows, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
-    # return jsonify(flows)
+
 
 @produce.route('/task/sections', methods=['GET'])
 @withBase(RDB, resutype='DICT')
 def tasksections():
+    user = request.user
     aid = request.args.get('aid', 0)
     flow = request.args.get('flow', '')
-    sections = baseConn.handler.queryAll(""" select `id`, `name` as section_name from grab_section where aid = %s and flow = %s; """, (aid, flow))
+    sections = Section.queryAll(user['_id'], {'aid':aid, 'flow':flow}, projection={'_id':1, 'name':1})
+    for section in sections:
+        section['section_name'] = section['name']
     return json.dumps(sections, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
-    # return jsonify(sections)

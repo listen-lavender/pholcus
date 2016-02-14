@@ -68,6 +68,7 @@ def logout():
 
 
 @admin.route('/register', methods=['GET', 'POST'])
+@withBase(WDB, resutype='DICT', autocommit=True)
 def register():
     if request.method == 'GET':
         return render_template('register.html', appname=g.appname, logined=False)
@@ -97,6 +98,7 @@ def register():
 
 
 @admin.route('/verify', methods=['GET', 'POST'])
+@withBase(WDB, resutype='DICT', autocommit=True)
 def verify():
     user = request.user
     if request.method == 'GET':
@@ -119,6 +121,8 @@ def verify():
 
 
 @admin.route('/info', methods=['GET'])
+@withBase(WDB, resutype='DICT', autocommit=True)
 def info():
     user = request.user
+    user = Creator.queryOne(user['_id'], {'_id':user['_id']})
     return render_template('info.html', appname=g.appname, logined=True, user=user)

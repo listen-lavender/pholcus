@@ -69,7 +69,7 @@
                 success:function(data){
                     fmenus = []
                     for(var k=0; k<data.length; k++){
-                        fmenus.push('<div class="item" data-value="'+data[k]['flow']+'">'+data[k]['flow']+'</div>');
+                        fmenus.push('<div class="item" data-value="'+data[k]+'">'+data[k]+'</div>');
                     }
                     $("#fmenu").html(fmenus.join(''));
                 },
@@ -221,7 +221,7 @@
                     success:function(data){
                         fmenus = []
                         for(var k=0; k<data.length; k++){
-                            fmenus.push('<div class="item" data-value="'+data[k]['flow']+'">'+data[k]['flow']+'</div>');
+                            fmenus.push('<div class="item" data-value="'+data[k]+'">'+data[k]+'</div>');
                         }
                         $("#fmenu").html(fmenus.join(''));
                         $('#flow').val('');
