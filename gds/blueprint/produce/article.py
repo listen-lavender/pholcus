@@ -12,13 +12,14 @@ from model.base import Article
 @produce.route('/article/list/<uid>', methods=['GET'])
 @withBase(RDB, resutype='DICT')
 def articlelist(uid=''):
+    user = request.user
     pagetotal = int(request.args.get('pagetotal', 10))
     page = int(request.args.get('page', 1))
     total = int(request.args.get('total', 0))
     if total == 0:
-        total = Article.count({'$or':[{'uid':uid}, {'""':uid}]})
+        total = Article.count(user['_id'], {'$or':[{'uid':uid}, {'':uid}]})
     count = (total - 1)/pagetotal + 1
-    articles = Article.queryAll({'$or':[{'uid':uid}, {'""':uid}]}, projection={'_id':1, 'name':1, 'filepath':1, 'uid':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
+    articles = Article.queryAll(user['_id'], {'$or':[{'uid':uid}, {'':uid}]}, projection={'_id':1, 'name':1, 'filepath':1, 'uid':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     return render_template('particlelist.html', appname=g.appname, logined=True, uid=uid, articles=articles, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @produce.route('/article/detail', methods=['GET', 'POST'])

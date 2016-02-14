@@ -140,7 +140,6 @@ def taskflows():
     aid = request.args.get('aid', 0)
     sections = Section.queryAll(user['_id'], {'aid':aid}, projection={'flow':1})
     flows = list(set([section['flow'] for section in sections]))
-    print flows
     return json.dumps(flows, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
 
