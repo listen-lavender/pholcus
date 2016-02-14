@@ -1,10 +1,15 @@
 #!/usr/bin/python
 # coding=utf8
-import types, datetime, uuid
+import types, datetime, uuid, random, hashlib
 from flask import Blueprint, request, Response, render_template, redirect, make_response, session, g
 from settings import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from flask.helpers import send_from_directory
 from model.base import Creator, Permit
+
+LENGTH = [5, 7, 13]
+UL = [True, True, False, True, False, False]
+C = ['a', '1', 'b', 'c', '2', 'd', '3', 'e', 'f', 'g', '4', '5', 'h', 'i', '7', 'j', 'k', '6', 'l', 'm', 'n', 'o', 'p', '9', 'q', 'r', '8', 's', 't', 'u', 'v', 'w', 'x', '0', 'y', 'z']
+
 
 def send_static_file(self, filename):
     """Function used internally to send static files from the static
@@ -71,11 +76,17 @@ def register():
         password = request.form.get('password')
         contact = '{}'
         notify = '{}'
+        m = hashlib.md5()
+        origin = ''
+        for k in range(random.choice(LENGTH)):
+            origin += random.choice(C).upper()  if random.choice(UL) else random.choice(C)
+        m.update(origin)
+        secret = m.hexdigest()
         status = 2
         creator = 0
         updator = 0
         create_time = datetime.datetime.now()
-        user = Creator(username=username, password=password, contact=contact, notify=notify, status=status, creator=creator, updator=updator, create_time=create_time)
+        user = Creator(username=username, password=password, contact=contact, notify=notify, secret=secret, status=status, creator=creator, updator=updator, create_time=create_time)
         user['_id'] = Creator.insert(user)
         user = {'name':user['username'], '_id':user['_id']}
         response = make_response(redirect('/gds/a/info'))
