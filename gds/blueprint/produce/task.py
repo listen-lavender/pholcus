@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding=utf8
 import json, datetime
-from settings import withBase, withData, baseConn, dataConn, _BASE_R, _BASE_W
+from settings import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import produce
@@ -12,36 +12,37 @@ WORKTYPE = {'THREAD':'线程', 'COROUTINE':'协程'}
 TRACE = {0:'否', 1:'是'}
 
 @produce.route('/task/list', methods=['GET'])
-@withMysql(RDB, resutype='DICT')
+@withBase(RDB, resutype='DICT')
 def tasklist():
+    user = request.user
     pagetotal = int(request.args.get('pagetotal', 10))
     page = int(request.args.get('page', 1))
     total = int(request.args.get('total', 0))
     if total == 0:
-        total = Task.count({})
+        total = Task.count(user['_id'], {})
     count = (total - 1)/pagetotal + 1
-    tasks = Task.queryAll({}, projection={'id':1, 'name':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
+    tasks = Task.queryAll(user['_id'], {}, projection={'_id':1, 'name':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     return render_template('ptasklist.html', appname=g.appname, logined=True, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @produce.route('/task/detail', methods=['GET', 'POST'])
 @produce.route('/task/detail/<tid>', methods=['GET', 'POST'])
-@withMysql(WDB, resutype='DICT', autocommit=True)
+@withBase(WDB, resutype='DICT', autocommit=True)
 def taskdetail(tid=None):
     if request.method == 'GET':
         if tid is None:
             tid = request.args.get('tid')
         if tid is None:
-            task = {'id':'', 'aid':'', 'sid':'', 'task_name':'', 'extra':'', 'type':'ONCE', 'period':0, 'flow':'', 'params':'', 'worknum':6, 'queuetype':'P', 'worktype':'THREAD', 'trace':0, 'timeout':30, 'category':'', 'tag':''}
+            task = {'_id':'', 'aid':'', 'sid':'', 'task_name':'', 'extra':'', 'type':'ONCE', 'period':0, 'flow':'', 'params':'', 'worknum':6, 'queuetype':'P', 'worktype':'THREAD', 'trace':0, 'timeout':30, 'category':'', 'tag':''}
         else:
-            projection = {'id':1, 'aid':1, 'sid':1, 'name':1, 'extra':1, 'type':1, 'period':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'trace':1, 'timeout':1, 'category':1, 'tag':1}
-            task = Task.queryOne({'id':tid}, projection=projection)
+            projection = {'_id':1, 'aid':1, 'sid':1, 'name':1, 'extra':1, 'type':1, 'period':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'trace':1, 'timeout':1, 'category':1, 'tag':1}
+            task = Task.queryOne({'_id':tid}, projection=projection)
             task['task_name'] = task['name']
             projection = {'name':1}
-            section = Section.queryOne({'id':task['sid']}, projection=projection)
+            section = Section.queryOne({'_id':task['sid']}, projection=projection)
             projection = {'filepath':1, 'uid':1}
-            article = Article.queryOne({'id':task['aid']}, projection=projection)
+            article = Article.queryOne({'_id':task['aid']}, projection=projection)
             projection = {'dirpath':1}
-            unit = Unit.queryOne({'id':article['uid']}, projection=projection)
+            unit = Unit.queryOne({'_id':article['uid']}, projection=projection)
             projection = {'val':1}
             config = Config.queryOne({'type':'ROOT', 'key':'dir'}, projection=projection)
             task['section_name'] = section['name']
@@ -88,8 +89,8 @@ def taskdetail(tid=None):
                 queuetype=queuetype,
                 worktype=worktype,
                 trace=trace,
-                creator=user['id'],
-                updator=user['id'],
+                creator=user['_id'],
+                updator=user['_id'],
                 create_time=datetime.datetime.now())
             tid = Task.insert(task)
         else:
@@ -108,23 +109,23 @@ def taskdetail(tid=None):
                 'queuetype':queuetype,
                 'worktype':worktype,
                 'trace':trace,
-                'updator':user['id'],
+                'updator':user['_id'],
                 'update_time':datetime.datetime.now()
             }
-            Task.update({'id':tid}, doc)
+            Task.update({'_id':tid}, doc)
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         pass
 
 @produce.route('/task/articles', methods=['GET'])
-@withMysql(RDB, resutype='DICT')
+@withBase(RDB, resutype='DICT')
 def taskarticles():
     articles = baseConn.handler.queryAll(""" select ga.id, concat(gc.val, gu.dirpath, ga.filepath) as article_name from grab_unit gu join grab_config gc join grab_article ga on gc.type='ROOT' and gc.key ='dir' and ga.uid =gu.id; """)
     # return jsonify(articles)
     return json.dumps(articles, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
 @produce.route('/task/flows', methods=['GET'])
-@withMysql(RDB, resutype='DICT')
+@withBase(RDB, resutype='DICT')
 def taskflows():
     aid = request.args.get('aid', 0)
     flows = baseConn.handler.queryAll(""" select distinct flow from grab_section where aid = %s; """, (aid, ))
@@ -132,7 +133,7 @@ def taskflows():
     # return jsonify(flows)
 
 @produce.route('/task/sections', methods=['GET'])
-@withMysql(RDB, resutype='DICT')
+@withBase(RDB, resutype='DICT')
 def tasksections():
     aid = request.args.get('aid', 0)
     flow = request.args.get('flow', '')

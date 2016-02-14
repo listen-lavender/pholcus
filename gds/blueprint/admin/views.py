@@ -2,9 +2,9 @@
 # coding=utf8
 import types, datetime, uuid
 from flask import Blueprint, request, Response, render_template, redirect, make_response, session, g
-from settings import withBase, withData, baseConn, dataConn, _BASE_R, _BASE_W
+from settings import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from flask.helpers import send_from_directory
-from model.base import Creator
+from model.base import Creator, Permit
 
 def send_static_file(self, filename):
     """Function used internally to send static files from the static
@@ -23,8 +23,9 @@ def send_static_file(self, filename):
 admin = Blueprint('admin', __name__, template_folder='template')
 admin.send_static_file  = types.MethodType(send_static_file, admin)
 
+
 @admin.route('/login', methods=['GET', 'POST'])
-@withMysql(WDB, resutype='DICT', autocommit=True)
+@withBase(WDB, resutype='DICT', autocommit=True)
 def login():
     username = request.form.get('username')
     password = request.form.get('password')
@@ -41,16 +42,17 @@ def login():
     user = request.user
     if user is not None:
         return redirect('/gds/m/task/list')
-    user = Creator.queryOne({'username':username, 'password':password})
+    user = Creator.queryOne(None, {'username':username, 'password':password, 'status':{'$ne':0}})
     if user is not None:
-        user = {'name':user['username'], 'id':user['id']}
+        user = {'name':user['username'], '_id':user['_id'], 'status':user['status']}
         response = make_response(redirect('/gds/m/task/list'))
         sid = str(uuid.uuid4())
         session[sid] = user
         response.set_cookie('sid', sid)
         return response
     else:
-        return render_template('login.html', appname=g.appname, logined=False)
+        return render_template('login.html', appname=g.appname, status=0, logined=False)
+
 
 @admin.route('/logout', methods=['GET'])
 def logout():
@@ -59,9 +61,51 @@ def logout():
         del session[sid]
     return redirect('/gds/a/login')
 
-@admin.route('/register', methods=['POST'])
+
+@admin.route('/register', methods=['GET', 'POST'])
 def register():
-    pass
+    if request.method == 'GET':
+        return render_template('register.html', appname=g.appname, logined=False)
+    else:
+        username = request.form.get('username')
+        password = request.form.get('password')
+        contact = '{}'
+        notify = '{}'
+        status = 2
+        creator = 0
+        updator = 0
+        create_time = datetime.datetime.now()
+        user = Creator(username=username, password=password, contact=contact, notify=notify, status=status, creator=creator, updator=updator, create_time=create_time)
+        user['_id'] = Creator.insert(user)
+        user = {'name':user['username'], '_id':user['_id']}
+        response = make_response(redirect('/gds/a/info'))
+        sid = str(uuid.uuid4())
+        session[sid] = user
+        response.set_cookie('sid', sid)
+        return response
+
+
+@admin.route('/verify', methods=['GET', 'POST'])
+def verify():
+    user = request.user
+    if request.method == 'GET':
+        return render_template('verify.html', appname=g.appname, logined=False)
+    else:
+        _id = request.form.get('_id')
+        group = request.form.get('group')
+        Creator.update({'_id':_id}, {'group':group, 'status':1})
+        permit = Permit(cid=_id, otype='grab_unit', authority=15, desc='aduq', status=1, creator=user['uid'], updator=user['uid'])
+        Permit.insert(permit)
+        permit = Permit(cid=_id, otype='grab_article', authority=15, desc='aduq', status=1, creator=user['uid'], updator=user['uid'])
+        Permit.insert(permit)
+        permit = Permit(cid=_id, otype='grab_section', authority=15, desc='aduq', status=1, creator=user['uid'], updator=user['uid'])
+        Permit.insert(permit)
+        permit = Permit(cid=_id, otype='grab_task', authority=15, desc='aduq', status=1, creator=user['uid'], updator=user['uid'])
+        Permit.insert(permit)
+        permit = Permit(cid=_id, otype='grab_config', authority=15, desc='aduq', status=1, creator=user['uid'], updator=user['uid'])
+        Permit.insert(permit)
+        return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+
 
 @admin.route('/info', methods=['GET'])
 def info():

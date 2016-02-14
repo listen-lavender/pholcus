@@ -5,11 +5,6 @@ from flask.ext.script import Manager, Server
 from views import app
 from settings import useport
 from werkzeug.contrib.fixers import ProxyFix
-from dbskit.mysql.suit import baseConn, withMysql, DBPoolCollector
-
-@withMysql('wdb')
-def buildbase():
-    pass
 
 app.wsgi_app = ProxyFix(app.wsgi_app)
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding=utf8
 import json
-from settings import withBase, withData, baseConn, dataConn, _BASE_R, _BASE_W
+from settings import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
 from hawkeye import seeunit
 from flask import Blueprint, request, Response, render_template, g
@@ -9,7 +9,7 @@ from views import produce
 from model.base import Unit, Datamodel
 
 @produce.route('/unit/list', methods=['GET'])
-@withMysql(RDB, resutype='DICT')
+@withBase(RDB, resutype='DICT')
 def unitlist():
     pagetotal = int(request.args.get('pagetotal', 10))
     page = int(request.args.get('page', 1))
@@ -19,7 +19,7 @@ def unitlist():
     count = (total - 1)/pagetotal + 1
     units = []
     for unit in Unit.queryAll({}, projection={'dmid':1, 'name':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal):
-        datamodel = Datamodel.queryOne({'id':unit['dmid']}, projection={'name':1})
+        datamodel = Datamodel.queryOne({'_id':unit['dmid']}, projection={'name':1})
         unit['unit_name'] = unit['name']
         unit['datamodel_name'] = datamodel['name']
         units.append(unit)
@@ -27,18 +27,18 @@ def unitlist():
 
 @produce.route('/unit/detail', methods=['GET', 'POST'])
 @produce.route('/unit/detail/<uid>', methods=['GET', 'POST'])
-@withMysql(WDB, resutype='DICT', autocommit=True)
+@withBase(WDB, resutype='DICT', autocommit=True)
 def unitdetail(uid=None):
-    datamodels = Datamodel.queryAll({'status':1}, projection={'id':1, 'name':1}, sort=[('id', -1)])
+    datamodels = Datamodel.queryAll({'status':1}, projection={'_id':1, 'name':1}, sort=[('_id', -1)])
     if request.method == 'GET':
         if uid is None:
-            unit = {'id':'', 'unit_name':'', 'datamodel_name':'', 'extra':'', 'dmid':''}
+            unit = {'_id':'', 'unit_name':'', 'datamodel_name':'', 'extra':'', 'dmid':''}
         else:
-            unit = Unit.queryOne({'id':uid}, projection={'id':1, 'name':1, 'extra':1})
-            datamodel = Datamodel.queryOne({'id':unit['dmid']}, projection={'name':1, 'id':1})
+            unit = Unit.queryOne({'_id':uid}, projection={'_id':1, 'name':1, 'extra':1})
+            datamodel = Datamodel.queryOne({'_id':unit['dmid']}, projection={'name':1, '_id':1})
             unit['unit_name'] = unit['name']
             unit['datamodel_name'] = datamodel['name']
-            unit['dmid'] = datamodel['id']
+            unit['dmid'] = datamodel['_id']
         return render_template('punitdetail.html', appname=g.appname, logined=True, unit=unit, datamodels=datamodels)
     elif request.method == 'POST':
         user = request.user
@@ -55,8 +55,8 @@ def unitdetail(uid=None):
                 status=1, 
                 extra=extra,
                 dmid=dmid,
-                creator=user['id'],
-                updator=user['id'],
+                creator=user['_id'],
+                updator=user['_id'],
                 create_time=datetime.datetime.now(),
                 update_time=datetime.datetime.now()
             )
@@ -69,10 +69,10 @@ def unitdetail(uid=None):
                 'filepath':filepath,
                 'extra':extra,
                 'dmid':dmid,
-                'updator':user['id'],
+                'updator':user['_id'],
                 'update_time':datetime.datetime.now()
             }
-            baseConn.handler.update({'id':uid}, doc)
+            baseConn.handler.update({'_id':uid}, doc)
             # seeunit(baseConn, uid)
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:

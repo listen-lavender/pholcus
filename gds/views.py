@@ -2,7 +2,7 @@
 # coding=utf8
 import json, sys, os
 from settings import staticfilepath, useport, CACHE_TIMEOUT, LIMIT
-from settings import withBase, withData, baseConn, dataConn, _BASE_R, _BASE_W, _DATA_R
+from settings import withBase, withData, base, data, _BASE_R, _BASE_W, _DATA_R, RDB, WDB
 from flask import Flask, g, request, Response, session, redirect
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug.contrib.cache import SimpleCache
@@ -10,7 +10,7 @@ from werkzeug.routing import BaseConverter
 from util.session import Session
 
 
-baseConn.addDB(RDB, LIMIT, host=_BASE_R['host'],
+base.addDB(RDB, LIMIT, host=_BASE_R['host'],
                     port=_BASE_R['port'],
                     user=_BASE_R['user'],
                     passwd=_BASE_R['passwd'],
@@ -19,7 +19,7 @@ baseConn.addDB(RDB, LIMIT, host=_BASE_R['host'],
                     use_unicode=_BASE_R['use_unicode'],
                     override=False)
 
-baseConn.addDB(WDB, LIMIT, host=_BASE_W['host'],
+base.addDB(WDB, LIMIT, host=_BASE_W['host'],
                     port=_BASE_W['port'],
                     user=_BASE_W['user'],
                     passwd=_BASE_W['passwd'],
@@ -28,7 +28,7 @@ baseConn.addDB(WDB, LIMIT, host=_BASE_W['host'],
                     use_unicode=_BASE_W['use_unicode'],
                     override=False)
 
-dataConn.addDB(RDB, LIMIT, host=_DATA_R['host'],
+data.addDB(RDB, LIMIT, host=_DATA_R['host'],
                     port=_DATA_R['port'],
                     user=_DATA_R['user'],
                     passwd=_DATA_R['passwd'],
@@ -97,13 +97,18 @@ def is_login():
     sid = request.cookies.get('sid')
     user = session.get(sid, None)
     g.appname = 'pholcus'
-    if '/static/' in request.url:
+    flag = '/static/' in request.url or '/login' in request.url or '/register' in request.url
+    request.sid = sid
+    request.user = user
+    if flag:
         pass
-    elif '/a/login' in request.url or user is not None:
-        request.sid = sid
-        request.user = user
-    else:
+    elif user is None:
         return redirect('/gds/a/login')
+    elif not user.get('status') == 1:
+        return redirect('/gds/a/info')
+    else:
+        pass
+
 
 # @app.after_request
 # def call_after_request_callbacks(response):

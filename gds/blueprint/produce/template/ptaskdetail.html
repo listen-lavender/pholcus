@@ -53,7 +53,7 @@
                 success:function(data){
                     amenus = []
                     for(var k=0; k<data.length; k++){
-                        amenus.push('<div class="item" data-value="'+data[k]['id']+'">'+data[k]['article_name']+'</div>');
+                        amenus.push('<div class="item" data-value="'+data[k]['_id']+'">'+data[k]['article_name']+'</div>');
                     }
                     $("#amenu").html(amenus.join(''));
                 },
@@ -85,7 +85,7 @@
                 success:function(data){
                     smenus = []
                     for(var k=0; k<data.length; k++){
-                        smenus.push('<div class="item" data-value="'+data[k]['id']+'">'+data[k]['section_name']+'</div>');
+                        smenus.push('<div class="item" data-value="'+data[k]['_id']+'">'+data[k]['section_name']+'</div>');
                     }
                     $("#smenu").html(smenus.join(''));
                 },
@@ -255,7 +255,7 @@
                     success:function(data){
                         smenus = []
                         for(var k=0; k<data.length; k++){
-                            smenus.push('<div class="item" data-value="'+data[k]['id']+'">'+data[k]['section_name']+'</div>');
+                            smenus.push('<div class="item" data-value="'+data[k]['_id']+'">'+data[k]['section_name']+'</div>');
                         }
                         $("#smenu").html(smenus.join(''));
                         $('#section').val('');

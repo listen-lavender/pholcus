@@ -71,7 +71,7 @@
             $.ajax({
                 url:location.href,
                 type:'post',
-                data:delnull({'id':id, 'name':name, 'next':next, 'index':index, 'retry':retry, 'timelimit':timelimit, 'store':store, 'type':'section'}),
+                data:delnull({'_id':id, 'name':name, 'next':next, 'index':index, 'retry':retry, 'timelimit':timelimit, 'store':store, 'type':'section'}),
                 async:false,
                 dataType:'json',
                 success:function(data){
@@ -96,7 +96,7 @@
             $.ajax({
                 url:location.href,
                 type:'post',
-                data:delnull({'id':id, 'name':name, 'url':url, 'method':method, 'format':format, 'timeout':timeout, 'data':data, 'headers':headers, 'cookies':cookies, 'sid':sid, 'type':'source'}),
+                data:delnull({'_id':id, 'name':name, 'url':url, 'method':method, 'format':format, 'timeout':timeout, 'data':data, 'headers':headers, 'cookies':cookies, 'sid':sid, 'type':'source'}),
                 async:false,
                 dataType:'json',
                 success:function(data){
@@ -121,7 +121,7 @@
             $.ajax({
                 url:location.href,
                 type:'post',
-                data:delnull({'id':id, 'name':name, 'method':method, 'path':path, 'content':content, 'parameter':parameter, 'store':store, 'sid':sid, 'dsid':dsid, 'pdeid':pdeid, 'type':'extract'}),
+                data:delnull({'_id':id, 'name':name, 'method':method, 'path':path, 'content':content, 'parameter':parameter, 'store':store, 'sid':sid, 'dsid':dsid, 'pdeid':pdeid, 'type':'extract'}),
                 async:false,
                 dataType:'json',
                 success:function(data){
@@ -143,7 +143,7 @@
                 $.ajax({
                     url:location.href,
                     type:'delete',
-                    data:delnull({'id':id, 'name':name, 'type':'source'}),
+                    data:delnull({'_id':id, 'name':name, 'type':'source'}),
                     async:false,
                     dataType:'json',
                     success:function(data){
@@ -165,7 +165,7 @@
                 $.ajax({
                     url:location.href,
                     type:'delete',
-                    data:delnull({'id':id, 'name':name, 'type':'extract'}),
+                    data:delnull({'_id':id, 'name':name, 'type':'extract'}),
                     async:false,
                     dataType:'json',
                     success:function(data){
@@ -211,11 +211,11 @@
                 <div class="clsti">&nbsp;&nbsp;&nbsp;&nbsp;datasource&nbsp;&nbsp;&nbsp;&nbsp;<i class="add icon" onclick="addsource()" alt="add"></i></div>
                 <div id="datasource" class="clsti">
                     {% for source in section['datasource'] %}
-                        <div id="st_{{source['id']}}" class="title"><i class="dropdown icon"></i>{{source['name']}}</div>
-                        <div id="sc_{{source['id']}}" class="content">
-                            <input name="iid" type="hidden" value="{{source['id']}}"/>
+                        <div id="st_{{source['_id']}}" class="title"><i class="dropdown icon"></i>{{source['name']}}</div>
+                        <div id="sc_{{source['_id']}}" class="content">
+                            <input name="iid" type="hidden" value="{{source['_id']}}"/>
                             <div class="ui input" style="width:30%; margin:15px 20px;">
-                                <span>source:&nbsp;&nbsp;</span><input id="sv_{{source['id']}}" name="source_name" type="text" style="width:60%;" value="{{source['name']}}" onblur="check(this)">&nbsp;&nbsp;&nbsp;&nbsp;<i class="save icon" onclick="savesource(this)" alt="save"></i>&nbsp;&nbsp;&nbsp;&nbsp;<i class="remove icon" onclick="delsource(this)" alt="delete">&nbsp;&nbsp;</i>
+                                <span>source:&nbsp;&nbsp;</span><input id="sv_{{source['_id']}}" name="source_name" type="text" style="width:60%;" value="{{source['name']}}" onblur="check(this)">&nbsp;&nbsp;&nbsp;&nbsp;<i class="save icon" onclick="savesource(this)" alt="save"></i>&nbsp;&nbsp;&nbsp;&nbsp;<i class="remove icon" onclick="delsource(this)" alt="delete">&nbsp;&nbsp;</i>
                             </div>
                             <div class="ui input" style="width:100%; margin:15px 20px;">
                                 <span>url:&nbsp;&nbsp;</span><input name="url" type="text" style="width:60%;" value="{{source['url']|default('', true)}}">
@@ -268,11 +268,11 @@
                 <div class="clsti">&nbsp;&nbsp;&nbsp;&nbsp;dataextract&nbsp;&nbsp;&nbsp;&nbsp;<i class="add icon" onclick="addextract()" alt="add"></i></div>
                 <div id="dataextract" class="clsti">
                     {% for extract in section['dataextract'] %}
-                        <div id="et_{{extract['id']}}" class="title"><i class="dropdown icon"></i>{{extract['name']}}</div>
-                        <div id="ec_{{extract['id']}}" class="content">
-                            <input name="iid" type="hidden" value="{{extract['id']}}"/>
+                        <div id="et_{{extract['_id']}}" class="title"><i class="dropdown icon"></i>{{extract['name']}}</div>
+                        <div id="ec_{{extract['_id']}}" class="content">
+                            <input name="iid" type="hidden" value="{{extract['_id']}}"/>
                             <div class="ui input" style="width:30%; margin:15px 20px;">
-                                <span>extract:&nbsp;&nbsp;</span><input id="ev_{{extract['id']}}" name="extract_name" type="text" style="width:60%;" value="{{extract['name']}}" onblur="check(this)">&nbsp;&nbsp;&nbsp;&nbsp;<i class="save icon" onclick="saveextract(this)" alt="save"></i>&nbsp;&nbsp;&nbsp;&nbsp;<i class="remove icon" onclick="delextract(this)" alt="delete">&nbsp;&nbsp;</i>
+                                <span>extract:&nbsp;&nbsp;</span><input id="ev_{{extract['_id']}}" name="extract_name" type="text" style="width:60%;" value="{{extract['name']}}" onblur="check(this)">&nbsp;&nbsp;&nbsp;&nbsp;<i class="save icon" onclick="saveextract(this)" alt="save"></i>&nbsp;&nbsp;&nbsp;&nbsp;<i class="remove icon" onclick="delextract(this)" alt="delete">&nbsp;&nbsp;</i>
                             </div>
                             <div class="ui input" style="width:100%; margin:15px 20px;">
                                 <span>method:&nbsp;&nbsp;</span>

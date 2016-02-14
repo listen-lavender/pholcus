@@ -19,6 +19,9 @@ useport = 7001
 staticfilepath = "static/"
 GITPKG = {}
 
+RDB = 'localhost'
+WDB = 'localhost'
+
 """
      缓存SQL配置
 """
@@ -35,7 +38,7 @@ _DBCONN = {"mysql":{"host": "127.0.0.1",
                 "charset": "utf8",
                 "use_unicode":False,},
             "mongo":{"host": "127.0.0.1",
-                "port": 3306,
+                "port": 27017,
                 "user": "root",
                 "passwd": "",
                 "db": "pholcus",
@@ -50,5 +53,5 @@ LIMIT = 20
 orm = mysql_orm
 withBase = withMysql
 withData = withMongo
-baseConn = ms_dbpc
-dataConn = mg_dbpc
+base = ms_dbpc
+data = mg_dbpc

@@ -17,7 +17,7 @@
     <ul class="ui list" style="margin-left: 5%;">
         {% for one in articles %}
             <li>
-                <a href="/gds/p/article/detail/{{one['id']}}?uid={{uid}}"><span>{{one["name"]}}&nbsp;&nbsp;&nbsp;&nbsp;</span><span>{{one["filepath"]}}&nbsp;&nbsp;&nbsp;&nbsp;</span></a>
+                <a href="/gds/p/article/detail/{{one['_id']}}?uid={{uid}}"><span>{{one["name"]}}&nbsp;&nbsp;&nbsp;&nbsp;</span><span>{{one["filepath"]}}&nbsp;&nbsp;&nbsp;&nbsp;</span></a>
             </li>
         {% endfor %}
     </ul>

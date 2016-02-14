@@ -51,15 +51,15 @@
             <div class="default text">{{unit['datamodel_name']}}</div>
             <div class="menu">
                 {% for one in datamodels %}
-                    <div class="item" data-value="{{one['id']}}">{{one['name']}}</div>
+                    <div class="item" data-value="{{one['_id']}}">{{one['name']}}</div>
                 {% endfor %}
             </div>
         </div>
     </div>
     <button class="ui primary button" onclick="save()">保存</button>
     <button class="ui button" onclick="reset()">重置</button>
-    {% if not unit['id'] == '' %}
-        <a href="/gds/p/article/list/{{unit['id']}}">脚本数据源列表</a>
+    {% if not unit['_id'] == '' %}
+        <a href="/gds/p/article/list/{{unit['_id']}}">脚本数据源列表</a>
     {% endif %}
 {% endblock %}
 {% block postjs %}

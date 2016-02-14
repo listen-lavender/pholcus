@@ -8,7 +8,7 @@
     </script>
 {% endblock %}
 {% block content %}
-    <table id="m_{{rowvals['id']}}" class="ui compact celled definition table">
+    <table id="m_{{rowvals['_id']}}" class="ui compact celled definition table">
         <thead class="full-width">
         {% for row in rows %}
             <tr class="ui tag labels">
@@ -24,7 +24,7 @@
             {% endfor %}
         </tr>
         {% for colval in colvals %}
-        <tr id="i_{{colval['id']}}">
+        <tr id="i_{{colval['_id']}}">
             <td class="collapsing" align="right">
                 <div class="ui fitted slider checkbox">
                     <i class="remove icon" alt="delete"></i>
