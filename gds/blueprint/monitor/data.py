@@ -6,8 +6,9 @@ from model.settings import withBase, withData, base, data, _BASE_R, _BASE_W, RDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import monitor
-from model.base import Task, Article, Unit, Datamodel, Statistics
-from model import business
+from model.base import Task, Article, Unit, Datamodel
+from model.log import Statistics
+from model import data as grabdata
 
 
 @monitor.route('/task/data/<tid>', methods=['GET'])
@@ -23,7 +24,7 @@ def taskdata(tid):
     article = Article.queryOne(user['_id'], {'_id':task['aid']}, projection={'uid':1})
     unit = Unit.queryOne(user['_id'], {'_id':article['uid']}, projection={'dmid':1})
     model = Datamodel.queryOne(user['_id'], {'_id':unit['dmid']}, projection={'name':1})
-    datamodel = getattr(business, model['name'].capitalize())
+    datamodel = getattr(grabdata, model['name'].capitalize())
     datas = datamodel.queryAll({'tid':tid}, sort=[('_id', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     if total == 0:
         total = datas.count()

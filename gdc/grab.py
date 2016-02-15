@@ -4,8 +4,12 @@ import time, datetime
 import sys, json
 import random
 import traceback
+sys.path.append('../')
 
 from dbskit.mysql.suit import withMysql, dbpc
+from model.settings import withData, RDB, WDB
+from model.base import Task, Section, Article, Unit,
+from model.log import Proxy, ProxyLog, Statistics, Log
 from hawkeye import initDB
 from webcrawl.handleRequest import PROXY
 from webcrawl.work import Workflows
@@ -16,38 +20,48 @@ RDB = 'local'
 LIMIT = 600
 initDB()
 
-@withMysql(WDB, resutype='DICT', autocommit=True)
+@withData(WDB, resutype='DICT', autocommit=True)
 def choose():
     limit = datetime.datetime.now() - datetime.timedelta(days=3)
     # proxys = dbpc.handler.queryAll(""" select * from grab_proxy where usespeed < 1 and update_time > '2015-12-15 01:11:00' order by usespeed asc, refspeed asc limit 200; """)
-    proxys = dbpc.handler.queryAll(""" select * from grab_proxy where usespeed < 1 and update_time > '2015-12-15 01:11:00' order by update_time desc; """)
+    # proxys = Proxy.queryAll({'$and':[{'usespeed':{'$lt':1}}, {'usespeed':{'$gt':'2015-12-15 01:11:00'}}]}, sort=[('usespeed', 1), ('refspeed', 1)], skip=0, limit=200)
+    # proxys = dbpc.handler.queryAll(""" select * from grab_proxy where usespeed < 1 and update_time > '2015-12-15 01:11:00' order by update_time desc; """)
+    proxys = Proxy.queryAll({'$and':[{'usespeed':{'$lt':1}}, {'usespeed':{'$gt':'2015-12-15 01:11:00'}}]}, sort=[('update_time', -1)])
     # return random.choice(proxys)
     return proxys[0]
 
-@withMysql(WDB, resutype='DICT', autocommit=True)
+@withData(WDB, resutype='DICT', autocommit=True)
 def log(pid, elapse):
     create_time = datetime.datetime.now()
-    dbpc.handler.insert(""" insert into grab_proxy_log(`pid`, `elapse`, `create_time`)values(%s, %s, %s) """, (pid, elapse, create_time))
-    proxy = dbpc.handler.queryOne(""" select * from grab_proxy_log where id = %s """, (pid, ))
+    # dbpc.handler.insert(""" insert into grab_proxy_log(`pid`, `elapse`, `create_time`)values(%s, %s, %s) """, (pid, elapse, create_time))
+    proxylog = ProxyLog(pid=pid, elapse=elapse, create_time=create_time)
+    ProxyLog.insert(proxylog)
+    
+    proxy = Proxy.queryOne({'_id':pid})
+    # proxy = dbpc.handler.queryOne(""" select * from grab_proxy where id = %s """, (pid, ))
     proxy['usespeed'] = (proxy['usespeed'] * proxy['usenum'] + elapse)/float(proxy['usenum']+1)
     proxy['usenum'] = proxy['usenum'] + 1
-    dbpc.handler.update(""" update grab_proxy_log set usespeed = %s, usenum = %s, update_time=now() where id = %s """, (usespeed, usenum, pid))
+    # dbpc.handler.update(""" update grab_proxy_log set usespeed = %s, usenum = %s, update_time=now() where id = %s """, (usespeed, usenum, pid))
+    Proxy.update({'_id':pid}, {'$set':{'usespeed':proxy['usespeed'], 'usenum':proxy['usenum'], 'update_time':create_time}})
 
 # PROXY.use = True
 # PROXY.choose = choose
 # PROXY.log = log
 # PROXY.worker.start()
 
-@withMysql(WDB, resutype='DICT', autocommit=True)
+@withData(WDB, resutype='DICT', autocommit=True)
 def record(tid, succ, fail, timeout, elapse=None, sname=None, create_time=None):
     create_time = create_time or datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     if sname is None:
-        dbpc.handler.insert(""" insert into grab_statistics(`tid`,`succ`,`fail`,`timeout`,`elapse`,`create_time`)
-                                                    values( %s,   %s,    %s,    %s,   %s,        %s)""", (tid, succ, fail, timeout, elapse, create_time))
-        return dbpc.handler.queryOne(""" select * from grab_statistics where tid = %s and create_time = %s """, (tid, create_time.strftime('%Y-%m-%d %H:%M:%S')))['id']
+        statistics = Statistics(tid=tid, succ=succ, fail=fail, timeout=timeout, elapse=elapse, create_time=create_time)
+        # dbpc.handler.insert(""" insert into grab_statistics(`tid`,`succ`,`fail`,`timeout`,`elapse`,`create_time`)
+        #                                             values( %s,   %s,    %s,    %s,   %s,        %s)""", (tid, succ, fail, timeout, elapse, create_time))
+        return Statistics.insert(statistic)
     else:
-        dbpc.handler.insert(""" insert into grab_log(`gsid`,`sname`,`succ`,`fail`,`timeout`,`create_time`)
-                                                    values( %s, %s,   %s,    %s,    %s,    %s)""", (tid, sname, succ, fail, timeout, create_time))
+        log = Log(gsid=gsid, sname=sname, succ=succ, fail=fail, timeout=timeout, create_time=create_time)
+        # dbpc.handler.insert(""" insert into grab_log(`gsid`,`sname`,`succ`,`fail`,`timeout`,`create_time`)
+        #                                             values( %s, %s,   %s,    %s,    %s,    %s)""", (tid, sname, succ, fail, timeout, create_time))
+        Log.insert(log)
 
 def stat(task, spider, create_time=None):
     create_time = create_time or datetime.datetime.now()
@@ -56,13 +70,24 @@ def stat(task, spider, create_time=None):
         if not name == 'total':
             record(gsid, spider.stat[name]['succ'], spider.stat[name]['fail'], spider.stat[name]['timeout'], sname=name, create_time=create_time)
 
-@withMysql(WDB, resutype='DICT', autocommit=True)
+@withBase(WDB, resutype='DICT', autocommit=True)
 def schedule():
-    return dbpc.handler.queryAll(""" select gt.id, gt.type, gt.period, gt.aid, gt.sid, gt.flow, gs.step, gs.index, gt.params, gt.worknum, gt.queuetype, gt.worktype, gt.timeout, ga.name as a, ga.filepath, gu.name as u, gt.category, gt.tag, gt.name, gt.extra, gt.update_time from grab_task gt join grab_section gs on gt.sid = gs.id join grab_article ga on gt.aid = ga.id join grab_unit gu on ga.uid = gu.id where gt.status > 0; """)
+    user_id = 0
+    tasks = Task.queryAll(user_id, {'status':{'$gt':0}}, projection={'_id':1, 'type':1, 'period':1, 'aid':1, 'sid':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'timeout':1, 'category':1, 'tag':1, 'name':1, 'extra':1, 'update_time':1, 'push_url':1})
+    for task in tasks:
+        section = Section.queryOne(user_id, {'_id':task['sid']}, projection={'step':1, 'index':1})
+        article = Article.queryOne(user_id, {'_id':task['aid']}, projection={'uid':1, 'filepath':1, 'name':1})
+        unit = Unit.queryOne(user_id, {'_id':article['uid']}, projection={'name':1})
+        task['step'] = section['step']
+        task['index'] = section['index']
+        task['filepath'] = article['filepath']
+        task['a'] = article['name']
+        task['u'] = unit['name']
+    return tasks
 
-@withMysql(WDB, resutype='DICT', autocommit=True)
+@withBase(WDB, resutype='DICT', autocommit=True)
 def changestate(tid, status, extra=None):
-    return dbpc.handler.update(""" update grab_task set `status`=%s, `update_time`=now() where id = %s; """, (status, tid))
+    Task.update(user['_id'], {'_id':tid}, {'$set':{'status':status}})
 
 def task():
     workflow = Workflows(6, 'R', 'THREAD')
@@ -116,6 +141,8 @@ def task():
                             spider.fetchDatas(task['flow'], step, **{task['index']:task['params'], 'additions':additions})
                     spider.statistic()
                     changestate(task['id'], 0)
+                    if task.get('push_url') is not None:
+                        requests.post(task['push_url'], {'type':'video', 'tid':task['id']})
             except:
                 t, v, b = sys.exc_info()
                 err_messages = traceback.format_exception(t, v, b)

@@ -6,12 +6,14 @@ from model.settings import withBase, withData, base, data, _BASE_R, _BASE_W, RDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import monitor
-from model.base import Task, Statistics
+from model.base import Task
+from model.log import Statistics
 
 STATDESC = {0:'stopped', 1:'started', 2:'running', 3:'error'}
 
 @monitor.route('/task/list', methods=['GET'])
 @withBase(RDB, resutype='DICT')
+@withData(RDB, resutype='DICT')
 def tasklist():
     user = request.user
     pagetotal = int(request.args.get('pagetotal', 10))
@@ -24,7 +26,7 @@ def tasklist():
     for one in tasks:
         one['change'] = (one['status'] in (0, 1, 2) and one['type'] == 'FOREVER') or (one['status'] in (0, 1) and one['type'] == 'ONCE')
         one['status_desc'] = STATDESC.get(one['status'], '')
-        one['max'] = (Statistics.queryOne(user['_id'], {'tid':one['_id']}, projection={'succ':1}, sort=[('succ', -1)]) or {'succ':0})['succ']
+        one['max'] = (Statistics.queryOne({'tid':one['_id']}, projection={'succ':1}, sort=[('succ', -1)]) or {'succ':0})['succ']
     return render_template('mtasklist.html', appname=g.appname, logined=True, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @monitor.route('/task/time/detail/<tid>', methods=['GET'])
@@ -121,13 +123,12 @@ def taskcountdetail(tid):
     ]
     return render_template("mtaskdetail.html", appname=g.appname, logined=True, title=title, dataset=dataset, request=request, chart=chart, unit='', begin=begin, end=end)
 
+
 @monitor.route('/task/change/<tid>', methods=['POST'])
 @withBase(WDB, resutype='DICT', autocommit=True)
 def taskchange(tid):
+    user = request.user
     status = request.form.get('status', 1)
-    sql = '''
-        update grab_task set status = %s where id = %s
-    '''
-    dataset = baseConn.handler.update(sql, (status, tid))
+    Task.update(user['_id'], {'_id':tid}, {'$set':{'status':status}})
     return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 

@@ -208,16 +208,6 @@ class Hash(AuthModel):
     update_time = baseorm.DatetimeField(ddl='timestamp')
 
 
-class Log(AuthModel):
-    __table__ = 'grab_log'
-    gsid = baseorm.IdField(unique='gl')
-    sname = baseorm.StrField(ddl='varchar', max_length=20)
-    succ = baseorm.IntField(ddl='int', max_length=10)
-    fail = baseorm.IntField(ddl='int', max_length=10)
-    timeout = baseorm.IntField(ddl='int', max_length=10)
-    create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
-
-
 class Permit(AuthModel):
     __table__ = 'grab_permit'
     cid = baseorm.IdField(unique='gp')
@@ -229,17 +219,6 @@ class Permit(AuthModel):
     extra = baseorm.StrField(ddl='varchar', max_length=300)
     creator = baseorm.IdField(updatable=False)
     updator = baseorm.IdField()
-    create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
-    update_time = baseorm.DatetimeField(ddl='timestamp')
-
-
-class ProxyStatistics(AuthModel):
-    __table__ = 'grab_proxy_statistics'
-    pid = baseorm.IdField()
-    avg_elapse = baseorm.FloatField(ddl='float')
-    total_elapse = baseorm.FloatField(ddl='float')
-    start_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
-    end_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
     create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
     update_time = baseorm.DatetimeField(ddl='timestamp')
 
@@ -261,16 +240,6 @@ class Section(AuthModel):
     updator = baseorm.IdField()
     create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
     update_time = baseorm.DatetimeField(ddl='timestamp')
-
-
-class Statistics(AuthModel):
-    __table__ = 'grab_statistics'
-    tid = baseorm.IdField()
-    succ = baseorm.IntField(ddl='int', max_length=10)
-    fail = baseorm.IntField(ddl='int', max_length=10)
-    timeout = baseorm.IntField(ddl='int', max_length=10)
-    elapse = baseorm.FloatField(ddl='float')
-    create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
 
 
 class Task(AuthModel):

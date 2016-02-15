@@ -46,13 +46,6 @@ class Proxy(MarkModel):
     updator = dataorm.IdField()
 
 
-class ProxyLog(dataorm.Model):
-    __table__ = 'grab_proxy_log'
-    pid = dataorm.IdField()
-    elapse = dataorm.FloatField(ddl='float')
-    create_time = dataorm.DatetimeField(ddl='datetime')
-
-
 '''
 @comment('视频数据')
 '''
