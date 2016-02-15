@@ -49,7 +49,7 @@
     {% for one in tasks %}
         <li>
             <span>{{one['type']}}</span>
-            <span>{{one['task_name']}}</span>
+            <span>{{one['name']}}</span>
             <a href="time/detail/{{one['_id']}}"><span style="margin-left:20px;">耗时统计</span></a>
             <a href="count/detail/{{one['_id']}}"><span style="margin-left:20px;">数量统计</span></a>
             <a href="data/{{one['_id']}}"><span style="margin-left:20px;">查看数据</span></a>

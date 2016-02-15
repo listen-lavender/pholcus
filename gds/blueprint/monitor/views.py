@@ -8,6 +8,7 @@ from flask import Blueprint, request, Response, render_template, g
 monitor = Blueprint('monitor', __name__, template_folder='template')
 
 from task import *
+from data import *
 
 @monitor.route('/index', methods=['GET'])
 def index():
