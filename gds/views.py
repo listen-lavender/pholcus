@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # coding=utf8
 import json, sys, os
-from settings import staticfilepath, useport, CACHE_TIMEOUT, LIMIT
-from settings import withBase, withData, base, data, _BASE_R, _BASE_W, _DATA_R, RDB, WDB
+sys.path.append('../')
+from settings import staticfilepath, useport, CACHE_TIMEOUT
+from model.settings import withBase, withData, base, data, _BASE_R, _BASE_W, _DATA_R, RDB, WDB, LIMIT
 from flask import Flask, g, request, Response, session, redirect
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug.contrib.cache import SimpleCache
