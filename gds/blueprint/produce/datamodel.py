@@ -24,7 +24,6 @@ def modeldetail(dmid=None):
     rowvals = Datamodel.queryOne({'$or':[{'_id':dmid}, {'_id':''}]}, projection=dict(zip(rows, [1 for one in rows]))) or dict(zip(rows, ['' for one in rows]))
     colvals = Dataitem.queryAll({'$or':[{'_id':rowvals['_id']}, {'_id':''}]}, projection=dict(zip(cols, [1 for one in cols])))
     for col in colvals:
-        # colvals[col]['datatypes'] = baseConn.handler.queryAll(""" select %s from grab_datatype where diid = %s; """, (','.join(''.join(('`', one, '`')) for one in adds), colvals[col]['_id']))
         del col['dmid']
     cols.remove('dmid')
     cols.remove('_id')

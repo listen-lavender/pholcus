@@ -20,8 +20,8 @@ def taskdata(tid):
     page = int(request.args.get('page', 1))
     total = int(request.args.get('total', 0))
     count = (total - 1)/pagetotal + 1
-    task = Task.queryOne(user['_id'], {'_id':tid}, projection={'aid':1})
-    article = Article.queryOne(user['_id'], {'_id':task['aid']}, projection={'uid':1})
+    task = Task.queryOne(user, {'_id':tid}, projection={'aid':1})
+    article = Article.queryOne(user, {'_id':task['aid']}, projection={'uid':1})
     unit = Unit.queryOne({'_id':article['uid']}, projection={'dmid':1})
     model = Datamodel.queryOne({'_id':unit['dmid']}, projection={'name':1})
     datamodel = getattr(grabdata, model['name'].capitalize())

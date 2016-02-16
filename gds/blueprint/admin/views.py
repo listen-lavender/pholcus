@@ -9,6 +9,22 @@ from model.base import Creator, Permit
 LENGTH = [5, 7, 13]
 UL = [True, True, False, True, False, False]
 C = ['a', '1', 'b', 'c', '2', 'd', '3', 'e', 'f', 'g', '4', '5', 'h', 'i', '7', 'j', 'k', '6', 'l', 'm', 'n', 'o', 'p', '9', 'q', 'r', '8', 's', 't', 'u', 'v', 'w', 'x', '0', 'y', 'z']
+PRIORITY = {'administrator':{
+        'Creator':{'authority':9, 'desc':'a--q'},
+        'Article':{'authority':1, 'desc':'---q'},
+        'Task':{'authority':1, 'desc':'---q'},
+    },
+    'developer':{
+        'Creator':{'authority':1, 'desc':'---q'},
+        'Article':{'authority':9, 'desc':'a--q'},
+        'Task':{'authority':9, 'desc':'a--q'},
+    },
+    'operator':{
+        'Creator':{'authority':1, 'desc':'---q'},
+        'Article':{'authority':1, 'desc':'---q'},
+        'Task':{'authority':9, 'desc':'a--q'},
+    },
+}
 
 
 def send_static_file(self, filename):
@@ -34,22 +50,12 @@ admin.send_static_file  = types.MethodType(send_static_file, admin)
 def login():
     username = request.form.get('username')
     password = request.form.get('password')
-    # contact = '{}'
-    # notify = '{}'
-    # status = 1
-    # creator = 0
-    # updator = 0
-    # create_time = datetime.datetime.now()
-    # sql = """insert ignore into grab_creator(`username`,`password`,`contact`,`notify`,`status`,`creator`,`updator`,`create_time`)
-    #                            values(%s        ,        %s,       %s,      %s,      %s,       %s,       %s,           %s);
-    # """
-    # baseConn.handler.insert(sql, (username, password, contact, notify, status, creator, updator, create_time))
     user = request.user
     if user is not None:
         return redirect('/gds/m/task/list')
-    user = Creator.queryOne(None, {'username':username, 'password':password, 'status':{'$ne':0}})
+    user = Creator.queryOne({}, {'username':username, 'password':password, 'status':{'$ne':0}})
     if user is not None:
-        user = {'name':user['username'], '_id':user['_id'], 'status':user['status']}
+        user = {'name':user['username'], '_id':user['_id'], 'status':user['status'], 'group':user['group']}
         response = make_response(redirect('/gds/m/task/list'))
         sid = str(uuid.uuid4())
         session[sid] = user
@@ -84,12 +90,14 @@ def register():
         m.update(origin)
         secret = m.hexdigest()
         status = 2
-        creator = 0
-        updator = 0
+        creator = Creator.queryOne({}, {'username':'root'})['_id']
+        updator = creator
         create_time = datetime.datetime.now()
         user = Creator(username=username, password=password, contact=contact, notify=notify, secret=secret, status=status, creator=creator, updator=updator, create_time=create_time)
-        user['_id'] = Creator.insert(None, user)
-        user = {'name':user['username'], '_id':user['_id']}
+        user['_id'] = Creator.insert({}, user)
+        permit = Permit(cid=user['_id'], otype='Creator', oid=user['_id'], authority=15, desc='aduq', status=1, creator=user['_id'], updator=user['_id'], create_time=datetime.datetime.now())
+        Permit.insert(permit)
+        user = {'name':user['username'], '_id':user['_id'], 'status':user['status'], 'group':''}
         response = make_response(redirect('/gds/a/info'))
         sid = str(uuid.uuid4())
         session[sid] = user
@@ -106,16 +114,18 @@ def verify():
     else:
         _id = request.form.get('_id')
         group = request.form.get('group')
-        Creator.update({'_id':_id}, {'group':group, 'status':1})
-        permit = Permit(cid=_id, otype='grab_unit', authority=15, desc='aduq', status=1, creator=user['uid'], updator=user['uid'])
+        otype = request.form.get('otype')
+        authority = PRIORITY.get(group).get(otype).get('authority')
+        desc = PRIORITY.get(group).get(otype).get('desc')
+
+        Creator.update(user, {'_id':_id}, {'group':group, 'status':1})
+        create_time = datetime.datetime.now()
+
+        permit = Permit(cid=_id, otype=otype, authority=authority, desc=desc, status=1, creator=user['_id'], updator=user['_id'], create_time=create_time)
         Permit.insert(permit)
-        permit = Permit(cid=_id, otype='grab_article', authority=15, desc='aduq', status=1, creator=user['uid'], updator=user['uid'])
+        permit = Permit(cid=_id, otype=otype, authority=authority, desc=desc, status=1, creator=user['_id'], updator=user['_id'], create_time=create_time)
         Permit.insert(permit)
-        permit = Permit(cid=_id, otype='grab_section', authority=15, desc='aduq', status=1, creator=user['uid'], updator=user['uid'])
-        Permit.insert(permit)
-        permit = Permit(cid=_id, otype='grab_task', authority=15, desc='aduq', status=1, creator=user['uid'], updator=user['uid'])
-        Permit.insert(permit)
-        permit = Permit(cid=_id, otype='grab_config', authority=15, desc='aduq', status=1, creator=user['uid'], updator=user['uid'])
+        permit = Permit(cid=_id, otype=otype, authority=authority, desc=desc, status=1, creator=user['_id'], updator=user['_id'], create_time=create_time)
         Permit.insert(permit)
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
@@ -124,7 +134,7 @@ def verify():
 @withBase(WDB, resutype='DICT', autocommit=True)
 def info():
     user = request.user
-    user = Creator.queryOne(user['_id'], {'_id':user['_id']})
+    user = Creator.queryOne(user, {'_id':user['_id']})
     return render_template('info.html', appname=g.appname, logined=True, user=user)
 
 

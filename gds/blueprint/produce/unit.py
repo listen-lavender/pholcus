@@ -72,7 +72,7 @@ def unitdetail(uid=None):
                 'updator':user['_id'],
                 'update_time':datetime.datetime.now()
             }
-            baseConn.handler.update({'_id':uid}, doc)
+            Unit.update({'_id':uid}, {'$set':doc})
             # seeunit(baseConn, uid)
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:

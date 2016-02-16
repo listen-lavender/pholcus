@@ -5,7 +5,7 @@ from model.settings import withBase, withData, base, data, _BASE_R, _BASE_W, RDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import produce
-from model.base import Task, Section, Article, Unit, Config
+from model.base import Task, Section, Article, Unit, Config, Permit
 
 QUEUETYPE = {'P':'本地队列', 'B':'beanstalk队列'}
 WORKTYPE = {'THREAD':'线程', 'COROUTINE':'协程'}
@@ -20,9 +20,9 @@ def tasklist():
     page = int(request.args.get('page', 1))
     total = int(request.args.get('total', 0))
     if total == 0:
-        total = Task.count({})
+        total = Task.count(user, {})
     count = (total - 1)/pagetotal + 1
-    tasks = Task.queryAll({}, projection={'_id':1, 'name':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
+    tasks = Task.queryAll(user, {}, projection={'_id':1, 'name':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     return render_template('ptasklist.html', appname=g.appname, logined=True, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
 
 
@@ -38,12 +38,12 @@ def taskdetail(tid=None):
             task = {'_id':'', 'aid':'', 'sid':'', 'task_name':'', 'extra':'', 'type':'ONCE', 'period':0, 'flow':'', 'params':'', 'worknum':6, 'queuetype':'P', 'worktype':'THREAD', 'trace':0, 'timeout':30, 'category':'', 'tag':''}
         else:
             projection = {'_id':1, 'aid':1, 'sid':1, 'name':1, 'extra':1, 'type':1, 'period':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'trace':1, 'timeout':1, 'category':1, 'tag':1}
-            task = Task.queryOne(user['_id'], {'_id':tid}, projection=projection)
+            task = Task.queryOne(user, {'_id':tid}, projection=projection)
             task['task_name'] = task['name']
             projection = {'name':1}
             section = Section.queryOne({'_id':task['sid']}, projection=projection)
             projection = {'filepath':1, 'uid':1}
-            article = Article.queryOne(user['_id'], {'_id':task['aid']}, projection=projection)
+            article = Article.queryOne(user, {'_id':task['aid']}, projection=projection)
             projection = {'dirpath':1}
             unit = Unit.queryOne({'_id':article['uid']}, projection=projection)
             projection = {'val':1}
@@ -95,7 +95,9 @@ def taskdetail(tid=None):
                 creator=user['_id'],
                 updator=user['_id'],
                 create_time=datetime.datetime.now())
-            tid = Task.insert(task)
+            tid = Task.insert(user, task)
+            permit = Permit(cid=user['_id'], otype='Task', oid=tid, authority=15, desc='aduq', status=1, creator=user['_id'], updator=user['_id'], create_time=datetime.datetime.now())
+            Permit.insert(permit)
         else:
             doc = {'name':task_name,
                 'extra':extra,
@@ -115,7 +117,7 @@ def taskdetail(tid=None):
                 'updator':user['_id'],
                 'update_time':datetime.datetime.now()
             }
-            Task.update(user['_id'], {'_id':tid}, {'$set':doc})
+            Task.update(user, {'_id':tid}, doc)
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         pass
@@ -126,7 +128,7 @@ def taskdetail(tid=None):
 def taskarticles():
     user = request.user
     config = Config.queryOne({'type':'ROOT', 'key':'dir'}, projection={'val':1})
-    articles = Article.queryAll({}, projection={'uid':1, '_id':1, 'filepath':1})
+    articles = Article.queryAll(user, {}, projection={'uid':1, '_id':1, 'filepath':1})
     for article in articles:
         unit = Unit.queryOne({'_id':article['uid']}, projection={'dirpath':1})
         article['article_name'] = config['val'] + unit['dirpath'] +  article['filepath']

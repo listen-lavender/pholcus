@@ -20,9 +20,9 @@ def tasklist():
     page = int(request.args.get('page', 1))
     total = int(request.args.get('total', 0))
     if total == 0:
-        total = Task.count({})
+        total = Task.count(user, {})
     count = (total - 1)/pagetotal + 1
-    tasks = Task.queryAll({}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
+    tasks = Task.queryAll(user, {}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     for one in tasks:
         one['change'] = (one['status'] in (0, 1, 2) and one['type'] == 'FOREVER') or (one['status'] in (0, 1) and one['type'] == 'ONCE')
         one['status_desc'] = STATDESC.get(one['status'], '')
@@ -48,11 +48,12 @@ def tasktimedetail(tid):
     '''
 
     print sql, tid, begin, end
-    stats = baseConn.handler.queryAll(sql, (tid, begin, end))
+    stats = Statistics.queryAll({'tid':tid, '$and':[{'create_time':{'$get':begin}}, {'create_time':{'$let':end}}]}, projection={'time':1, 'elapse':1})
     for log in stats:
-        # log['time'] = parser.parse(log['time']+'0')
+        log['time'] = log['time'].strftime('%Y-%m-%d %H:%M')
         log['time'] = time.mktime(time.strptime(log['time']+ ':00', '%Y-%m-%d %H:%M:%S')) * 1000
-        log['value'] = float(log['value'])
+        log['value'] = float(log['elapse'])
+        del log['elapse']
 
     chart = dict(
         title=title,
@@ -83,33 +84,36 @@ def taskcountdetail(tid):
     '''
 
     print sql, tid, begin, end
-    succ_stats = baseConn.handler.queryAll(sql, (tid, begin, end))
+    succ_stats = Statistics.queryAll({'tid':tid, '$and':[{'create_time':{'$get':begin}}, {'create_time':{'$let':end}}]}, projection={'time':1, 'succ':1})
     for log in succ_stats:
-        # log['time'] = parser.parse(log['time']+'0')
+        log['time'] = log['time'].strftime('%Y-%m-%d %H:%M')
         log['time'] = time.mktime(time.strptime(log['time']+ ':00', '%Y-%m-%d %H:%M:%S')) * 1000
-        log['value'] = float(log['value'])
+        log['value'] = float(log['succ'])
+        del log['succ']
 
     sql = '''select substr(create_time, 1, 16) as time, fail as value
         from grab_statistics where tid = %s and create_time between %s and %s
             order by time
     '''
     print sql, tid, begin, end
-    fail_stats = baseConn.handler.queryAll(sql, (tid, begin, end))
+    fail_stats = Statistics.queryAll({'tid':tid, '$and':[{'create_time':{'$get':begin}}, {'create_time':{'$let':end}}]}, projection={'time':1, 'fail':1})
     for log in fail_stats:
-        # log['time'] = parser.parse(log['time']+'0')
+        log['time'] = log['time'].strftime('%Y-%m-%d %H:%M')
         log['time'] = time.mktime(time.strptime(log['time']+ ':00', '%Y-%m-%d %H:%M:%S')) * 1000
-        log['value'] = float(log['value'])
+        log['value'] = float(log['fail'])
+        del log['fail']
 
     sql = '''select substr(create_time, 1, 16) as time, timeout as value
         from grab_statistics where tid = %s and create_time between %s and %s
             order by time
     '''
     print sql, tid, begin, end
-    timeout_stats = baseConn.handler.queryAll(sql, (tid, begin, end))
+    timeout_stats = Statistics.queryAll({'tid':tid, '$and':[{'create_time':{'$get':begin}}, {'create_time':{'$let':end}}]}, projection={'time':1, 'timeout':1})
     for log in timeout_stats:
-        # log['time'] = parser.parse(log['time']+'0')
+        log['time'] = log['time'].strftime('%Y-%m-%d %H:%M')
         log['time'] = time.mktime(time.strptime(log['time']+ ':00', '%Y-%m-%d %H:%M:%S')) * 1000
-        log['value'] = float(log['value'])
+        log['value'] = float(log['timeout'])
+        del log['timeout']
 
     chart = dict(
         title=title,
@@ -129,6 +133,6 @@ def taskcountdetail(tid):
 def taskchange(tid):
     user = request.user
     status = request.form.get('status', 1)
-    Task.update(user['_id'], {'_id':tid}, {'$set':{'status':status}})
+    Task.update(user, {'_id':tid}, {'status':status})
     return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 

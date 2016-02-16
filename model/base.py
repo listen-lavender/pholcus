@@ -8,73 +8,67 @@ MAXSIZE = 1000
 class AuthModel(baseorm.Model):
 
     @classmethod
-    def queryOne(cls, uid, spec, projection={}, sort=[]):
-        user = super(AuthModel, Creator).queryOne({'_id':uid}, projection={'username':1}) or {'username':None}
-        Permit.queryOne({'cid':uid, 'otype':cls.__name__, 'oid':spec.get('_id')}, projection={'authority':1})
-        if auth is None:
-            Permit.queryOne({'cid':uid, 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
-        if cls.__name__ == 'Creator' or user['username'] == 'root' or auth['authority'] % 2 == 1: # 1 3 5 7 9 11 13 15
+    def queryOne(cls, user, spec, projection={}, sort=[]):
+        if spec.get('_id') is None:
+            auth = {'authority':0}
+        else:
+            auth = Permit.queryOne({'cid':user.get('_id'), 'otype':cls.__name__, 'oid':spec.get('_id')}, projection={'authority':1}) or {'authority':0}
+        if cls.__name__ == 'Creator' or user.get('name') == 'root' or auth.get('authority', 0) % 2 == 1: # 1 3 5 7 9 11 13 15
             result = super(AuthModel, cls).queryOne(spec, projection=projection, sort=sort)
         else:
             result = None
         return result
 
     @classmethod
-    def queryAll(cls, uid, spec, projection={}, sort=[], skip=0, limit=10):
-        user = super(AuthModel, Creator).queryOne({'_id':uid}, projection={'username':1}) or {'username':None}
-        Permit.queryOne({'cid':uid, 'otype':cls.__name__}, projection={'authority':1}) or {'authority':0}
-        if user['username'] == 'root':
-            result = super(AuthModel, cls).queryAll(spec, projection=projection, sort=sort, skip=skip, limit=limit)
-        elif user:
-            spec['$or'] = [{'creator':user['_id']}, {'updator':user['_id']}]
+    def queryAll(cls, user, spec, projection={}, sort=[], skip=0, limit=10):
+        auth = Permit.queryOne({'cid':user.get('_id'), 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
+        if user.get('name') == 'root' or auth.get('authority', 0) % 2 == 1:
             result = super(AuthModel, cls).queryAll(spec, projection=projection, sort=sort, skip=skip, limit=limit)
         else:
             result = []
         return result
 
     @classmethod
-    def count(cls, uid, spec):
-        user = super(AuthModel, Creator).queryOne({'_id':uid}, projection={'username':1}) or {'username':None}
-        # Permit.queryOne({'cid':uid, 'otype':cls.__name__}, projection={'authority':1}) or {'authority':0}
-        if user['username'] == 'root':
-            result = super(AuthModel, cls).count(spec)
-        elif user:
-            spec['$or'] = [{'creator':user['_id']}, {'updator':user['_id']}]
+    def count(cls, user, spec):
+        auth = Permit.queryOne({'cid':user.get('_id'), 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
+        if user.get('name') == 'root' or auth.get('authority', 0) % 2 == 1:
             result = super(AuthModel, cls).count(spec)
         else:
             result = 0
         return result
 
     @classmethod
-    def insert(cls, uid, obj, update=True, method='SINGLE', forcexe=False, maxsize=MAXSIZE):
-        user = super(AuthModel, Creator).queryOne({'_id':uid}, projection={'username':1}) or {'username':None}
-        Permit.queryOne({'cid':uid, 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
-        if cls.__name__ == 'Creator' or user['username'] == 'root' or auth['authority'] > 7: # 8 9 10 11 12 13 14 15
+    def insert(cls, user, obj, update=True, method='SINGLE', forcexe=False, maxsize=MAXSIZE):
+        auth = Permit.queryOne({'cid':user.get('_id'), 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
+        if cls.__name__ == 'Creator' or user['name'] == 'root' or auth['authority'] > 7: # 8 9 10 11 12 13 14 15
             result = super(AuthModel, cls).insert(obj, update=update, method=method, forcexe=forcexe, maxsize=maxsize)
         else:
             result = None
         return result
 
     @classmethod
-    def delete(cls, uid, spec):
-        user = super(AuthModel, Creator).queryOne({'_id':uid}, projection={'username':1}) or {'username':None}
-        Permit.queryOne({'cid':uid, 'otype':cls.__name__, 'oid':spec.get('_id')}, projection={'authority':1})
-        if auth is None:
-            Permit.queryOne({'cid':uid, 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
-        if user['username'] == 'root' or auth['authority'] in (4,5,6,7,12,13,14,15):
-            result = super(AuthModel, cls).delete(spec)
+    def delete(cls, user, spec):
+        if spec.get('_id') is None:
+            auth = {'authority':0}
+        else:
+            auth = Permit.queryOne({'cid':user.get('_id'), 'otype':cls.__name__, 'oid':spec.get('_id')}, projection={'authority':1}) or {'authority':0}
+        if user['name'] == 'root' or auth['authority'] in (4,5,6,7,12,13,14,15):
+            # result = super(AuthModel, cls).delete(spec)
+            result = super(AuthModel, cls).update(spec, {'$set':{'status':0}})
         else:
             result = None
         return result
 
     @classmethod
-    def update(cls, uid, spec, doc):
-        user = super(AuthModel, Creator).queryOne({'_id':uid}, projection={'username':1}) or {'username':None}
-        Permit.queryOne({'cid':uid, 'otype':cls.__name__, 'oid':spec.get('_id')}, projection={'authority':1})
-        if auth is None:
-            Permit.queryOne({'cid':uid, 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
-        if user['username'] == 'root' or auth['authority'] in (2,3,6,7,10,11,14,15):
-            result = super(AuthModel, cls).update(spec, doc)
+    def update(cls, user, spec, doc):
+        if spec.get('_id') is None:
+            auth = {'authority':0}
+        else:
+            auth = Permit.queryOne({'cid':user.get('_id'), 'otype':cls.__name__, 'oid':spec.get('_id')}, projection={'authority':1}) or {'authority':0}
+        if not user['group'] == 'administrator' and cls.__name__ == 'Creator' and 'group' in doc:
+            del doc['group']
+        if user['name'] == 'root' or auth['authority'] in (2,3,6,7,10,11,14,15):
+            result = super(AuthModel, cls).update(spec, {'$set':doc})
         else:
             result = None
         return result
