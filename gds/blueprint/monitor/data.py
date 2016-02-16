@@ -22,8 +22,8 @@ def taskdata(tid):
     count = (total - 1)/pagetotal + 1
     task = Task.queryOne(user['_id'], {'_id':tid}, projection={'aid':1})
     article = Article.queryOne(user['_id'], {'_id':task['aid']}, projection={'uid':1})
-    unit = Unit.queryOne(user['_id'], {'_id':article['uid']}, projection={'dmid':1})
-    model = Datamodel.queryOne(user['_id'], {'_id':unit['dmid']}, projection={'name':1})
+    unit = Unit.queryOne({'_id':article['uid']}, projection={'dmid':1})
+    model = Datamodel.queryOne({'_id':unit['dmid']}, projection={'name':1})
     datamodel = getattr(grabdata, model['name'].capitalize())
     datas = datamodel.queryAll({'tid':tid}, sort=[('_id', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     if total == 0:

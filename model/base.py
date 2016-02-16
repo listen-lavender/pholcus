@@ -10,40 +10,46 @@ class AuthModel(baseorm.Model):
     @classmethod
     def queryOne(cls, uid, spec, projection={}, sort=[]):
         user = super(AuthModel, Creator).queryOne({'_id':uid}, projection={'username':1}) or {'username':None}
-        auth = super(AuthModel, Permit).queryOne({'cid':uid, 'otype':cls.__name__, 'oid':spec.get('_id')}, projection={'authority':1})
+        Permit.queryOne({'cid':uid, 'otype':cls.__name__, 'oid':spec.get('_id')}, projection={'authority':1})
         if auth is None:
-            auth = super(AuthModel, Permit).queryOne({'cid':uid, 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
+            Permit.queryOne({'cid':uid, 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
         if cls.__name__ == 'Creator' or user['username'] == 'root' or auth['authority'] % 2 == 1: # 1 3 5 7 9 11 13 15
             result = super(AuthModel, cls).queryOne(spec, projection=projection, sort=sort)
         else:
             result = None
         return result
 
-    # @classmethod
-    # def queryAll(cls, uid, spec, projection={}, sort=[], skip=0, limit=10):
-    #     user = super(AuthModel, Creator).queryOne({'_id':uid}, projection={'username':1}) or {'username':None}
-    #     auth = super(AuthModel, Permit).queryOne({'cid':uid, 'otype':cls.__name__}, projection={'authority':1}) or {'authority':0}
-    #     if user['username'] == 'root' or auth['authority'] % 2 == 1: # 1 3 5 7 9 11 13 15
-    #         result = super(AuthModel, cls).queryAll(spec, projection=projection, sort=sort, skip=skip, limit=limit)
-    #     else:
-    #         result = None
-    #     return result
+    @classmethod
+    def queryAll(cls, uid, spec, projection={}, sort=[], skip=0, limit=10):
+        user = super(AuthModel, Creator).queryOne({'_id':uid}, projection={'username':1}) or {'username':None}
+        Permit.queryOne({'cid':uid, 'otype':cls.__name__}, projection={'authority':1}) or {'authority':0}
+        if user['username'] == 'root':
+            result = super(AuthModel, cls).queryAll(spec, projection=projection, sort=sort, skip=skip, limit=limit)
+        elif user:
+            spec['$or'] = [{'creator':user['_id']}, {'updator':user['_id']}]
+            result = super(AuthModel, cls).queryAll(spec, projection=projection, sort=sort, skip=skip, limit=limit)
+        else:
+            result = []
+        return result
 
-    # @classmethod
-    # def count(cls, uid, spec):
-    #     user = super(AuthModel, Creator).queryOne({'_id':uid}, projection={'username':1}) or {'username':None}
-    #     auth = super(AuthModel, Permit).queryOne({'cid':uid, 'otype':cls.__name__}, projection={'authority':1}) or {'authority':0}
-    #     if user['username'] == 'root' or auth['authority'] % 2 == 1: # 1 3 5 7 9 11 13 15
-    #         result = super(AuthModel, cls).count(spec)
-    #     else:
-    #         result = None
-    #     return result
+    @classmethod
+    def count(cls, uid, spec):
+        user = super(AuthModel, Creator).queryOne({'_id':uid}, projection={'username':1}) or {'username':None}
+        # Permit.queryOne({'cid':uid, 'otype':cls.__name__}, projection={'authority':1}) or {'authority':0}
+        if user['username'] == 'root':
+            result = super(AuthModel, cls).count(spec)
+        elif user:
+            spec['$or'] = [{'creator':user['_id']}, {'updator':user['_id']}]
+            result = super(AuthModel, cls).count(spec)
+        else:
+            result = 0
+        return result
 
     @classmethod
     def insert(cls, uid, obj, update=True, method='SINGLE', forcexe=False, maxsize=MAXSIZE):
         user = super(AuthModel, Creator).queryOne({'_id':uid}, projection={'username':1}) or {'username':None}
-        auth = super(AuthModel, Permit).queryOne({'cid':uid, 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
-        if user['username'] == 'root' or auth['authority'] > 7: # 8 9 10 11 12 13 14 15
+        Permit.queryOne({'cid':uid, 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
+        if cls.__name__ == 'Creator' or user['username'] == 'root' or auth['authority'] > 7: # 8 9 10 11 12 13 14 15
             result = super(AuthModel, cls).insert(obj, update=update, method=method, forcexe=forcexe, maxsize=maxsize)
         else:
             result = None
@@ -52,9 +58,9 @@ class AuthModel(baseorm.Model):
     @classmethod
     def delete(cls, uid, spec):
         user = super(AuthModel, Creator).queryOne({'_id':uid}, projection={'username':1}) or {'username':None}
-        auth = super(AuthModel, Permit).queryOne({'cid':uid, 'otype':cls.__name__, 'oid':spec.get('_id')}, projection={'authority':1})
+        Permit.queryOne({'cid':uid, 'otype':cls.__name__, 'oid':spec.get('_id')}, projection={'authority':1})
         if auth is None:
-            auth = super(AuthModel, Permit).queryOne({'cid':uid, 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
+            Permit.queryOne({'cid':uid, 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
         if user['username'] == 'root' or auth['authority'] in (4,5,6,7,12,13,14,15):
             result = super(AuthModel, cls).delete(spec)
         else:
@@ -64,9 +70,9 @@ class AuthModel(baseorm.Model):
     @classmethod
     def update(cls, uid, spec, doc):
         user = super(AuthModel, Creator).queryOne({'_id':uid}, projection={'username':1}) or {'username':None}
-        auth = super(AuthModel, Permit).queryOne({'cid':uid, 'otype':cls.__name__, 'oid':spec.get('_id')}, projection={'authority':1})
+        Permit.queryOne({'cid':uid, 'otype':cls.__name__, 'oid':spec.get('_id')}, projection={'authority':1})
         if auth is None:
-            auth = super(AuthModel, Permit).queryOne({'cid':uid, 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
+            Permit.queryOne({'cid':uid, 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
         if user['username'] == 'root' or auth['authority'] in (2,3,6,7,10,11,14,15):
             result = super(AuthModel, cls).update(spec, doc)
         else:
@@ -89,7 +95,7 @@ class Article(AuthModel):
     update_time = baseorm.DatetimeField(ddl='timestamp')
 
 
-class Codetree(AuthModel):
+class Codetree(baseorm.Model):
     __table__ = 'grab_codetree'
     bid = baseorm.IdField(unique='gct')
     btype = baseorm.StrField(ddl='varchar', max_length=30, nullable=0, updatable=False, unique='gct')
@@ -105,7 +111,7 @@ class Codetree(AuthModel):
     datatype = baseorm.StrField(ddl='varchar', max_length=20)
 
 
-class Config(AuthModel):
+class Config(baseorm.Model):
     __table__ = 'grab_config'
     type = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='gc')
     name = baseorm.StrField(ddl='varchar', max_length=50, nullable=0, updatable=False, unique='gc')
@@ -138,7 +144,7 @@ class Creator(AuthModel):
     update_time = baseorm.DatetimeField(ddl='timestamp')
 
 
-class Dataextract(AuthModel):
+class Dataextract(baseorm.Model):
     __table__ = 'grab_dataextract'
     name = baseorm.StrField(ddl='varchar', max_length=100, nullable=0, updatable=False, unique='gde')
     method = baseorm.StrField(ddl='varchar', max_length=30)
@@ -151,7 +157,7 @@ class Dataextract(AuthModel):
     pdeid = baseorm.IdField()
 
 
-class Dataitem(AuthModel):
+class Dataitem(baseorm.Model):
     __table__ = 'grab_dataitem'
     dmid = baseorm.IdField(unique='gdi')
     name = baseorm.StrField(ddl='varchar', max_length=64, nullable=0, updatable=False, unique='gdi')
@@ -161,7 +167,7 @@ class Dataitem(AuthModel):
     unique = baseorm.StrField(ddl='varchar', max_length=64)
 
 
-class Datamodel(AuthModel):
+class Datamodel(baseorm.Model):
     __table__ = 'grab_datamodel'
     name = baseorm.StrField(ddl='varchar', max_length=64, nullable=0, updatable=False, unique='gdm')
     table = baseorm.StrField(ddl='varchar', max_length=64)
@@ -176,7 +182,7 @@ class Datamodel(AuthModel):
     update_time = baseorm.DatetimeField(ddl='timestamp')
 
 
-class Datapath(AuthModel):
+class Datapath(baseorm.Model):
     __table__ = 'grab_datapath'
     bid = baseorm.IdField(unique='gdp')
     btype = baseorm.StrField(ddl='varchar', max_length=30, nullable=0, updatable=False, unique='gdp')
@@ -192,7 +198,7 @@ class Datapath(AuthModel):
     datatype = baseorm.StrField(ddl='varchar', max_length=20)
 
 
-class Datasource(AuthModel):
+class Datasource(baseorm.Model):
     __table__ = 'grab_datasource'
     name = baseorm.StrField(ddl='varchar', max_length=100, nullable=0, updatable=False, unique='gds')
     method = baseorm.StrField(ddl='varchar', max_length=30)
@@ -206,7 +212,7 @@ class Datasource(AuthModel):
     ssid = baseorm.IdField()
 
 
-class Hash(AuthModel):
+class Hash(baseorm.Model):
     __table__ = 'grab_hash'
     sid = baseorm.IdField(unique='gh')
     hashweb = baseorm.IntField(ddl='int', max_length=30, nullable=0, updatable=False, unique='gh')
@@ -214,7 +220,7 @@ class Hash(AuthModel):
     update_time = baseorm.DatetimeField(ddl='timestamp')
 
 
-class Permit(AuthModel):
+class Permit(baseorm.Model):
     __table__ = 'grab_permit'
     cid = baseorm.IdField(unique='gp')
     oid = baseorm.IdField(unique='gp')
@@ -229,7 +235,7 @@ class Permit(AuthModel):
     update_time = baseorm.DatetimeField(ddl='timestamp')
 
 
-class Section(AuthModel):
+class Section(baseorm.Model):
     __table__ = 'grab_section'
     aid = baseorm.IdField(unique='gs')
     next_id = baseorm.IdField()
@@ -273,7 +279,7 @@ class Task(AuthModel):
     update_time = baseorm.DatetimeField(ddl='timestamp')
 
 
-class Unit(AuthModel):
+class Unit(baseorm.Model):
     __table__ = 'grab_unit'
     dmid = baseorm.IdField()
     name = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='gu')
@@ -287,7 +293,7 @@ class Unit(AuthModel):
     update_time = baseorm.DatetimeField(ddl='timestamp')
 
 
-class Waycon(AuthModel):
+class Waycon(baseorm.Model):
     __table__ = 'grab_waycon'
     name = baseorm.StrField(ddl='varchar', max_length=50, nullable=0, updatable=False, unique='gw')
     desc = baseorm.StrField(ddl='varchar', max_length=200)

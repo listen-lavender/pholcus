@@ -41,13 +41,13 @@ def taskdetail(tid=None):
             task = Task.queryOne(user['_id'], {'_id':tid}, projection=projection)
             task['task_name'] = task['name']
             projection = {'name':1}
-            section = Section.queryOne(user['_id'], {'_id':task['sid']}, projection=projection)
+            section = Section.queryOne({'_id':task['sid']}, projection=projection)
             projection = {'filepath':1, 'uid':1}
             article = Article.queryOne(user['_id'], {'_id':task['aid']}, projection=projection)
             projection = {'dirpath':1}
-            unit = Unit.queryOne(user['_id'], {'_id':article['uid']}, projection=projection)
+            unit = Unit.queryOne({'_id':article['uid']}, projection=projection)
             projection = {'val':1}
-            config = Config.queryOne(user['_id'], {'type':'ROOT', 'key':'dir'}, projection=projection)
+            config = Config.queryOne({'type':'ROOT', 'key':'dir'}, projection=projection)
             task['section_name'] = section['name']
             task['article_name'] = config['val'] + unit['dirpath'] + article['filepath']
         task['queuetype_name'] = QUEUETYPE.get(task['queuetype'], '')
@@ -125,10 +125,10 @@ def taskdetail(tid=None):
 @withBase(RDB, resutype='DICT')
 def taskarticles():
     user = request.user
-    config = Config.queryOne(user['_id'], {'type':'ROOT', 'key':'dir'}, projection={'val':1})
+    config = Config.queryOne({'type':'ROOT', 'key':'dir'}, projection={'val':1})
     articles = Article.queryAll({}, projection={'uid':1, '_id':1, 'filepath':1})
     for article in articles:
-        unit = Unit.queryOne(user['_id'], {'_id':article['uid']}, projection={'dirpath':1})
+        unit = Unit.queryOne({'_id':article['uid']}, projection={'dirpath':1})
         article['article_name'] = config['val'] + unit['dirpath'] +  article['filepath']
     return json.dumps(articles, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
@@ -137,7 +137,7 @@ def taskarticles():
 @withBase(RDB, resutype='DICT')
 def taskflows():
     user = request.user
-    aid = request.args.get('aid', 0)
+    aid = request.args.get('aid') or 0
     sections = Section.queryAll({'aid':aid}, projection={'flow':1})
     flows = list(set([section['flow'] for section in sections]))
     return json.dumps(flows, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
@@ -147,8 +147,8 @@ def taskflows():
 @withBase(RDB, resutype='DICT')
 def tasksections():
     user = request.user
-    aid = request.args.get('aid', 0)
-    flow = request.args.get('flow', '')
+    aid = request.args.get('aid') or 0
+    flow = request.args.get('flow') or ''
     sections = Section.queryAll({'aid':aid, 'flow':flow}, projection={'_id':1, 'name':1})
     for section in sections:
         section['section_name'] = section['name']

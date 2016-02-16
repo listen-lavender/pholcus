@@ -17,6 +17,7 @@ def sectionlist(aid):
     on gs.next_id = gsp.id
      where gs.flow = 'www';
     """
+    user = request.user
     if request.method == 'GET':
         flows = Section.queryAll({'aid':aid}, projection={'flow':1})
         flows = set(one['flow'] for one in flows)
@@ -63,6 +64,7 @@ def sectionlist(aid):
 @produce.route('/section/detail/<sid>', methods=['GET', 'POST', 'DELETE'])
 @withBase(WDB, resutype='DICT', autocommit=True)
 def sectiondetail(sid=None):
+    user = request.user
     aid = int(request.args.get('aid', 0))
     if request.method == 'GET':
         if sid is None:

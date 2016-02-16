@@ -17,21 +17,22 @@ def articlelist(uid=''):
     page = int(request.args.get('page', 1))
     total = int(request.args.get('total', 0))
     if total == 0:
-        total = Article.count({'$or':[{'uid':uid}, {'':uid}]})
+        total = Article.count({})
     count = (total - 1)/pagetotal + 1
-    articles = Article.queryAll({'$or':[{'uid':uid}, {'':uid}]}, projection={'_id':1, 'name':1, 'filepath':1, 'uid':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
+    articles = Article.queryAll({}, projection={'_id':1, 'name':1, 'filepath':1, 'uid':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     return render_template('particlelist.html', appname=g.appname, logined=True, uid=uid, articles=articles, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @produce.route('/article/detail', methods=['GET', 'POST'])
 @produce.route('/article/detail/<aid>', methods=['GET', 'POST'])
 @withBase(WDB, resutype='DICT', autocommit=True)
 def articledetail(aid=None):
+    user = request.user
     uid = int(request.args.get('uid') or 0)
     if request.method == 'GET':
         if aid is None:
             article = {'_id':'', 'host':'', 'pinyin':''}
         else:
-            article = Article.queryOne({'_id':aid}, projection={'_id':1, 'host':1, 'pinyin':1})
+            article = Article.queryOne(user['_id'], {'_id':aid}, projection={'_id':1, 'host':1, 'pinyin':1})
         return render_template('particledetail.html', appname=g.appname, logined=True, uid=uid, article=article)
     elif request.method == 'POST':
         user = request.user
@@ -53,7 +54,7 @@ def articledetail(aid=None):
                 update_time=datetime.datetime.now())
             aid = Article.insert(article)
         else:
-            Article.update({'_id':aid}, {'$set':{'name':article_name, 'host':host, 'pinyin':pinyin, 'filepath':filepath, 'updator':user['_id'], 'update_time':datetime.datetime.now()}})
+            Article.update(user['_id'], {'_id':aid}, {'$set':{'name':article_name, 'host':host, 'pinyin':pinyin, 'filepath':filepath, 'updator':user['_id'], 'update_time':datetime.datetime.now()}})
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         pass

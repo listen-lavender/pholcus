@@ -88,7 +88,7 @@ def register():
         updator = 0
         create_time = datetime.datetime.now()
         user = Creator(username=username, password=password, contact=contact, notify=notify, secret=secret, status=status, creator=creator, updator=updator, create_time=create_time)
-        user['_id'] = Creator.insert(user)
+        user['_id'] = Creator.insert(None, user)
         user = {'name':user['username'], '_id':user['_id']}
         response = make_response(redirect('/gds/a/info'))
         sid = str(uuid.uuid4())
