@@ -20,9 +20,9 @@ def tasklist():
     page = int(request.args.get('page', 1))
     total = int(request.args.get('total', 0))
     if total == 0:
-        total = Task.count(user['_id'], {})
+        total = Task.count({})
     count = (total - 1)/pagetotal + 1
-    tasks = Task.queryAll(user['_id'], {}, projection={'_id':1, 'name':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
+    tasks = Task.queryAll({}, projection={'_id':1, 'name':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     return render_template('ptasklist.html', appname=g.appname, logined=True, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
 
 
@@ -115,7 +115,7 @@ def taskdetail(tid=None):
                 'updator':user['_id'],
                 'update_time':datetime.datetime.now()
             }
-            Task.update({'_id':tid}, doc)
+            Task.update(user['_id'], {'_id':tid}, {'$set':doc})
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         pass
@@ -126,7 +126,7 @@ def taskdetail(tid=None):
 def taskarticles():
     user = request.user
     config = Config.queryOne(user['_id'], {'type':'ROOT', 'key':'dir'}, projection={'val':1})
-    articles = Article.queryAll(user['_id'], {}, projection={'uid':1, '_id':1, 'filepath':1})
+    articles = Article.queryAll({}, projection={'uid':1, '_id':1, 'filepath':1})
     for article in articles:
         unit = Unit.queryOne(user['_id'], {'_id':article['uid']}, projection={'dirpath':1})
         article['article_name'] = config['val'] + unit['dirpath'] +  article['filepath']
@@ -138,7 +138,7 @@ def taskarticles():
 def taskflows():
     user = request.user
     aid = request.args.get('aid', 0)
-    sections = Section.queryAll(user['_id'], {'aid':aid}, projection={'flow':1})
+    sections = Section.queryAll({'aid':aid}, projection={'flow':1})
     flows = list(set([section['flow'] for section in sections]))
     return json.dumps(flows, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
@@ -149,7 +149,7 @@ def tasksections():
     user = request.user
     aid = request.args.get('aid', 0)
     flow = request.args.get('flow', '')
-    sections = Section.queryAll(user['_id'], {'aid':aid, 'flow':flow}, projection={'_id':1, 'name':1})
+    sections = Section.queryAll({'aid':aid, 'flow':flow}, projection={'_id':1, 'name':1})
     for section in sections:
         section['section_name'] = section['name']
     return json.dumps(sections, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')

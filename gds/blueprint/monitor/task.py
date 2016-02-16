@@ -20,9 +20,9 @@ def tasklist():
     page = int(request.args.get('page', 1))
     total = int(request.args.get('total', 0))
     if total == 0:
-        total = Task.count(user['_id'], {})
+        total = Task.count({})
     count = (total - 1)/pagetotal + 1
-    tasks = Task.queryAll(user['_id'], {}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
+    tasks = Task.queryAll({}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     for one in tasks:
         one['change'] = (one['status'] in (0, 1, 2) and one['type'] == 'FOREVER') or (one['status'] in (0, 1) and one['type'] == 'ONCE')
         one['status_desc'] = STATDESC.get(one['status'], '')

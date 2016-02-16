@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # coding=utf8
-import types, datetime, uuid, random, hashlib
+import types, datetime, uuid, random, hashlib, json
 from flask import Blueprint, request, Response, render_template, redirect, make_response, session, g
 from model.settings import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from flask.helpers import send_from_directory
@@ -126,3 +126,15 @@ def info():
     user = request.user
     user = Creator.queryOne(user['_id'], {'_id':user['_id']})
     return render_template('info.html', appname=g.appname, logined=True, user=user)
+
+
+@admin.route('/user/list', methods=['GET'])
+@withBase(WDB, resutype='DICT', autocommit=True)
+def userlist():
+    return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+
+
+@admin.route('/user/detail/<uid>', methods=['GET'])
+@withBase(WDB, resutype='DICT', autocommit=True)
+def userdetail(uid):
+    return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
