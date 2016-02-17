@@ -23,7 +23,7 @@ def unitlist():
         unit['unit_name'] = unit['name']
         unit['datamodel_name'] = datamodel['name']
         units.append(unit)
-    return render_template('punitlist.html', appname=g.appname, logined=True, units=units, pagetotal=pagetotal, page=page, total=total, count=count)
+    return render_template('punitlist.html', appname=g.appname, user=user, units=units, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @produce.route('/unit/detail', methods=['GET', 'POST'])
 @produce.route('/unit/detail/<uid>', methods=['GET', 'POST'])
@@ -39,7 +39,7 @@ def unitdetail(uid=None):
             unit['unit_name'] = unit['name']
             unit['datamodel_name'] = datamodel['name']
             unit['dmid'] = datamodel['_id']
-        return render_template('punitdetail.html', appname=g.appname, logined=True, unit=unit, datamodels=datamodels)
+        return render_template('punitdetail.html', appname=g.appname, user=user, unit=unit, datamodels=datamodels)
     elif request.method == 'POST':
         user = request.user
         unit_name = request.form.get('unit_name')

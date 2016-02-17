@@ -23,7 +23,7 @@ def tasklist():
         total = Task.count(user, {})
     count = (total - 1)/pagetotal + 1
     tasks = Task.queryAll(user, {}, projection={'_id':1, 'name':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
-    return render_template('ptasklist.html', appname=g.appname, logined=True, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
+    return render_template('ptasklist.html', appname=g.appname, user=user, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
 
 
 @produce.route('/task/detail', methods=['GET', 'POST'])
@@ -41,7 +41,7 @@ def taskdetail(tid=None):
             task = Task.queryOne(user, {'_id':tid}, projection=projection)
             task['task_name'] = task['name']
             projection = {'name':1}
-            section = Section.queryOne({'_id':task['sid']}, projection=projection)
+            section = Section.queryOne(user, {'_id':task['sid']}, projection=projection)
             projection = {'filepath':1, 'uid':1}
             article = Article.queryOne(user, {'_id':task['aid']}, projection=projection)
             projection = {'dirpath':1}
@@ -53,7 +53,7 @@ def taskdetail(tid=None):
         task['queuetype_name'] = QUEUETYPE.get(task['queuetype'], '')
         task['worktype_name'] = WORKTYPE.get(task['worktype'], '')
         task['trace_name'] = TRACE.get(task['trace'], '')
-        return render_template('ptaskdetail.html', appname=g.appname, logined=True, task=task)
+        return render_template('ptaskdetail.html', appname=g.appname, user=user, task=task)
     elif request.method == 'POST':
         user = request.user
         task_name = request.form.get('task_name')
@@ -76,7 +76,11 @@ def taskdetail(tid=None):
             queuetype = 'P'
         else:
             queuetype = 'R'
-        if tid is None:
+        section = Section.queryOne(user, {'_id':sid}, projection=projection)
+        result = {'stat':1, 'desc':'success', 'data':{}}
+        if section is None:
+            result = {'stat':0, 'desc':'fail', 'data':{}}
+        elif tid is None:
             task = Task(name=task_name,
                 extra=extra,
                 category=category,
@@ -118,7 +122,7 @@ def taskdetail(tid=None):
                 'update_time':datetime.datetime.now()
             }
             Task.update(user, {'_id':tid}, doc)
-        return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+        return json.dumps(result, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         pass
 
@@ -140,8 +144,12 @@ def taskarticles():
 def taskflows():
     user = request.user
     aid = request.args.get('aid') or 0
-    sections = Section.queryAll({'aid':aid}, projection={'flow':1})
-    flows = list(set([section['flow'] for section in sections]))
+    article = Article.queryOne(user, {'_id':aid}, projection={'_id':1})
+    if article is None:
+        flows = []
+    else:
+        sections = Section.queryAll(user, {'aid':aid}, projection={'flow':1})
+        flows = list(set([section['flow'] for section in sections]))
     return json.dumps(flows, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
 
@@ -151,7 +159,7 @@ def tasksections():
     user = request.user
     aid = request.args.get('aid') or 0
     flow = request.args.get('flow') or ''
-    sections = Section.queryAll({'aid':aid, 'flow':flow}, projection={'_id':1, 'name':1})
+    sections = Section.queryAll(user, {'aid':aid, 'flow':flow}, projection={'_id':1, 'name':1})
     for section in sections:
         section['section_name'] = section['name']
     return json.dumps(sections, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')

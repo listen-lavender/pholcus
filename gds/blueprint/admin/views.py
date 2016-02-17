@@ -62,7 +62,7 @@ def login():
         response.set_cookie('sid', sid)
         return response
     else:
-        return render_template('login.html', appname=g.appname, status=0, logined=False)
+        return render_template('login.html', appname=g.appname, status=0, user=None)
 
 
 @admin.route('/logout', methods=['GET'])
@@ -77,7 +77,7 @@ def logout():
 @withBase(WDB, resutype='DICT', autocommit=True)
 def register():
     if request.method == 'GET':
-        return render_template('register.html', appname=g.appname, logined=False)
+        return render_template('register.html', appname=g.appname, user=None)
     else:
         username = request.form.get('username')
         password = request.form.get('password')
@@ -110,7 +110,7 @@ def register():
 def verify():
     user = request.user
     if request.method == 'GET':
-        return render_template('verify.html', appname=g.appname, logined=False)
+        return render_template('verify.html', appname=g.appname, user=None)
     else:
         _id = request.form.get('_id')
         group = request.form.get('group')
@@ -130,21 +130,24 @@ def verify():
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
 
-@admin.route('/info', methods=['GET'])
-@withBase(WDB, resutype='DICT', autocommit=True)
-def info():
-    user = request.user
-    user = Creator.queryOne(user, {'_id':user['_id']})
-    return render_template('info.html', appname=g.appname, logined=True, user=user)
-
-
 @admin.route('/user/list', methods=['GET'])
 @withBase(WDB, resutype='DICT', autocommit=True)
 def userlist():
-    return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+    user = request.user
+    pagetotal = int(request.args.get('pagetotal', 10))
+    page = int(request.args.get('page', 1))
+    total = int(request.args.get('total', 0))
+    if total == 0:
+        total = Creator.count(user, {})
+    count = (total - 1)/pagetotal + 1
+    creators = Creator.queryAll(user, {}, projection={'username':1, 'group':1, 'create_time':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
+    return render_template('userlist.html', appname=g.appname, user=user, creators=creators, pagetotal=pagetotal, page=page, total=total, count=count)
 
 
 @admin.route('/user/detail/<uid>', methods=['GET'])
 @withBase(WDB, resutype='DICT', autocommit=True)
 def userdetail(uid):
-    return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+    user = request.user
+    user = Creator.queryOne(user, {'_id':user['_id']})
+    return render_template('userdetail.html', appname=g.appname, user=user)
+

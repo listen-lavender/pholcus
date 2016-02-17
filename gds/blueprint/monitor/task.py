@@ -27,7 +27,7 @@ def tasklist():
         one['change'] = (one['status'] in (0, 1, 2) and one['type'] == 'FOREVER') or (one['status'] in (0, 1) and one['type'] == 'ONCE')
         one['status_desc'] = STATDESC.get(one['status'], '')
         one['max'] = (Statistics.queryOne({'tid':one['_id']}, projection={'succ':1}, sort=[('succ', -1)]) or {'succ':0})['succ']
-    return render_template('mtasklist.html', appname=g.appname, logined=True, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
+    return render_template('mtasklist.html', appname=g.appname, user=user, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @monitor.route('/task/time/detail/<tid>', methods=['GET'])
 @withBase(RDB, resutype='DICT')
@@ -63,7 +63,7 @@ def tasktimedetail(tid):
     dataset=[
         {'name':'elapse state', 'stats':stats, 'color':'#229933'},
     ]
-    return render_template("mtaskdetail.html", appname=g.appname, logined=True, title=title, dataset=dataset, request=request, chart=chart, unit='s', begin=begin, end=end)
+    return render_template("mtaskdetail.html", appname=g.appname, user=user, title=title, dataset=dataset, request=request, chart=chart, unit='s', begin=begin, end=end)
 
 @monitor.route('/task/count/detail/<tid>', methods=['GET'])
 @withBase(RDB, resutype='DICT')
@@ -125,7 +125,7 @@ def taskcountdetail(tid):
         {'name':'fail', 'stats':fail_stats, 'color':'blue'},
         {'name':'timeout', 'stats':timeout_stats, 'color':'red'},
     ]
-    return render_template("mtaskdetail.html", appname=g.appname, logined=True, title=title, dataset=dataset, request=request, chart=chart, unit='', begin=begin, end=end)
+    return render_template("mtaskdetail.html", appname=g.appname, user=user, title=title, dataset=dataset, request=request, chart=chart, unit='', begin=begin, end=end)
 
 
 @monitor.route('/task/change/<tid>', methods=['POST'])

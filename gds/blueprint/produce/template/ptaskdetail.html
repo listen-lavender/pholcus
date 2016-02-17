@@ -29,7 +29,10 @@
                 async:false,
                 dataType:'json',
                 success:function(data){
-                    location.href=location.href.substring(0, location.href.indexOf('detail')) + 'list';
+                    if(data.stat == 0)
+                        alert('没有该脚本的该种抓取方式的权限.');
+                    else
+                        location.href=location.href.substring(0, location.href.indexOf('detail')) + 'list';
                 },
                 error:function(XMLHttpRequest, status, thrown){
                     ;
@@ -67,6 +70,8 @@
                 async:false,
                 dataType:'json',
                 success:function(data){
+                    if(data.length == 0)
+                        alert('没有该脚本的权限.');
                     fmenus = []
                     for(var k=0; k<data.length; k++){
                         fmenus.push('<div class="item" data-value="'+data[k]+'">'+data[k]+'</div>');
@@ -219,6 +224,8 @@
                     async:false,
                     dataType:'json',
                     success:function(data){
+                        if(data.length == 0)
+                            alert('没有该脚本的权限');
                         fmenus = []
                         for(var k=0; k<data.length; k++){
                             fmenus.push('<div class="item" data-value="'+data[k]+'">'+data[k]+'</div>');

@@ -22,7 +22,7 @@
     {% block prejs %}{% endblock %}
 </head>
 <body>
-    {% if logined %}
+    {% if user %}
         <div class="another">
           <div class="ui secondary pointing menu">
             <a class="item" href="/gds/m/task/list">
@@ -37,7 +37,7 @@
             <a class="item" href="/gds/a/user/list">
               <!-- <i class="mail icon"></i> --> 用户管理
             </a>
-            <a class="item" href="/gds/a/info">
+            <a class="item" href="/gds/a/user/detail/{{user['_id']}}">
               <!-- <i class="user icon"></i> --> 我的
             </a>
             <div class="right menu">

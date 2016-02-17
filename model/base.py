@@ -229,7 +229,7 @@ class Permit(baseorm.Model):
     update_time = baseorm.DatetimeField(ddl='timestamp')
 
 
-class Section(baseorm.Model):
+class Section(AuthModel):
     __table__ = 'grab_section'
     aid = baseorm.IdField(unique='gs')
     next_id = baseorm.IdField()

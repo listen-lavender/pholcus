@@ -19,15 +19,15 @@ def sectionlist(aid):
     """
     user = request.user
     if request.method == 'GET':
-        flows = Section.queryAll({'aid':aid}, projection={'flow':1})
+        flows = Section.queryAll(user, {'aid':aid}, projection={'flow':1})
         flows = set(one['flow'] for one in flows)
         sections = {}
         projection = {'_id':1, 'aid':1, 'name':1, 'flow':1, 'index':1, 'retry':1, 'timelimit':1, 'store':1, 'next_id':1}
         for flow in flows:
             sections[flow] = []
-            currs = Section.queryAll({'aid':aid, 'flow':flow}, projection=projection)
+            currs = Section.queryAll(user, {'aid':aid, 'flow':flow}, projection=projection)
             for section in currs:
-                next = Section.queryOne({'_id':section['next_id']}, projection=projection)
+                next = Section.queryOne(user, {'_id':section['next_id']}, projection=projection)
                 if next:
                     section['pid'] = next['_id']
                     section['paid'] = next['aid']
@@ -43,7 +43,7 @@ def sectionlist(aid):
             dataextract = Dataextract.queryAll({'sid':section['pid']})
             datasource = Datasource.queryAll({'sid':section['pid']})
             sections[flow].append({'_id':section['pid'], 'aid':section['paid'], 'name':section['pname'], 'flow':section['pflow'], 'index':section['pindex'], 'retry':section['pretry'], 'timelimit':section['ptimelimit'], 'store':section['pstore'], 'dataextract':dataextract, 'datasource':datasource})
-        return render_template('psectionlist.html', appname=g.appname, logined=True, aid=aid, flows=flows, sections=sections)
+        return render_template('psectionlist.html', appname=g.appname, user=user, aid=aid, flows=flows, sections=sections)
     elif request.method == 'POST':
         flow = request.form.get('flow', '')
         sections = json.loads(request.form.get('sections', '[]'))
@@ -71,8 +71,8 @@ def sectiondetail(sid=None):
             section = {'_id':'', 'aid':'', 'next_id':'', 'name':'', 'flow':'', 'index':'', 'retry':'', 'timelimit':'', 'store':'', 'datasource':[], 'dataextract':[]}
         else:
             projection = {'_id':1 ,'aid':1 ,'next_id':1 ,'name':1 ,'flow':1 ,'index':1 ,'retry':1 ,'timelimit':1 ,'store':1}
-            section = Section.queryOne({'_id':sid}, projection=projection)
-            next = Section.queryOne({'_id':section['next_id']}, projection=projection)
+            section = Section.queryOne(user, {'_id':sid}, projection=projection)
+            next = Section.queryOne(user, {'_id':section['next_id']}, projection=projection)
             if next is None:
                 section['next'] = ''
             else:
@@ -81,7 +81,7 @@ def sectiondetail(sid=None):
             datasource = Datasource.queryAll({'sid':sid})
             section['datasource'] = datasource
             section['dataextract'] = dataextract
-        return render_template('psectiondetail.html', appname=g.appname, logined=True, aid=aid, sid=sid, section=section)
+        return render_template('psectiondetail.html', appname=g.appname, user=user, aid=aid, sid=sid, section=section)
     elif request.method == 'POST':
         if request.form.get('type') == 'source':
             sid = request.form.get('sid')
