@@ -12,19 +12,23 @@ C = ['a', '1', 'b', 'c', '2', 'd', '3', 'e', 'f', 'g', '4', '5', 'h', 'i', '7', 
 PRIORITY = {'administrator':{
         'Creator':{'authority':9, 'desc':'a--q'},
         'Article':{'authority':1, 'desc':'---q'},
+        'Section':{'authority':1, 'desc':'---q'},
         'Task':{'authority':1, 'desc':'---q'},
     },
     'developer':{
         'Creator':{'authority':1, 'desc':'---q'},
         'Article':{'authority':9, 'desc':'a--q'},
+        'Section':{'authority':9, 'desc':'a--q'},
         'Task':{'authority':9, 'desc':'a--q'},
     },
     'operator':{
         'Creator':{'authority':1, 'desc':'---q'},
         'Article':{'authority':1, 'desc':'---q'},
+        'Section':{'authority':1, 'desc':'---q'},
         'Task':{'authority':9, 'desc':'a--q'},
     },
 }
+STATUS = {1:'有效', 0:'无效', 2:'待审核'}
 
 
 def send_static_file(self, filename):
@@ -105,28 +109,25 @@ def register():
         return response
 
 
-@admin.route('/verify', methods=['GET', 'POST'])
+@admin.route('/user/verify', methods=['GET', 'POST'])
 @withBase(WDB, resutype='DICT', autocommit=True)
 def verify():
     user = request.user
-    if request.method == 'GET':
-        return render_template('verify.html', appname=g.appname, user=None)
-    else:
+    if request.method == 'POST':
         _id = request.form.get('_id')
-        group = request.form.get('group')
-        otype = request.form.get('otype')
-        authority = PRIORITY.get(group).get(otype).get('authority')
-        desc = PRIORITY.get(group).get(otype).get('desc')
+        vtype = request.form.get('type')
+        value = request.form.get('value')
 
-        Creator.update(user, {'_id':_id}, {'group':group, 'status':1})
-        create_time = datetime.datetime.now()
-
-        permit = Permit(cid=_id, otype=otype, authority=authority, desc=desc, status=1, creator=user['_id'], updator=user['_id'], create_time=create_time)
-        Permit.insert(permit)
-        permit = Permit(cid=_id, otype=otype, authority=authority, desc=desc, status=1, creator=user['_id'], updator=user['_id'], create_time=create_time)
-        Permit.insert(permit)
-        permit = Permit(cid=_id, otype=otype, authority=authority, desc=desc, status=1, creator=user['_id'], updator=user['_id'], create_time=create_time)
-        Permit.insert(permit)
+        if vtype == 'status':
+            Creator.update(user, {'_id':_id}, {'status':int(value)})
+        else:
+            create_time = datetime.datetime.now()
+            for one in ['Creator', 'Article', 'Section', 'Task']:
+                authority = PRIORITY.get(value).get(one).get('authority')
+                desc = PRIORITY.get(value).get(one).get('desc')
+                permit = Permit(cid=_id, otype=otype, authority=authority, desc=desc, status=1, creator=user['_id'], updator=user['_id'], create_time=create_time)
+                Permit.insert(permit)
+            Creator.update(user, {'_id':_id}, {'group':group})
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
 
@@ -144,10 +145,13 @@ def userlist():
     return render_template('userlist.html', appname=g.appname, user=user, creators=creators, pagetotal=pagetotal, page=page, total=total, count=count)
 
 
-@admin.route('/user/detail/<uid>', methods=['GET'])
+@admin.route('/user/detail/<cid>', methods=['GET'])
 @withBase(WDB, resutype='DICT', autocommit=True)
-def userdetail(uid):
+def userdetail(cid=None):
     user = request.user
-    user = Creator.queryOne(user, {'_id':user['_id']})
-    return render_template('userdetail.html', appname=g.appname, user=user)
+    cid = cid or user['_id']
+    creator = Creator.queryOne(user, {'_id':cid})
+    creator['secret'] = creator['secret'] if str(cid) == str(user['_id']) else ''
+    creator['status_desc'] = STATUS.get(creator['status'])
+    return render_template('userdetail.html', appname=g.appname, user=user, creator=creator)
 

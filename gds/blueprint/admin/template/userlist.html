@@ -14,7 +14,7 @@
     <ul class="ui list" style="margin-left: 5%;">
     {% for one in creators %}
         <li>
-            <a href="/user/detail/{{one['_id']}}"><span>{{one['username']}}</span></a>
+            <a href="detail/{{one['_id']}}"><span>{{one['username']}}</span></a>
             <span>{{one['group']}}</span>
             <span>{{one['create_time']}}</span>
         </li>

@@ -9,17 +9,90 @@
 {% endblock %}
 {% block content %}
     <div class="ui card" style="width:500px">
-        <div class="image"><img src="{{user['avatar']}}"></div>
+        <input type="hidden" id="_id" value="{{creator['_id']}}">
+        <div class="image"><img src="{{creator['avatar']}}"></div>
         <div class="content">
-            <a class="header">{{user['username']}}</a>
+            <a class="header">{{creator['username']}}</a>
             <div class="meta">
-              <span class="date">{{user['create_time']}}</span>
+              <span class="date">{{creator['create_time']}}</span>
             </div>
-            <div class="description">{{user['desc']}}</div>
+            <div class="description">{{creator['desc']}}</div>
         </div>
         <div class="content">
-            <div><i class="users icon"></i>类别：{{user['group']}}</div>
-            <div><i class="privacy icon"></i>密钥：{{user['secret']}}</div>
+            <div><i class="users icon"></i>类别：{{creator['group']}}</div>
+            <div><i class="privacy icon"></i>密钥：{{creator['secret']}}</div>
         </div>
+        {% if user['group'] == 'administrator' or user['group'] == 'root' %}
+            <div class="content">
+                <div id="gdrop" class="ui selection dropdown" tabindex="0">
+                    <input type="hidden" id="group" value="{{creator['group']|default('', true)}}">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">{{creator['group']}}</div>
+                    <div id="gmenu" class="menu">
+                        <div class="item" data-value="administrator">administrator</div>
+                        <div class="item" data-value="developer">developer</div>
+                        <div class="item" data-value="operator">operator</div>
+                    </div>
+                </div>
+                <div id="sdrop" class="ui selection dropdown" tabindex="0">
+                    <input type="hidden" id="status" value="{{creator['status']|default('', true)}}">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">{{creator['status_desc']}}</div>
+                    <div id="smenu" class="menu">
+                        <div class="item" data-value="0">无效</div>
+                        <div class="item" data-value="1">有效</div>
+                        <div class="item" data-value="2">待审核</div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     </div>
+    <script type="text/javascript">
+        $('#gdrop').dropdown({
+            action:function(value, text){
+                $('#group').val(text);
+                $('#gdrop .default.text').text(value);
+                $.ajax({
+                    url:'verify',
+                    type:'post',
+                    data:delnull({
+                        _id:$('#_id').val(),
+                        value:text,
+                        type:'status'
+                    }),
+                    async:false,
+                    dataType:'json',
+                    success:function(data){
+                        ;
+                    },
+                    error:function(XMLHttpRequest, status, thrown){
+                        ;
+                    }
+                });
+            }
+        });
+        $('#sdrop').dropdown({
+            action:function(value, text){
+                $('#status').val(text);
+                $('#sdrop .default.text').text(value);
+                $.ajax({
+                    url:'verify',
+                    type:'post',
+                    data:delnull({
+                        _id:$('#_id').val(),
+                        value:text,
+                        type:'status'
+                    }),
+                    async:false,
+                    dataType:'json',
+                    success:function(data){
+                        ;
+                    },
+                    error:function(XMLHttpRequest, status, thrown){
+                        ;
+                    }
+                });
+            }
+        });
+    </script>
 {% endblock %}
