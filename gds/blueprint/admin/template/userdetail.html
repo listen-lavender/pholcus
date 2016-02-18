@@ -10,7 +10,14 @@
 {% block content %}
     <div class="ui card" style="width:500px">
         <input type="hidden" id="_id" value="{{creator['_id']}}">
-        <div class="image"><img src="{{creator['avatar']}}"></div>
+        <div class="image" style="position:relative;z-index:0">
+            {% if creator['current'] %}
+                <div style="position:absolute;z-index:1;right:0;top:0">
+                    <i class="refresh icon"></i>
+                </div>
+            {% endif %}
+            <img src="{{creator['avatar']}}">
+        </div>
         <div class="content">
             <a class="header">{{creator['username']}}</a>
             <div class="meta">
@@ -19,51 +26,60 @@
             <div class="description">{{creator['desc']}}</div>
         </div>
         <div class="content">
-            <div><i class="users icon"></i>类别：{{creator['group']}}</div>
-            <div><i class="privacy icon"></i>密钥：{{creator['secret']}}</div>
-        </div>
-        {% if user['group'] == 'administrator' or user['group'] == 'root' %}
-            <div class="content">
-                <div id="gdrop" class="ui selection dropdown" tabindex="0">
-                    <input type="hidden" id="group" value="{{creator['group']|default('', true)}}">
-                    <i class="dropdown icon"></i>
-                    <div class="default text">{{creator['group']}}</div>
-                    <div id="gmenu" class="menu">
-                        <div class="item" data-value="administrator">administrator</div>
-                        <div class="item" data-value="developer">developer</div>
-                        <div class="item" data-value="operator">operator</div>
+            <div><i class="users icon"></i>类别：
+                {% if user['group'] == 'administrator' or user['group'] == 'root' %}
+                    <div id="gdrop" class="ui selection dropdown" tabindex="0">
+                        <input type="hidden" id="group" value="{{creator['group']|default('', true)}}">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">{{creator['group']}}</div>
+                        <div id="gmenu" class="menu">
+                            <div class="item" data-value="administrator">administrator</div>
+                            <div class="item" data-value="developer">developer</div>
+                            <div class="item" data-value="operator">operator</div>
+                        </div>
                     </div>
-                </div>
-                <div id="sdrop" class="ui selection dropdown" tabindex="0">
-                    <input type="hidden" id="status" value="{{creator['status']|default('', true)}}">
-                    <i class="dropdown icon"></i>
-                    <div class="default text">{{creator['status_desc']}}</div>
-                    <div id="smenu" class="menu">
-                        <div class="item" data-value="0">无效</div>
-                        <div class="item" data-value="1">有效</div>
-                        <div class="item" data-value="2">待审核</div>
-                    </div>
-                </div>
+                {% else %}
+                    {{creator['group']}}
+                {% endif %}
             </div>
-        {% endif %}
+            <div><i class="privacy icon"></i>密钥：{{creator['secret']}}</div>
+            <div><i class="cube icon"></i>状态：
+                {% if user['group'] == 'administrator' or user['group'] == 'root' %}
+                    <div id="sdrop" class="ui selection dropdown" tabindex="0">
+                        <input type="hidden" id="status" value="{{creator['status']|default('', true)}}">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">{{creator['status_desc']}}</div>
+                        <div id="smenu" class="menu">
+                            <div class="item" data-value="0">无效</div>
+                            <div class="item" data-value="1">有效</div>
+                            <div class="item" data-value="2">待审核</div>
+                        </div>
+                    </div>
+                {% else %}
+                    {{creator['status_desc']}}
+                {% endif %}
+            </div>
+        </div>
     </div>
     <script type="text/javascript">
         $('#gdrop').dropdown({
             action:function(value, text){
+                alert('111');
                 $('#group').val(text);
                 $('#gdrop .default.text').text(value);
+                alert('222');
                 $.ajax({
-                    url:'verify',
+                    url:'/gds/a/user/verify',
                     type:'post',
                     data:delnull({
                         _id:$('#_id').val(),
                         value:text,
-                        type:'status'
+                        type:'group'
                     }),
                     async:false,
                     dataType:'json',
                     success:function(data){
-                        ;
+                        alert(data);
                     },
                     error:function(XMLHttpRequest, status, thrown){
                         ;
@@ -76,7 +92,7 @@
                 $('#status').val(text);
                 $('#sdrop .default.text').text(value);
                 $.ajax({
-                    url:'verify',
+                    url:'/gds/a/user/verify',
                     type:'post',
                     data:delnull({
                         _id:$('#_id').val(),

@@ -125,9 +125,9 @@ def verify():
             for one in ['Creator', 'Article', 'Section', 'Task']:
                 authority = PRIORITY.get(value).get(one).get('authority')
                 desc = PRIORITY.get(value).get(one).get('desc')
-                permit = Permit(cid=_id, otype=otype, authority=authority, desc=desc, status=1, creator=user['_id'], updator=user['_id'], create_time=create_time)
+                permit = Permit(cid=_id, otype=one, authority=authority, desc=desc, status=1, creator=user['_id'], updator=user['_id'], create_time=create_time)
                 Permit.insert(permit)
-            Creator.update(user, {'_id':_id}, {'group':group})
+            Creator.update(user, {'_id':_id}, {'group':value})
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
 
@@ -151,7 +151,8 @@ def userdetail(cid=None):
     user = request.user
     cid = cid or user['_id']
     creator = Creator.queryOne(user, {'_id':cid})
-    creator['secret'] = creator['secret'] if str(cid) == str(user['_id']) else ''
+    creator['current'] = str(cid) == str(user['_id'])
+    creator['secret'] = creator['secret'] if creator['current'] else ''
     creator['status_desc'] = STATUS.get(creator['status'])
     return render_template('userdetail.html', appname=g.appname, user=user, creator=creator)
 

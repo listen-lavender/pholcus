@@ -65,7 +65,7 @@ class AuthModel(baseorm.Model):
             auth = {'authority':0}
         else:
             auth = Permit.queryOne({'cid':user.get('_id'), 'otype':cls.__name__, 'oid':spec.get('_id')}, projection={'authority':1}) or {'authority':0}
-        if not user['group'] == 'administrator' and cls.__name__ == 'Creator' and 'group' in doc:
+        if not user['group'] in ('administrator', 'root') and cls.__name__ == 'Creator' and 'group' in doc:
             del doc['group']
         if user['name'] == 'root' or auth['authority'] in (2,3,6,7,10,11,14,15):
             result = super(AuthModel, cls).update(spec, {'$set':doc})

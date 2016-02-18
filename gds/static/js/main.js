@@ -3,7 +3,7 @@
 */
 function delnull(dict){
     for(key in dict)
-        if(dict[key] == ''||dict[key] == 'None')
+        if(dict[key].toString() == ''||dict[key] == 'None')
             delete dict[key];
     return dict;
 }
