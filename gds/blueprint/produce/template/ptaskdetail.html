@@ -207,6 +207,31 @@
             </div>
         </div>
     </div> -->
+    <div class="ui input" style="width:100%; margin:15px 20px;">
+        <span>授权:&nbsp;&nbsp;</span>
+        <div id="multi-select" class="ui fluid search dropdown selection multiple">
+            <select multiple="">
+                <!-- <option value="">State</option> -->
+                <option value="AL">Alabama</option>
+                <option value="AK">Alaska</option>
+                <option value="AZ">Arizona</option>
+                <option value="AR">Arkansas</option>
+                <option value="CA">California</option>
+            </select>
+            <i class="dropdown icon"></i>
+            <a class="ui label transition visible" data-value="AK" style="display: inline-block !important;">Alaska<i class="delete icon"></i></a>
+            <a class="ui label transition visible" data-value="AZ" style="display: inline-block !important;">Arizona<i class="delete icon"></i></a>
+            <input class="search" autocomplete="on" tabindex="0">
+            <!-- <div class="default text"></div> -->
+            <div class="menu transition hidden" tabindex="-1">
+                <div class="item selected" data-value="AL">Alabama</div>
+                <div class="item active filtered" data-value="AK">Alaska</div>
+                <div class="item active filtered" data-value="AZ">Arizona</div>
+                <div class="item" data-value="AR">Arkansas</div>
+                <div class="item" data-value="CA">California</div>
+            </div>
+        </div>
+    </div>
     <button class="ui primary button" onclick="save()">保存</button>
     <button class="ui button" onclick="reset()">重置</button>
     <button class="ui button" onclick="clone()">克隆任务</button>
@@ -282,5 +307,8 @@
             }
         });
         $('#section').dropdown();
+        $('#multi-select').dropdown({
+            allowAdditions: true
+        });
     </script>
 {% endblock %}
