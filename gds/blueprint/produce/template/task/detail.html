@@ -4,8 +4,27 @@
     </style>
 {% endblock %}
 {% block prejs %}
+    <script src="/gds/static/js/lib/less.min.js"></script>
+    <link rel="stylesheet/less" type="text/css" href="/gds/static/css/dropdown.less"/>
     <script type="text/javascript">
+        var currcid = JSON.parse(decodeURIComponent("{{task['author']}}"));
+        var curr = [];
+        for(var cid in currcid)
+            curr.push(cid);
         function save(){
+            var select = $(".ui.label");
+            var addcid = [];
+            var delcid = [];
+            for(var k=0; k<select.length; k++){
+                var cid = $(select[k]).attr('data-value');
+                if(currcid[cid] == ''){
+                    delete currcid[cid];
+                    continue;
+                }
+                addcid.push($(select[k]).attr('data-value'));
+            }
+            for(var cid in currcid)
+                delcid.push(cid);
             $.ajax({
                 url:location.href,
                 type:'post',
@@ -25,6 +44,8 @@
                     queuetype:$("#queuetype").val(),
                     worktype:$("#worktype").val(),
                     trace:$("#trace").val(),
+                    addcid:addcid.join(','),
+                    delcid:delcid.join(',')
                 }),
                 async:false,
                 dataType:'json',
@@ -209,26 +230,8 @@
     </div> -->
     <div class="ui" style="width:100%; margin:15px 20px;">
         <span>授权:&nbsp;&nbsp;</span>
-        <div id="multi-select" class="ui fluid search dropdown selection multiple">
-            <select multiple="">
-                <!-- <option value="">State</option> -->
-                <option value="AL">Alabama</option>
-                <option value="AK">Alaska</option>
-                <option value="AZ">Arizona</option>
-                <option value="AR">Arkansas</option>
-                <option value="CA">California</option>
-            </select>
-            <i class="dropdown icon"></i>
-            <input class="search" autocomplete="on" tabindex="0">
-            <!-- <div class="default text"></div> -->
-            <div class="menu transition hidden" tabindex="-1">
-                <div class="item" data-value="AL">Alabama</div>
-                <div class="item" data-value="AK">Alaska</div>
-                <div class="item" data-value="AZ">Arizona</div>
-                <div class="item" data-value="AR">Arkansas</div>
-                <div class="item" data-value="CA">California</div>
-            </div>
-        </div>
+        <select class="ui search selection dropdown" multiple id="multi-select">
+        </select>
     </div>
     <button class="ui primary button" onclick="save()">保存</button>
     <button class="ui button" onclick="reset()">重置</button>
@@ -236,7 +239,21 @@
 {% endblock %}
 {% block postjs %}
     <script type="text/javascript">
-        $('.ui.dropdown').dropdown({});
+        $('#tasktype').dropdown({});
+        $.ajax({
+            url:'/gds/a/user/list',
+            type:'post',
+            async:false,
+            dataType:'json',
+            success:function(data){
+                for(var k=0;k<data.data.length;k++)
+                    $("#multi-select").append("<option value="+data.data[k]._id+">"+data.data[k].username+"</option>");
+                $('#multi-select').dropdown('set selected', curr);
+            },
+            error:function(XMLHttpRequest, status, thrown){
+                ;
+            }
+        });
         $('#article').dropdown({
             action: function(value, text) {
                 $('#aid').val(text);
@@ -305,8 +322,5 @@
             }
         });
         $('#section').dropdown();
-        $('#multi-select').dropdown({
-            allowAdditions: true
-        });
     </script>
 {% endblock %}

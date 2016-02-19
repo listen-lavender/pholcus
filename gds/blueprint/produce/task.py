@@ -1,11 +1,12 @@
 #!/usr/bin/python
 # coding=utf8
-import json, datetime
+import json, datetime, urllib
 from model.settings import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import produce
-from model.base import Task, Section, Article, Unit, Config, Permit
+from model.base import Task, Section, Article, Unit, Config, Permit, Creator
+from model.settings import baseorm
 
 QUEUETYPE = {'P':'本地队列', 'B':'beanstalk队列'}
 WORKTYPE = {'THREAD':'线程', 'COROUTINE':'协程'}
@@ -53,6 +54,10 @@ def taskdetail(tid=None):
         task['queuetype_name'] = QUEUETYPE.get(task['queuetype'], '')
         task['worktype_name'] = WORKTYPE.get(task['worktype'], '')
         task['trace_name'] = TRACE.get(task['trace'], '')
+        author = {}
+        for one in Permit.queryAll({'otype':'Task', 'oid':tid}, projection={'cid':1, '_id':0}):
+            author[str(one['cid'])] = ''
+        task['author'] = urllib.quote(json.dumps(author).encode('utf8'))
         return render_template('task/detail.html', appname=g.appname, user=user, task=task)
     elif request.method == 'POST':
         user = request.user
@@ -71,12 +76,14 @@ def taskdetail(tid=None):
         queuetype = request.form.get('queuetype', 'P')
         worktype = request.form.get('worktype', 'THREAD')
         trace = request.form.get('trace', 0)
+        addcid = request.form.get('addcid', '').split(',')
+        delcid = request.form.get('delcid', '').split(',')
         if tasktype == 'ONCE':
             period = 0
             queuetype = 'P'
         else:
             queuetype = 'R'
-        section = Section.queryOne(user, {'_id':sid}, projection=projection)
+        section = Section.queryOne(user, {'_id':sid})
         result = {'stat':1, 'desc':'success', 'data':{}}
         if section is None:
             result = {'stat':0, 'desc':'fail', 'data':{}}
@@ -120,6 +127,17 @@ def taskdetail(tid=None):
                 'update_time':datetime.datetime.now()
             }
             Task.update(user, {'_id':tid}, doc)
+        for cid in addcid:
+            if cid == '':
+                continue
+            cid = baseorm.IdField.verify(cid)
+            if Permit.queryOne({'cid':cid, 'otype':'Task', 'oid':tid}) is None:
+                permit = Permit(cid=cid, otype='Task', oid=tid, authority=15, desc='---q', status=1, creator=user['_id'], updator=user['_id'], create_time=datetime.datetime.now())
+                Permit.insert(permit)
+        for cid in delcid:
+            if cid == '':
+                continue
+            Permit.delete({'cid':cid, 'otype':'Task', 'oid':tid})
         return json.dumps(result, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         pass

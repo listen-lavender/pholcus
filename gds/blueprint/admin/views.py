@@ -129,7 +129,7 @@ def verify():
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
 
-@admin.route('/user/list', methods=['GET'])
+@admin.route('/user/list', methods=['GET', 'POST'])
 @withBase(WDB, resutype='DICT', autocommit=True)
 def userlist():
     user = request.user
@@ -139,8 +139,14 @@ def userlist():
     if total == 0:
         total = Creator.count(user, {})
     count = (total - 1)/pagetotal + 1
-    creators = Creator.queryAll(user, {}, projection={'username':1, 'group':1, 'create_time':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
-    return render_template('user/list.html', appname=g.appname, user=user, creators=creators, pagetotal=pagetotal, page=page, total=total, count=count)
+    if request.method == 'GET':
+        creators = Creator.queryAll(user, {}, projection={'username':1, 'group':1, 'create_time':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
+        return render_template('user/list.html', appname=g.appname, user=user, creators=creators, pagetotal=pagetotal, page=page, total=total, count=count)
+    else:
+        creators = Creator.queryAll(user, {}, projection={'username':1}, sort=[('update_time', -1)])
+        for index, one in enumerate(creators):
+            creators[index]['_id'] = str(one['_id'])
+        return json.dumps({'stat':1, 'desc':'success', 'data':creators}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
 
 @admin.route('/user/detail/<cid>', methods=['GET'])

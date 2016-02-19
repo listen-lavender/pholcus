@@ -65,7 +65,7 @@
         $('#gdrop').dropdown({
             action:function(value, text){
                 $('#group').val(text);
-                $('#gdrop .text').text(value);
+                $('#gdrop .default.text').text(value);
                 $.ajax({
                     url:'/gds/a/user/verify',
                     type:'post',
@@ -91,7 +91,7 @@
         $('#sdrop').dropdown({
             action:function(value, text){
                 $('#status').val(text);
-                $('#sdrop .text').text(value);
+                $('#sdrop .default.text').text(value);
                 $.ajax({
                     url:'/gds/a/user/verify',
                     type:'post',

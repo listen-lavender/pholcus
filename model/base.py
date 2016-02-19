@@ -45,6 +45,7 @@ class AuthModel(baseorm.Model):
             result = super(AuthModel, cls).insert(obj, update=update, method=method, forcexe=forcexe, maxsize=maxsize)
             user['_id'] = result if cls.__name__ == 'Creator' else user['_id']
             permit = Permit(cid=user['_id'], otype=cls.__name__, oid=result, authority=15, desc='aduq', status=1, creator=user['_id'], updator=user['_id'], create_time=datetime.datetime.now())
+            Permit.insert(permit)
         else:
             result = None
         return result
