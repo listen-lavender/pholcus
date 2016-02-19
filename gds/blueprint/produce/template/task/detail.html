@@ -228,11 +228,13 @@
             </div>
         </div>
     </div> -->
-    <div class="ui" style="width:100%; margin:15px 20px;">
-        <span>授权:&nbsp;&nbsp;</span>
-        <select class="ui search selection dropdown" multiple id="multi-select">
-        </select>
-    </div>
+    {% if task['current'] %}
+        <div class="ui" style="width:100%; margin:15px 20px;">
+            <span>授权:&nbsp;&nbsp;</span>
+            <select class="ui search selection dropdown" multiple id="multi-select">
+            </select>
+        </div>
+    {% endif %}
     <button class="ui primary button" onclick="save()">保存</button>
     <button class="ui button" onclick="reset()">重置</button>
     <button class="ui button" onclick="clone()">克隆任务</button>
@@ -240,20 +242,22 @@
 {% block postjs %}
     <script type="text/javascript">
         $('#tasktype').dropdown({});
-        $.ajax({
-            url:'/gds/a/user/list',
-            type:'post',
-            async:false,
-            dataType:'json',
-            success:function(data){
-                for(var k=0;k<data.data.length;k++)
-                    $("#multi-select").append("<option value="+data.data[k]._id+">"+data.data[k].username+"</option>");
-                $('#multi-select').dropdown('set selected', curr);
-            },
-            error:function(XMLHttpRequest, status, thrown){
-                ;
-            }
-        });
+        {% if task['current'] %}
+            $.ajax({
+                url:'/gds/a/user/list',
+                type:'post',
+                async:false,
+                dataType:'json',
+                success:function(data){
+                    for(var k=0;k<data.data.length;k++)
+                        $("#multi-select").append("<option value="+data.data[k]._id+">"+data.data[k].username+"</option>");
+                    $('#multi-select').dropdown('set selected', curr);
+                },
+                error:function(XMLHttpRequest, status, thrown){
+                    ;
+                }
+            });
+        {% endif %}
         $('#article').dropdown({
             action: function(value, text) {
                 $('#aid').val(text);

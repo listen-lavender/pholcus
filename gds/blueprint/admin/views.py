@@ -59,7 +59,7 @@ def login():
         return redirect('/gds/m/task/list')
     user = Creator.queryOne({}, {'username':username, 'password':password, 'status':{'$ne':0}})
     if user is not None:
-        user = {'name':user['username'], '_id':user['_id'], 'status':user['status'], 'group':user['group']}
+        user = {'name':user['username'], '_id':str(user['_id']), 'status':user['status'], 'group':user['group']}
         response = make_response(redirect('/gds/m/task/list'))
         sid = str(uuid.uuid4())
         session[sid] = user
@@ -155,7 +155,7 @@ def userdetail(cid=None):
     user = request.user
     cid = cid or user['_id']
     creator = Creator.queryOne(user, {'_id':cid})
-    creator['current'] = str(cid) == str(user['_id'])
+    creator['current'] = str(cid) == user['_id']
     creator['secret'] = creator['secret'] if creator['current'] else ''
     creator['status_desc'] = STATUS.get(creator['status'])
     return render_template('user/detail.html', appname=g.appname, user=user, creator=creator)

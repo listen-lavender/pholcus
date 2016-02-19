@@ -36,9 +36,9 @@ def taskdetail(tid=None):
         if tid is None:
             tid = request.args.get('tid')
         if tid is None:
-            task = {'_id':'', 'aid':'', 'sid':'', 'task_name':'', 'extra':'', 'type':'ONCE', 'period':0, 'flow':'', 'params':'', 'worknum':6, 'queuetype':'P', 'worktype':'THREAD', 'trace':0, 'timeout':30, 'category':'', 'tag':''}
+            task = {'_id':'', 'aid':'', 'sid':'', 'task_name':'', 'extra':'', 'type':'ONCE', 'period':0, 'flow':'', 'params':'', 'worknum':6, 'queuetype':'P', 'worktype':'THREAD', 'trace':0, 'timeout':30, 'category':'', 'tag':'', 'current':True}
         else:
-            projection = {'_id':1, 'aid':1, 'sid':1, 'name':1, 'extra':1, 'type':1, 'period':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'trace':1, 'timeout':1, 'category':1, 'tag':1}
+            projection = {'_id':1, 'aid':1, 'sid':1, 'name':1, 'extra':1, 'type':1, 'period':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'trace':1, 'timeout':1, 'category':1, 'tag':1, 'creator':1}
             task = Task.queryOne(user, {'_id':tid}, projection=projection)
             task['task_name'] = task['name']
             projection = {'name':1}
@@ -51,6 +51,8 @@ def taskdetail(tid=None):
             config = Config.queryOne({'type':'ROOT', 'key':'dir'}, projection=projection)
             task['section_name'] = section['name']
             task['article_name'] = config['val'] + unit['dirpath'] + article['filepath']
+            task['current'] = str(task['creator']) == user['_id']
+            del task['creator']
         task['queuetype_name'] = QUEUETYPE.get(task['queuetype'], '')
         task['worktype_name'] = WORKTYPE.get(task['worktype'], '')
         task['trace_name'] = TRACE.get(task['trace'], '')
@@ -132,7 +134,7 @@ def taskdetail(tid=None):
                 continue
             cid = baseorm.IdField.verify(cid)
             if Permit.queryOne({'cid':cid, 'otype':'Task', 'oid':tid}) is None:
-                permit = Permit(cid=cid, otype='Task', oid=tid, authority=15, desc='---q', status=1, creator=user['_id'], updator=user['_id'], create_time=datetime.datetime.now())
+                permit = Permit(cid=cid, otype='Task', oid=tid, authority=1, desc='---q', status=1, creator=user['_id'], updator=user['_id'], create_time=datetime.datetime.now())
                 Permit.insert(permit)
         for cid in delcid:
             if cid == '':
