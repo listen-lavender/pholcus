@@ -20,7 +20,7 @@ def articlelist(uid=''):
         total = Article.count(user, {})
     count = (total - 1)/pagetotal + 1
     articles = Article.queryAll(user, {}, projection={'_id':1, 'name':1, 'filepath':1, 'uid':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
-    return render_template('particlelist.html', appname=g.appname, user=user, uid=uid, articles=articles, pagetotal=pagetotal, page=page, total=total, count=count)
+    return render_template('article/list.html', appname=g.appname, user=user, uid=uid, articles=articles, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @produce.route('/article/detail', methods=['GET', 'POST'])
 @produce.route('/article/detail/<aid>', methods=['GET', 'POST'])
@@ -33,7 +33,7 @@ def articledetail(aid=None):
             article = {'_id':'', 'host':'', 'pinyin':''}
         else:
             article = Article.queryOne(user, {'_id':aid}, projection={'_id':1, 'host':1, 'pinyin':1})
-        return render_template('particledetail.html', appname=g.appname, user=user, uid=uid, article=article)
+        return render_template('article/detail.html', appname=g.appname, user=user, uid=uid, article=article)
     elif request.method == 'POST':
         user = request.user
         host = request.form.get('host')
@@ -53,8 +53,6 @@ def articledetail(aid=None):
                 create_time=datetime.datetime.now(),
                 update_time=datetime.datetime.now())
             aid = Article.insert(user, article)
-            permit = Permit(cid=user['_id'], otype='Article', oid=aid, authority=15, desc='aduq', status=1, creator=user['_id'], updator=user['_id'], create_time=datetime.datetime.now())
-            Permit.insert(permit)
         else:
             Article.update(user, {'_id':aid}, {'name':article_name, 'host':host, 'pinyin':pinyin, 'filepath':filepath, 'updator':user['_id'], 'update_time':datetime.datetime.now()})
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')

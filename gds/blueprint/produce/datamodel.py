@@ -11,7 +11,7 @@ from model.base import Datamodel, Dataitem
 @withBase(RDB, resutype='DICT')
 def modellist():
     datamodels = Datamodel.queryAll({})
-    return render_template('pdatamodellist.html', appname=g.appname, user=user, datamodels=datamodels)
+    return render_template('datamodel/list.html', appname=g.appname, user=user, datamodels=datamodels)
 
 @produce.route('/datamodel/detail/<dmid>', methods=['GET'])
 @withBase(WDB, resutype='DICT', autocommit=True)
@@ -28,4 +28,4 @@ def modeldetail(dmid=None):
     cols.remove('dmid')
     cols.remove('_id')
     rows.remove('_id')
-    return render_template('pdatamodeldetail.html', appname=g.appname, user=user, rows=rows, cols=cols, rowvals=unicode2utf8(rowvals), colvals=unicode2utf8(colvals), colspan=len(cols)-1)
+    return render_template('datamodel/detail.html', appname=g.appname, user=user, rows=rows, cols=cols, rowvals=unicode2utf8(rowvals), colvals=unicode2utf8(colvals), colspan=len(cols)-1)

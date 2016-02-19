@@ -12,4 +12,4 @@ from data import *
 
 @monitor.route('/index', methods=['GET'])
 def index():
-    return render_template('mindex.html', appname=g.appname, user=user)
+    return render_template('index.html', appname=g.appname, user=user)

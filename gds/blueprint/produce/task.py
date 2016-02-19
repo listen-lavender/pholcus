@@ -23,7 +23,7 @@ def tasklist():
         total = Task.count(user, {})
     count = (total - 1)/pagetotal + 1
     tasks = Task.queryAll(user, {}, projection={'_id':1, 'name':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
-    return render_template('ptasklist.html', appname=g.appname, user=user, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
+    return render_template('task/list.html', appname=g.appname, user=user, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
 
 
 @produce.route('/task/detail', methods=['GET', 'POST'])
@@ -53,7 +53,7 @@ def taskdetail(tid=None):
         task['queuetype_name'] = QUEUETYPE.get(task['queuetype'], '')
         task['worktype_name'] = WORKTYPE.get(task['worktype'], '')
         task['trace_name'] = TRACE.get(task['trace'], '')
-        return render_template('ptaskdetail.html', appname=g.appname, user=user, task=task)
+        return render_template('task/detail.html', appname=g.appname, user=user, task=task)
     elif request.method == 'POST':
         user = request.user
         task_name = request.form.get('task_name')
@@ -100,8 +100,6 @@ def taskdetail(tid=None):
                 updator=user['_id'],
                 create_time=datetime.datetime.now())
             tid = Task.insert(user, task)
-            permit = Permit(cid=user['_id'], otype='Task', oid=tid, authority=15, desc='aduq', status=1, creator=user['_id'], updator=user['_id'], create_time=datetime.datetime.now())
-            Permit.insert(permit)
         else:
             doc = {'name':task_name,
                 'extra':extra,

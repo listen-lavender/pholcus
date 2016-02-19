@@ -53,4 +53,4 @@ def taskdata(tid):
             one[c] = ','.join([str(item) for item in one[c]])
         for c in dc:
             one[c] = json.dumps(one[c], ensure_ascii=False)
-    return render_template('mtaskdata.html', appname=g.appname, user=user, title=model['name'], columns=columns, rows=datas, pagetotal=pagetotal, page=page, total=total, count=count)
+    return render_template('task/data.html', appname=g.appname, user=user, title=model['name'], columns=columns, rows=datas, pagetotal=pagetotal, page=page, total=total, count=count)

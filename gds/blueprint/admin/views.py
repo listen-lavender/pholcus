@@ -99,8 +99,6 @@ def register():
         create_time = datetime.datetime.now()
         user = Creator(username=username, password=password, contact=contact, notify=notify, secret=secret, status=status, creator=creator, updator=updator, create_time=create_time)
         user['_id'] = Creator.insert({}, user)
-        permit = Permit(cid=user['_id'], otype='Creator', oid=user['_id'], authority=15, desc='aduq', status=1, creator=user['_id'], updator=user['_id'], create_time=datetime.datetime.now())
-        Permit.insert(permit)
         user = {'name':user['username'], '_id':user['_id'], 'status':user['status'], 'group':''}
         response = make_response(redirect('/gds/a/info'))
         sid = str(uuid.uuid4())
@@ -142,7 +140,7 @@ def userlist():
         total = Creator.count(user, {})
     count = (total - 1)/pagetotal + 1
     creators = Creator.queryAll(user, {}, projection={'username':1, 'group':1, 'create_time':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
-    return render_template('userlist.html', appname=g.appname, user=user, creators=creators, pagetotal=pagetotal, page=page, total=total, count=count)
+    return render_template('user/list.html', appname=g.appname, user=user, creators=creators, pagetotal=pagetotal, page=page, total=total, count=count)
 
 
 @admin.route('/user/detail/<cid>', methods=['GET'])
@@ -154,5 +152,5 @@ def userdetail(cid=None):
     creator['current'] = str(cid) == str(user['_id'])
     creator['secret'] = creator['secret'] if creator['current'] else ''
     creator['status_desc'] = STATUS.get(creator['status'])
-    return render_template('userdetail.html', appname=g.appname, user=user, creator=creator)
+    return render_template('user/detail.html', appname=g.appname, user=user, creator=creator)
 

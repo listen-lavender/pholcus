@@ -24,4 +24,4 @@ codetree()
 
 @produce.route('/index', methods=['GET'])
 def index():
-    return render_template('pindex.html', appname=g.appname, user=user)
+    return render_template('index.html', appname=g.appname, user=user)

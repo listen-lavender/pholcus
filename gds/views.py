@@ -4,6 +4,8 @@ import json, sys, os
 sys.path.append('../')
 from settings import staticfilepath, useport, CACHE_TIMEOUT
 from flask import Flask, g, request, Response, session, redirect
+from flask.templating import DispatchingJinjaLoader
+from flask.globals import _request_ctx_stack
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug.contrib.cache import SimpleCache
 from werkzeug.routing import BaseConverter
@@ -26,6 +28,20 @@ def cached(func):
         return response
     return decorator
 
+
+class LeafinlineLoader(DispatchingJinjaLoader):
+    def _iter_loaders(self, template):
+        bp = _request_ctx_stack.top.request.blueprint
+        if bp is not None and bp in self.app.blueprints:
+            loader = self.app.blueprints[bp].jinja_loader
+            if loader is not None:
+                yield loader, template
+
+        loader = self.app.jinja_loader
+        if loader is not None:
+            yield loader, template
+
+
 app = Flask(__name__, static_folder='static', static_path='/gds/static', template_folder='template')
 app.config.from_object(__name__)
 app.secret_key = 'super secret key'
@@ -35,6 +51,10 @@ Session(app)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://hotel2:hotel0115@58.83.130.112:3306/hotel20'
 # db = SQLAlchemy(app)
 # g['db'] = db
+
+app.jinja_options = Flask.jinja_options.copy() 
+app.jinja_options['loader'] = LeafinlineLoader(app)
+
 app.register_blueprint(admin, url_prefix='/gds/a')
 app.register_blueprint(monitor, url_prefix='/gds/m')
 app.register_blueprint(produce, url_prefix='/gds/p')

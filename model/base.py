@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # coding=utf-8
+import datetime
 
 from settings import baseorm, dataorm
 MAXSIZE = 1000
@@ -42,6 +43,8 @@ class AuthModel(baseorm.Model):
         auth = Permit.queryOne({'cid':user.get('_id'), 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
         if cls.__name__ == 'Creator' or user['name'] == 'root' or auth['authority'] > 7: # 8 9 10 11 12 13 14 15
             result = super(AuthModel, cls).insert(obj, update=update, method=method, forcexe=forcexe, maxsize=maxsize)
+            user['_id'] = result if cls.__name__ == 'Creator' else user['_id']
+            permit = Permit(cid=user['_id'], otype=cls.__name__, oid=result, authority=15, desc='aduq', status=1, creator=user['_id'], updator=user['_id'], create_time=datetime.datetime.now())
         else:
             result = None
         return result

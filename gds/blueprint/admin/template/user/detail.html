@@ -64,10 +64,8 @@
     <script type="text/javascript">
         $('#gdrop').dropdown({
             action:function(value, text){
-                alert('111');
                 $('#group').val(text);
-                $('#gdrop .default.text').text(value);
-                alert('222');
+                $('#gdrop .text').text(value);
                 $.ajax({
                     url:'/gds/a/user/verify',
                     type:'post',
@@ -79,7 +77,10 @@
                     async:false,
                     dataType:'json',
                     success:function(data){
-                        alert(data);
+                        $("#gmenu").removeClass("visible");
+                        $("#gmenu").addClass("hidden");
+                        $("#gdrop").removeClass("active");
+                        $("#gdrop").removeClass("visible");
                     },
                     error:function(XMLHttpRequest, status, thrown){
                         ;
@@ -90,7 +91,7 @@
         $('#sdrop').dropdown({
             action:function(value, text){
                 $('#status').val(text);
-                $('#sdrop .default.text').text(value);
+                $('#sdrop .text').text(value);
                 $.ajax({
                     url:'/gds/a/user/verify',
                     type:'post',
@@ -102,7 +103,10 @@
                     async:false,
                     dataType:'json',
                     success:function(data){
-                        ;
+                        $("#smenu").removeClass("visible");
+                        $("#smenu").addClass("hidden");
+                        $("#sdrop").removeClass("active");
+                        $("#sdrop").removeClass("visible");
                     },
                     error:function(XMLHttpRequest, status, thrown){
                         ;
