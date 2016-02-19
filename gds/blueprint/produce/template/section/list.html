@@ -5,69 +5,6 @@
 {% endblock %}
 {% block prejs %}
     <script type="text/javascript">
-        function addflow(){
-            var fnum = $("#flows div[id^='flow_']").length;
-            fnum = parseInt($($("#flows div[id^='flow_']")[fnum-1]).attr('_id').replace('flow_', ''));
-            $("#flows").append('<div id="ft_'+(fnum + 1)+'" class="title active"><i class="dropdown icon"></i>TODO</div><div id=flow_'+(fnum + 1)+' class="content active">    <div class="ui input transition visible" style="display: inline-block !important;">        &nbsp;&nbsp;&nbsp;&nbsp;<span>flow:&nbsp;&nbsp;</span><input id="fv_'+(fnum + 1)+'" name="flow_name" type="text" style="width:30%;" value="TODO" placeholder="flow name" onblur="check(this)"/>        &nbsp;&nbsp;&nbsp;&nbsp;<i class="add icon" onclick="addsection('+(fnum + 1)+')" alt="add"></i>        &nbsp;&nbsp;&nbsp;&nbsp;<i class="save icon" onclick="saveflow('+(fnum + 1)+')" alt="save"></i>    </div>            <div name="section_1" class="ui input transition visible" style="width:100%; margin:15px 20px;display: inline-block !important;">            <span>1:&nbsp;&nbsp;</span><input name="section_id" type="hidden" value=""/><input name="section_name" type="text" style="width:60%;" value="" placeholder="section name" onblur="check(this)"/>            <i class="remove icon" onclick="delsection(this)" alt="delete">&nbsp;&nbsp;</i>        </div>    </div>');
-        }
-        function saveflow(num){
-            var section_ids = $("#flow_"+num+" input[name='section_id']");
-            var section_names = $("#flow_"+num+" input[name='section_name']");
-            var sections = [];
-            for(var k=0;k<section_names.length;k++){
-                var section = {'order_id':(k+1), '_id':$(section_ids[k]).val()||'', 'name':$(section_names[k]).val(), 'next_id':''}
-                if(k>0)
-                    sections[k-1]['next_id'] = $(section_ids[k]).val();
-                sections.push(section);
-            }
-            $.ajax({
-                url:location.href,
-                type:'post',
-                data:delnull({
-                    flow:$("#flow_name").val(),
-                    sections:JSON.stringify(sections),
-                }),
-                async:false,
-                dataType:'json',
-                success:function(data){
-                    location.href=location.href;
-                },
-                error:function(XMLHttpRequest, status, thrown){
-                    ;
-                }
-            });
-        }
-        function addsection(num){
-            var snum = $("#flow_"+num+" div[name^='section_']").length;
-            snum = parseInt($($("#flow_"+num+" div[name^='section_']")[snum-1]).attr('name').replace('section_', ''));
-            if($($("#flow_"+num+" input[name='section_name']")[snum-1]).val()==''){
-                alert("请完成空的secion");
-                $($("#flow_"+num+" input[name='section_name']")[snum-1]).focus();
-            }
-            else
-                $("#flow_"+num).append('<div name="section_'+(snum+1)+'" class="ui input transition visible" style="width:100%; margin:15px 20px;display: inline-block !important;"><span>'+(snum+1)+':&nbsp;&nbsp;</span><input name="section_id" type="hidden" value=""><input name="section_name" type="text" style="width:60%;" value="" placeholder="flow name" onblur="check(this)"/>&nbsp;&nbsp;<i class="remove icon" onclick="delsection(this)" alt="delete">&nbsp;&nbsp;</i></div>');
-        }
-        function delsection(obj){
-            var id = $(obj).parent("div[name^='section_']").find("input[name='section_id']").val();
-            if(id == '')
-                $(obj).parent("div[name^='section_']").remove();
-            else
-                $.ajax({
-                    url:location.href,
-                    type:'delete',
-                    data:delnull({
-                        id:id,
-                    }),
-                    async:false,
-                    dataType:'json',
-                    success:function(data){
-                        location.href=location.href;
-                    },
-                    error:function(XMLHttpRequest, status, thrown){
-                        ;
-                    }
-                });
-        }
         function check(obj){
             if($(obj).val()==''){
                 alert($(obj).attr('name').replace('_name', '')+" name not empty.");
@@ -85,31 +22,10 @@
     <div class="ui sizer vertical segment" style="font-size: 20px; text-align: center;">
         <div class="ui large header">脚本分步抓取流</div>
     </div>
-    <div class="ui container" style="padding: .75em 1em;">
-        &nbsp;&nbsp;&nbsp;&nbsp;<i class="add icon" onclick="addflow()" alt="add"></i>
-    </div>
-    <div id="flows" class="ui styled accordion" style="width:100%">
-        {% for flow in flows %}
-            <div id="ft_{{loop.index}}" class="title"><i class="dropdown icon"></i>{{flow['flow']}}</div>
-            <div id="flow_{{loop.index}}" class="content">
-                <div class="ui input">
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span>flow:&nbsp;&nbsp;</span><input id="fv_{{loop.index}}" name="flow_name" type="text" style="width:30%;" value="{{flow['flow']}}" onblur="check(this)"/>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<i class="add icon" onclick="addsection({{loop.index}})" alt="add"></i>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<i class="save icon" onclick="saveflow({{loop.index}})" alt="save"></i>
-                </div>
-                {% for section in sections[flow['flow']] %}
-                    <div name="section_{{loop.index}}" class="ui input" style="width:100%; margin:15px 20px;">
-                        <span>{{loop.index}}:&nbsp;&nbsp;</span><input name="section_id" type="hidden" value="{{section['_id']}}"/><input name="section_name" type="text" style="width:60%;" value="{{section['name']}}" onblur="check(this)"/>&nbsp;&nbsp;
-                        <a href="/gds/p/section/detail/{{section['_id']}}?aid={{aid}}">详情</a>&nbsp;&nbsp;
-                        <i class="remove icon" onclick="delsection(this)" alt="delete">&nbsp;&nbsp;</i>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endfor %}
-    </div>
-{% endblock %}
-{% block postjs %}
-    <script type="text/javascript">
-    $('.ui.accordion').accordion();
-    </script>
+    {% for section in sections %}
+        <div name="section_{{loop.index}}" class="ui input" style="width:100%; margin:15px 20px;">
+            <span>{{loop.index}}:&nbsp;&nbsp;</span><input name="section_id" type="hidden" value="{{section['_id']}}"/><input name="section_name" type="text" style="width:60%;" value="{{section['name']}}" onblur="check(this)"/>&nbsp;&nbsp;
+            <a href="/gds/p/section/detail/{{section['_id']}}?aid={{aid}}">详情</a>
+        </div>
+    {% endfor %}
 {% endblock %}

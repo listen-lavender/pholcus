@@ -29,17 +29,21 @@
         }
     </script>
 {% endblock %}
-{% block content %}
+{% block content %} 
     <div class="ui sizer vertical segment" style="font-size: 20px; text-align: center;">
         <div class="ui large header">脚本数据源</div>
     </div>
+    {% for flow in article['flows'] %}
+        <div class="ui input" style="width:100%; margin:15px 20px;">
+            <a href="/gds/p/section/list/{{article['_id']}}?flow={{flow}}">脚本抓取流</a>
+        </div>
+    {% endfor %}
     <div class="ui input" style="width:100%; margin:15px 20px;">
         <span >host:&nbsp;&nbsp;</span><input id="host" type="text" style="width:60%;" value="{{article['host']}}"><span>&nbsp;&nbsp;*例如 如家(www.homeinns.com)</span>
     </div>
     <div class="ui input" style="width:100%; margin:15px 20px;">
         <span>pinyin:&nbsp;&nbsp;</span><input id="pinyin" type="text" style="width:60%;" value="{{article['pinyin']}}"><span>&nbsp;&nbsp;*例如 如家(rujia)</span>
     </div>
-    <!-- <button class="ui primary button" onclick="save()">保存</button>
+    <button class="ui primary button" onclick="save()">保存</button>
     <button class="ui button" onclick="reset()">重置</button>
-    <a href="/gds/p/section/list/{{article['_id']}}">脚本分步抓取器列表</a> -->
 {% endblock %}

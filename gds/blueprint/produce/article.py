@@ -6,7 +6,7 @@ from webcrawl.character import unicode2utf8
 from hawkeye import seearticle
 from flask import Blueprint, request, Response, render_template, g
 from views import produce
-from model.base import Article, Permit
+from model.base import Article, Section, Permit
 
 @produce.route('/article/list', methods=['GET'])
 @produce.route('/article/list/<uid>', methods=['GET'])
@@ -33,6 +33,8 @@ def articledetail(aid=None):
             article = {'_id':'', 'host':'', 'pinyin':''}
         else:
             article = Article.queryOne(user, {'_id':aid}, projection={'_id':1, 'host':1, 'pinyin':1})
+            sections = Section.queryAll(user, {'aid':aid}, projection={'flow':1})
+            article['flows'] = list(set([section['flow'] for section in sections]))
         return render_template('article/detail.html', appname=g.appname, user=user, uid=uid, article=article)
     elif request.method == 'POST':
         user = request.user

@@ -134,7 +134,7 @@ def taskdetail(tid=None):
                 continue
             cid = baseorm.IdField.verify(cid)
             if Permit.queryOne({'cid':cid, 'otype':'Task', 'oid':tid}) is None:
-                permit = Permit(cid=cid, otype='Task', oid=tid, authority=1, desc='---q', status=1, creator=user['_id'], updator=user['_id'], create_time=datetime.datetime.now())
+                permit = Permit(cid=cid, otype='Task', oid=baseorm.IdField.verify(tid), authority=1, desc='---q', status=1, creator=user['_id'], updator=user['_id'], create_time=datetime.datetime.now())
                 Permit.insert(permit)
         for cid in delcid:
             if cid == '':
