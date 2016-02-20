@@ -4,19 +4,28 @@
     </style>
 {% endblock %}
 {% block prejs %}
+    <script src="/gds/static/js/lib/less.min.js"></script>
+    <link rel="stylesheet/less" type="text/css" href="/gds/static/css/dimmer.less"/>
     <script type="text/javascript">
     </script>
 {% endblock %}
 {% block content %}
     <div class="ui card" style="width:500px">
         <input type="hidden" id="_id" value="{{creator['_id']}}">
-        <div class="image" style="position:relative;z-index:0">
+        <form id="avatarform" action="" method="" enctype="multipart/form-data" >
+            <input id="avatar" name="avatar" type="file" accept="" style="display:none">
+     　　</form>
+        <div class="ui image">
             {% if creator['current'] %}
-                <div style="position:absolute;z-index:1;right:0;top:0">
-                    <i class="refresh icon"></i>
+                <div class="ui dimmer">
+                    <div class="content">
+                        <div class="center">
+                            <input id="shadow" type="button" class="ui primary button" value="Change" class="file" onClick="avatar.click()"/>
+                        </div>
+                    </div>
                 </div>
             {% endif %}
-            <img src="{{creator['avatar']}}">
+            <img class="ui image" src="{{creator['avatar']}}"/>
         </div>
         <div class="content">
             <a class="header">{{creator['username']}}</a>
@@ -61,7 +70,31 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block postjs %}
     <script type="text/javascript">
+        {% if creator['current'] %}
+            $('.ui.image').dimmer({
+                on: 'hover'
+              });
+        {% endif %}
+        $('#avatar').on('change', function(){
+            var formData = new FormData($("#avatarform")[0]);
+            $.ajax({
+                url:'/gds/a/user/avatar',
+                type:'post',
+                data: formData,
+                dataType:'json',
+                processData: false,
+                contentType: false,
+                success:function(data){
+                    $("img").attr('src', data.data);
+                },
+                error:function(XMLHttpRequest, status, thrown){
+                    ;
+                }
+            });
+        });
         $('#gdrop').dropdown({
             action:function(value, text){
                 $('#group').val(text);

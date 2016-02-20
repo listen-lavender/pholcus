@@ -11,5 +11,5 @@ PERMANENT_SESSION_LIFETIME = 60 * 60 * 15
 useport = 7001
 
 # static files saving path
-staticfilepath = "static/"
+STATIC = "static/"
 GITPKG = {}

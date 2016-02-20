@@ -1,10 +1,12 @@
 #!/usr/bin/python
 # coding=utf8
-import types, datetime, uuid, random, hashlib, json
+import os, types, datetime, uuid, random, hashlib, json
 from flask import Blueprint, request, Response, render_template, redirect, make_response, session, g
 from model.settings import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from flask.helpers import send_from_directory
+from bson import ObjectId
 from model.base import Creator, Permit
+from settings import STATIC
 
 LENGTH = [5, 7, 13]
 UL = [True, True, False, True, False, False]
@@ -160,3 +162,13 @@ def userdetail(cid=None):
     creator['status_desc'] = STATUS.get(creator['status'])
     return render_template('user/detail.html', appname=g.appname, user=user, creator=creator)
 
+@admin.route('/user/avatar', methods=['POST'])
+@withBase(WDB, resutype='DICT', autocommit=True)
+def useravatar(cid=None):
+    user = request.user
+    avatar = request.files['avatar']
+    name = str(ObjectId())
+    path = os.path.join(os.path.abspath('.'), STATIC, 'img/user/', name)
+    avatar.save(path)
+    Creator.update(user, {'_id':user['_id']}, {'avatar':'/gds/static/img/user/%s' % name})
+    return json.dumps({'stat':1, 'desc':'success', 'data':'/gds/static/img/user/%s' % name}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
