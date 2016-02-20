@@ -28,7 +28,7 @@ _DBCONN = {"mysql":{"host": "127.0.0.1",
                 "port": 27017,
                 "user": "root",
                 "passwd": "",
-                "db": "pholcus",
+                "db": "dandan-jiang",
                 "charset": "utf8",
                 "use_unicode":False,},
             }

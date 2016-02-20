@@ -18,7 +18,7 @@ from webcrawl.handleRequest import ensureurl
 from webcrawl.handleRequest import parturl
 from proxyspider import Data
 from proxyspider import TIMEOUT
-from proxyspider import withDB
+from proxyspider import withData
 from proxyspider import DBCONN, RDB, WDB, initDB
 from proxyspider import SpiderProxyOrigin
 
@@ -46,7 +46,7 @@ class SpiderXicidaili(SpiderProxyOrigin):
         }
         initDB()
 
-    @store(withDB(WDB), Data.insert, update=True, method='MANY')
+    @store(withData(WDB), Data.insert, update=True, method='MANY')
     @timelimit(3)
     def fetchDetail(self, proxy, additions={}, timeout=TIMEOUT, implementor=None):
         ip, port, location, safetype, usetype, refspeed, status, update_time = proxy

@@ -2,19 +2,19 @@
 # coding=utf-8
 
 from webcrawl.spider import SpiderOrigin
-# from task.model.mongo import initDB
-# from task.model.mongo import Video as Data
-# from task.config.db.mongo import RDB
-# from task.config.db.mongo import WDB
-# from task.config.db.mongo import _DBCONN as DBCONN
-# from dbskit.mongo.suit import withMongo as withDB
+# from task.model.mysql import initDB
+# from task.model.mysql import Video as Data
+# from task.config.db.mysql import RDB
+# from task.config.db.mysql import WDB
+# from task.config.db.mysql import _DBCONN as DBCONN
+# from dbskit.mysql.suit import withMysql as withData
 
 from task.model.mongo import initDB
 from task.model.mongo import Video as Data
 from task.config.db.mongo import RDB
 from task.config.db.mongo import WDB
 from task.config.db.mongo import _DBCONN as DBCONN
-from dbskit.mongo.suit import withMongo as withDB
+from model.setting import withData
 
 TIMEOUT = 120
 

@@ -3,7 +3,7 @@
 
 from flask.ext.script import Manager, Server
 from views import app
-from settings import useport
+from setting import useport
 from werkzeug.contrib.fixers import ProxyFix
 
 app.wsgi_app = ProxyFix(app.wsgi_app)

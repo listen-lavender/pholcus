@@ -1,13 +1,13 @@
 #!/usr/bin/python
 # coding=utf8
 import json, urllib, datetime
-from model.settings import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
+from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
 from hawkeye import seesection
 from flask import Blueprint, request, Response, render_template, g
 from views import produce
 from model.base import Section, Dataextract, Datasource, Permit
-from model.settings import baseorm
+from model.setting import baseorm
 
 @produce.route('/section/list/<aid>', methods=['GET', 'POST', 'DELETE'])
 @withBase(WDB, resutype='DICT', autocommit=True)

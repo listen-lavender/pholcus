@@ -2,7 +2,7 @@
 # coding=utf8
 import os, types, datetime, uuid, random, hashlib, json
 from flask import Blueprint, request, Response, render_template, redirect, make_response, session, g
-from model.settings import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
+from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from flask.helpers import send_from_directory
 from bson import ObjectId
 from model.base import Creator, Permit

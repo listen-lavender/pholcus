@@ -2,7 +2,7 @@
 # coding=utf-8
 import datetime
 
-from settings import baseorm, dataorm
+from setting import baseorm, dataorm
 MAXSIZE = 1000
 
 
@@ -10,6 +10,9 @@ class AuthModel(baseorm.Model):
 
     @classmethod
     def queryOne(cls, user, spec, projection={}, sort=[]):
+        if not cls.__name__ == 'Creator' and user.get('_id') is None:
+            user = Creator.queryOne({}, {'username':user.get('username'), 'secret':user.get('secret')})
+            user['name'] = user['username']
         if spec.get('_id') is None:
             auth = {'authority':0}
         else:
@@ -22,6 +25,9 @@ class AuthModel(baseorm.Model):
 
     @classmethod
     def queryAll(cls, user, spec, projection={}, sort=[], skip=0, limit=10):
+        if not cls.__name__ == 'Creator' and user.get('_id') is None:
+            user = Creator.queryOne({}, {'username':user.get('username'), 'secret':user.get('secret')})
+            user['name'] = user['username']
         auth = Permit.queryOne({'cid':user.get('_id'), 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
         if user.get('name') == 'root' or auth.get('authority', 0) % 2 == 1:
             result = super(AuthModel, cls).queryAll(spec, projection=projection, sort=sort, skip=skip, limit=limit)
@@ -31,6 +37,9 @@ class AuthModel(baseorm.Model):
 
     @classmethod
     def count(cls, user, spec):
+        if not cls.__name__ == 'Creator' and user.get('_id') is None:
+            user = Creator.queryOne({}, {'username':user.get('username'), 'secret':user.get('secret')})
+            user['name'] = user['username']
         auth = Permit.queryOne({'cid':user.get('_id'), 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
         if user.get('name') == 'root' or auth.get('authority', 0) % 2 == 1:
             result = super(AuthModel, cls).count(spec)
@@ -40,6 +49,9 @@ class AuthModel(baseorm.Model):
 
     @classmethod
     def insert(cls, user, obj, update=True, method='SINGLE', forcexe=False, maxsize=MAXSIZE):
+        if not cls.__name__ == 'Creator' and user.get('_id') is None:
+            user = Creator.queryOne({}, {'username':user.get('username'), 'secret':user.get('secret')})
+            user['name'] = user['username']
         auth = Permit.queryOne({'cid':user.get('_id'), 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
         if cls.__name__ == 'Creator' or user['name'] == 'root' or auth['authority'] > 7: # 8 9 10 11 12 13 14 15
             result = super(AuthModel, cls).insert(obj, update=update, method=method, forcexe=forcexe, maxsize=maxsize)
@@ -52,6 +64,9 @@ class AuthModel(baseorm.Model):
 
     @classmethod
     def delete(cls, user, spec):
+        if not cls.__name__ == 'Creator' and user.get('_id') is None:
+            user = Creator.queryOne({}, {'username':user.get('username'), 'secret':user.get('secret')})
+            user['name'] = user['username']
         if spec.get('_id') is None:
             auth = {'authority':0}
         else:
@@ -65,6 +80,9 @@ class AuthModel(baseorm.Model):
 
     @classmethod
     def update(cls, user, spec, doc):
+        if not cls.__name__ == 'Creator' and user.get('_id') is None:
+            user = Creator.queryOne({}, {'username':user.get('username'), 'secret':user.get('secret')})
+            user['name'] = user['username']
         if spec.get('_id') is None:
             auth = {'authority':0}
         else:
@@ -72,6 +90,7 @@ class AuthModel(baseorm.Model):
         if not user['group'] in ('administrator', 'root') and cls.__name__ == 'Creator' and 'group' in doc:
             del doc['group']
         if user['name'] == 'root' or auth['authority'] in (2,3,6,7,10,11,14,15):
+            doc['updator'] = user['_id']
             result = super(AuthModel, cls).update(spec, {'$set':doc})
         else:
             result = None

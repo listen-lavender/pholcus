@@ -1,16 +1,17 @@
 #!/usr/bin/python
 # coding=utf8
 import json, datetime, urllib
-from model.settings import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
+from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import produce
 from model.base import Task, Section, Article, Unit, Config, Permit, Creator
-from model.settings import baseorm
+from model.setting import baseorm
 
 QUEUETYPE = {'P':'本地队列', 'B':'beanstalk队列'}
 WORKTYPE = {'THREAD':'线程', 'COROUTINE':'协程'}
 TRACE = {0:'否', 1:'是'}
+EXETYPE = {'ONCE':'临时', 'FOREVER':'周期'}
 
 
 @produce.route('/task/list', methods=['GET'])
@@ -55,6 +56,7 @@ def taskdetail(tid=None):
             del task['creator']
         task['queuetype_name'] = QUEUETYPE.get(task['queuetype'], '')
         task['worktype_name'] = WORKTYPE.get(task['worktype'], '')
+        task['type_name'] = EXETYPE.get(task['type'], '')
         task['trace_name'] = TRACE.get(task['trace'], '')
         author = {}
         for one in Permit.queryAll({'otype':'Task', 'oid':tid}, projection={'cid':1, '_id':0}):

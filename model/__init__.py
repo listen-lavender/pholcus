@@ -6,7 +6,7 @@
 # from data import *
 
 def initDB():
-    from settings import withBase, withData, base, data, _BASE_R, _BASE_W, _DATA_R, RDB, WDB, LIMIT
+    from setting import withBase, withData, base, data, _BASE_R, _BASE_W, _DATA_R, RDB, WDB, LIMIT
     base.addDB(RDB, LIMIT, host=_BASE_R['host'],
                         port=_BASE_R['port'],
                         user=_BASE_R['user'],

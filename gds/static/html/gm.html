@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>googlemap · pingcap</title>
+    <style type="text/css">
+      html, body { height: 100%; margin: 0; padding: 0; }
+      #map { height: 100%; }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script type="text/javascript">
+        var myLatLng = {lat:40.0554659, lng:116.3093076};
+        var map;
+        function initMap() {
+          map = new google.maps.Map(document.getElementById('map'), {
+            center: myLatLng,
+            zoom: 15,
+            draggable: false
+          });
+          var marker = new google.maps.Marker({
+            map: map,
+            position: myLatLng,
+            title: 'pingcap, a strong database.',
+            draggable: false
+          });
+        }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASqhL4ap4svlzRiuAao1u-Z9tSWeU9ZwY&callback=initMap">
+    </script>
+  </body>
+</html>

@@ -2,7 +2,7 @@
 # coding=utf8
 import json, sys, os
 sys.path.append('../')
-from settings import useport, CACHE_TIMEOUT
+from setting import useport, CACHE_TIMEOUT
 from flask import Flask, g, request, Response, session, redirect
 from flask.templating import DispatchingJinjaLoader
 from flask.globals import _request_ctx_stack

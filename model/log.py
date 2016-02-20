@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding=utf-8
 
-from settings import baseorm, dataorm
+from setting import baseorm, dataorm
 
 class Log(dataorm.Model):
     __table__ = 'grab_log'
