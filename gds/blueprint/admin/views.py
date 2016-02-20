@@ -57,6 +57,9 @@ def login():
     username = request.form.get('username')
     password = request.form.get('password')
     user = request.user
+    m = hashlib.md5()
+    m.update(password)
+    password = m.hexdigest()
     if user is not None:
         return redirect('/gds/m/task/list')
     user = Creator.queryOne({}, {'username':username, 'password':password, 'status':{'$ne':0}})
@@ -87,6 +90,9 @@ def register():
     else:
         username = request.form.get('username')
         password = request.form.get('password')
+        m = hashlib.md5()
+        m.update(password)
+        password = m.hexdigest()
         contact = '{}'
         notify = '{}'
         m = hashlib.md5()
@@ -96,7 +102,7 @@ def register():
         m.update(origin)
         secret = m.hexdigest()
         status = 2
-        creator = Creator.queryOne({}, {'username':'root'})['_id']
+        creator = Creator.queryOne({'username':'root'}, {'_id':1})['_id']
         updator = creator
         create_time = datetime.datetime.now()
         user = Creator(username=username, password=password, contact=contact, notify=notify, secret=secret, status=status, creator=creator, updator=updator, create_time=create_time)
@@ -162,9 +168,10 @@ def userdetail(cid=None):
     creator['status_desc'] = STATUS.get(creator['status'])
     return render_template('user/detail.html', appname=g.appname, user=user, creator=creator)
 
+
 @admin.route('/user/avatar', methods=['POST'])
 @withBase(WDB, resutype='DICT', autocommit=True)
-def useravatar(cid=None):
+def useravatar():
     user = request.user
     avatar = request.files['avatar']
     name = str(ObjectId())
@@ -172,3 +179,29 @@ def useravatar(cid=None):
     avatar.save(path)
     Creator.update(user, {'_id':user['_id']}, {'avatar':'/gds/static/img/user/%s' % name})
     return json.dumps({'stat':1, 'desc':'success', 'data':'/gds/static/img/user/%s' % name}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+
+
+@admin.route('/user/password', methods=['GET', 'POST'])
+@withBase(WDB, resutype='DICT', autocommit=True)
+def userpassword():
+    user = request.user
+    if request.method == 'GET':
+        return render_template('user/password.html', appname=g.appname, user=user)
+    else:
+        oldpassword = request.form.get('oldpassword')
+        m = hashlib.md5()
+        m.update(oldpassword)
+        oldpassword = m.hexdigest()
+        newpassword = request.form.get('newpassword', '123456')
+        m = hashlib.md5()
+        m.update(newpassword)
+        newpassword = m.hexdigest()
+
+        if oldpassword == newpassword:
+            data = '更新成功.'
+        elif Creator.queryOne({}, {'_id':user['_id'], 'password':oldpassword, 'status':{'$ne':0}}) is None:
+            data = '请输入正确的旧密码.'
+        else:
+            Creator.update(user, {'_id':user['_id']}, {'password':newpassword})
+            data = '更新成功.'
+        return json.dumps({'stat':1, 'desc':'success', 'data':data}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
