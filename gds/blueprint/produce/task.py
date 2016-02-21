@@ -37,9 +37,9 @@ def taskdetail(tid=None):
         if tid is None:
             tid = request.args.get('tid')
         if tid is None:
-            task = {'_id':'', 'aid':'', 'sid':'', 'task_name':'', 'extra':'', 'type':'ONCE', 'period':0, 'flow':'', 'params':'', 'worknum':6, 'queuetype':'P', 'worktype':'THREAD', 'trace':0, 'timeout':30, 'category':'', 'tag':'', 'current':True}
+            task = {'_id':'', 'aid':'', 'sid':'', 'task_name':'', 'extra':'', 'type':'ONCE', 'period':0, 'flow':'', 'params':'', 'worknum':6, 'queuetype':'P', 'worktype':'THREAD', 'trace':0, 'timeout':30, 'category':'', 'push_url':'', 'pull_url':'', 'tag':'', 'current':True}
         else:
-            projection = {'_id':1, 'aid':1, 'sid':1, 'name':1, 'extra':1, 'type':1, 'period':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'trace':1, 'timeout':1, 'category':1, 'tag':1, 'creator':1}
+            projection = {'_id':1, 'aid':1, 'sid':1, 'name':1, 'extra':1, 'type':1, 'period':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'trace':1, 'timeout':1, 'category':1, 'push_url':1, 'tag':1, 'creator':1}
             task = Task.queryOne(user, {'_id':tid}, projection=projection)
             task['task_name'] = task['name']
             projection = {'name':1}
@@ -53,6 +53,7 @@ def taskdetail(tid=None):
             task['section_name'] = section['name']
             task['article_name'] = config['val'] + unit['dirpath'] + article['filepath']
             task['current'] = str(task['creator']) == user['_id']
+            task['pull_url'] = 'http://%s/gds/m/task/data/%s' % (request.host, str(task['_id']))
             del task['creator']
         task['queuetype_name'] = QUEUETYPE.get(task['queuetype'], '')
         task['worktype_name'] = WORKTYPE.get(task['worktype'], '')
@@ -79,6 +80,7 @@ def taskdetail(tid=None):
         worknum = request.form.get('worknum', 6)
         queuetype = request.form.get('queuetype', 'P')
         worktype = request.form.get('worktype', 'THREAD')
+        push_url = request.form.get('push_url')
         trace = request.form.get('trace', 0)
         addcid = request.form.get('addcid', '').split(',')
         delcid = request.form.get('delcid', '').split(',')
@@ -106,6 +108,7 @@ def taskdetail(tid=None):
                 worknum=worknum,
                 queuetype=queuetype,
                 worktype=worktype,
+                push_url=push_url,
                 trace=trace,
                 creator=user['_id'],
                 updator=user['_id'],
@@ -126,6 +129,7 @@ def taskdetail(tid=None):
                 'worknum':worknum,
                 'queuetype':queuetype,
                 'worktype':worktype,
+                'push_url':push_url,
                 'trace':trace,
                 'updator':user['_id'],
                 'update_time':datetime.datetime.now()

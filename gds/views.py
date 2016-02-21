@@ -89,7 +89,7 @@ def is_login():
     sid = request.cookies.get('sid')
     user = session.get(sid, None)
     g.appname = 'pholcus'
-    flag = '/static/' in request.url or '/login' in request.url or '/register' in request.url
+    flag = '/task/data/' in request.url or '/static/' in request.url or '/login' in request.url or '/register' in request.url
     request.sid = sid
     request.user = user
     if flag:

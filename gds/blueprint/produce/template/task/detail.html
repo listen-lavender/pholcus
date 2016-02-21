@@ -43,6 +43,7 @@
                     worknum:$("#worknum").val(),
                     queuetype:$("#queuetype").val(),
                     worktype:$("#worktype").val(),
+                    push_url:$("#push_url").val(),
                     trace:$("#trace").val(),
                     addcid:addcid.join(','),
                     delcid:delcid.join(',')
@@ -152,6 +153,12 @@
     </div>
     <div class="ui input" style="width:100%; margin:15px 20px;">
         <span>执行间隔:&nbsp;&nbsp;</span><input id="period" type="text" style="width:60%;" value="{{task['period']|default('', true)}}">
+    </div>
+    <div class="ui input" style="width:100%; margin:15px 20px;">
+        <span>推送接口:&nbsp;&nbsp;</span><input id="push_url" type="text" style="width:60%;" value="{{task['push_url']|default('', true)}}">
+    </div>
+    <div class="ui input" style="width:100%; margin:15px 20px;">
+        <span>拉取接口:&nbsp;&nbsp;</span><input id="pull_url" type="text" style="width:60%;" value="{{task['pull_url']|default('', true)}}" readonly>
     </div>
     <div class="ui input" style="width:100%; margin:15px 20px;">
         <span>article:&nbsp;&nbsp;</span>

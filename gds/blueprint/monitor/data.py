@@ -1,21 +1,31 @@
 #!/usr/bin/env python
 # coding=utf8
-import json
+import json, urlparse
 import time, datetime
 from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import monitor
-from model.base import Task, Article, Unit, Datamodel
+from model.base import Task, Article, Unit, Datamodel, Creator
 from model.log import Statistics
+from util.validate import checksign
 from model import data as grabdata
+from bson import ObjectId
 
 
-@monitor.route('/task/data/<tid>', methods=['GET'])
+@monitor.route('/task/data/<tid>', methods=['GET', 'POST'])
 @withBase(RDB, resutype='DICT', autocommit=True)
 @withData(RDB)
 def taskdata(tid):
-    user = request.user
+    if request.method == 'GET':
+        user = request.user
+    else:
+        paras = dict(urlparse.parse_qsl(urlparse.urlparse(request.url).query))
+        user = Creator.queryOne({}, {'username':paras['appKey']})
+        if checksign(paras, user['secret']):
+            user['name'] = user['username']
+        else:
+            user = {}
     pagetotal = int(request.args.get('pagetotal', 10))
     page = int(request.args.get('page', 1))
     total = int(request.args.get('total', 0))
@@ -30,6 +40,7 @@ def taskdata(tid):
         total = datas.count()
     count = (total - 1)/pagetotal + 1
     datas = list(datas)
+    oc = []
     dtc = []
     lc = []
     dc = []
@@ -38,7 +49,9 @@ def taskdata(tid):
         columns.remove('_id')
         columns.remove('tid')
         for one in datas[0]:
-            if type(datas[0][one]) == datetime.datetime:
+            if type(datas[0][one]) == ObjectId:
+                oc.append(one)
+            elif type(datas[0][one]) == datetime.datetime:
                 dtc.append(one)
             elif type(datas[0][one]) == list:
                 lc.append(one)
@@ -47,10 +60,15 @@ def taskdata(tid):
     else:
         columns = []
     for one in datas:
+        for c in oc:
+            one[c] = str(c)
         for c in dtc:
             one[c] = one[c].strftime('%Y-%m-%d %H:%M:%S')
         for c in lc:
             one[c] = ','.join([str(item) for item in one[c]])
         for c in dc:
             one[c] = json.dumps(one[c], ensure_ascii=False)
-    return render_template('task/data.html', appname=g.appname, user=user, title=model['name'], columns=columns, rows=datas, pagetotal=pagetotal, page=page, total=total, count=count)
+    if request.method == 'GET':
+        return render_template('task/data.html', appname=g.appname, user=user, title=model['name'], columns=columns, rows=datas, pagetotal=pagetotal, page=page, total=total, count=count)
+    else:
+        return json.dumps({'stat':1, 'desc':'success', 'datas':datas, 'pagetotal':pagetotal, 'page':page, 'total':total, 'count':count}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
