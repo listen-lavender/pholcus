@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # coding=utf8
 
 from flask.ext.script import Manager, Server

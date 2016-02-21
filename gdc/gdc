@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # coding=utf-8
 import os
 from docopt import docopt
-from hawkeye import initConfig, initModel, initScript, setModel, setUnit, setArticle
+from hawkeye import initScript, setModel, setUnit, setArticle
 
 if __name__ == '__main__':
     helpdoc = """Tools to use gdc(grabbing datas client) conviently.

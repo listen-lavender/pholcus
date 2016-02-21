@@ -1,11 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # coding=utf-8
 import time, datetime
-import os
+import os, sys
+sys.path.append('../')
 from optparse import OptionParser
-from dbskit.mysql.suit import withBase, dbpc
 from godhand import cook
-from model.setting import baseorm, WDB, RDB
+from model.setting import baseorm, withBase, WDB, RDB
 import task
 
 LIMIT = 20

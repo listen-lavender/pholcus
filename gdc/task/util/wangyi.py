@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # coding=utf8
 import random, base64
 from webcrawl.rsa import RSA

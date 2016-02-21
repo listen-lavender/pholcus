@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # coding=utf8
 import json, datetime
 from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB

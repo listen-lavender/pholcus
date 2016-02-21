@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # coding=utf-8
 import time
 
@@ -354,7 +354,7 @@ def initTree(material):
     return tree
 
 def cook(material):
-    default = '#!/usr/bin/python\n# coding=utf-8\n\n'
+    default = '#!/usr/bin/env python\n# coding=utf-8\n\n'
     tree = initTree(material)
     treeWeight(tree, '0')
     treeSpace(material, tree, '0', -8)
