@@ -32,16 +32,16 @@ class MarkModel(dataorm.Model):
 '''
 class Proxy(MarkModel):
     __table__ = 'grab_proxy'
-    ip = dataorm.StrField(ddl='varchar(20)', unique='data', updatable=False)
-    port = dataorm.IntField(ddl='int(10)', unique='data', updatable=False)
-    location = dataorm.StrField(ddl='varchar(30)')
-    safetype = dataorm.StrField(ddl='varchar(30)')
-    protocol = dataorm.StrField(ddl='varchar(30)')
+    ip = dataorm.StrField(ddl='varchar', max_length=20, unique='data', updatable=False)
+    port = dataorm.IntField(ddl='int', max_length=10, unique='data', updatable=False)
+    location = dataorm.StrField(ddl='varchar', max_length=30)
+    safetype = dataorm.StrField(ddl='varchar', max_length=30)
+    protocol = dataorm.StrField(ddl='varchar', max_length=30)
     refspeed = dataorm.FloatField(ddl='float')
     usespeed = dataorm.FloatField(ddl='float')
-    usenum = dataorm.IntField(ddl='int(10)')
-    status = dataorm.IntField(ddl='tinyint(1)')
-    extra = dataorm.StrField(ddl='varchar(300)')
+    usenum = dataorm.IntField(ddl='int', max_length=10)
+    status = dataorm.IntField(ddl='int', max_length=1)
+    extra = dataorm.StrField(ddl='varchar', max_length=300)
     creator = dataorm.IdField()
     updator = dataorm.IdField()
 

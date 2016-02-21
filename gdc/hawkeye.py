@@ -6,6 +6,8 @@ sys.path.append('../')
 from optparse import OptionParser
 from godhand import cook
 from model.setting import baseorm, withBase, WDB, RDB
+from model.base import Section, Article, Unit, Config, Datamodel
+from setting import USER, SECRET
 import task
 
 LIMIT = 20
@@ -37,11 +39,11 @@ def getUnit(uid):
 @withBase(WDB, resutype='DICT')
 def getArticle(aid, flow):
     config = Config.queryOne({'type':'ROOT', 'key':'dir'}, projection={'val':1})
-    article = Article.queryOne({'_id':aid}, projection={'filepath':1, 'uid':1})
+    article = Article.queryOne({'username':USER, 'secret':SECRET}, {'_id':aid}, projection={'filepath':1, 'uid':1})
     unit = Unit.queryOne({'_id':article['uid']}, projection={'dmid':1, 'name':1, 'dirpath':1})
     dirfile = ''.join([config['val'], unit['dirpath'], article['filepath']])
     material = {}
-    sids = [str(one['_id']) for one in Section.queryAll({'aid':aid, 'flow':flow}, projection={'_id':1})]
+    sids = [str(one['_id']) for one in Section.queryAll({'username':USER, 'secret':SECRET}, {'aid':aid, 'flow':flow}, projection={'_id':1})]
     for one in Datapath.queryAll({'$or':[{'btype':'article', '$or':[{'bid':baseorm.IdField.verify(aid)}, {'bid':0}]}, {'btype':'section', 'bid':{'$in':sids}}]}):
         material[str(one['_id'])] = one
     fi = open(ensure(dirfile), 'w')
@@ -53,8 +55,8 @@ def getArticle(aid, flow):
 def initScript():
     for unit in Unit.queryAll({'distribute':'SC'}):
         getUnit(unit['_id'])
-        for article in Article.queryAll({'distribute':'SC', 'uid':unit['_id']}):
-            for flow in set([section['flow'] for section in Section.queryAll({'distribute':'SC', 'aid':article['aid']}, projection={'flow':1})]):
+        for article in Article.queryAll({'username':USER, 'secret':SECRET}, {'distribute':'SC', 'uid':unit['_id']}):
+            for flow in set([section['flow'] for section in Section.queryAll({'username':USER, 'secret':SECRET}, {'distribute':'SC', 'aid':article['aid']}, projection={'flow':1})]):
                 getArticle(article['_id'], flow)
 
 
@@ -100,10 +102,11 @@ def setUnit(filepath, comment):
         filepath = filepath[filepath.rindex('/')+1:]
         extra = comment
         create_time = datetime.datetime.now()
-        Unit.insert(dmid=dmid, name=name, dirpath=dirpath, filepath=filepath, extra=comment, create_time=datetime.datetime.now())
-        print 'Unit is set successfully.'
+        unit = Unit(dmid=dmid, name=name, dirpath=dirpath, filepath=filepath, status=1, extra=comment, create_time=datetime.datetime.now())
+        Unit.insert(unit)
+        print 'Unit %s is set successfully.' % name
     else:
-        print 'Unit has been set.'
+        print 'Unit %s has been set.' % name
 
 @withBase(WDB, resutype='DICT', autocommit=True)
 def setArticle(filepath, pinyin, host):
@@ -120,79 +123,68 @@ def setArticle(filepath, pinyin, host):
             name = name[1]
         else:
             name = name[0]
-        article = Article.queryOne({'name':name, 'uid':unit['_id']})
-        sections = []
+        article = Article.queryOne({'username':USER, 'secret':SECRET}, {'name':name, 'uid':unit['_id']})
+        lines = []
         flows = []
         fi = open(filepath, 'r')
         flag = False
         for line in fi.readlines():
             if '@' in line and not 'find' in line and not 'findall' in line:
-                sections.append(line.replace('\n', '').replace('  ', ''))
+                lines.append(line.replace('\n', '').replace('  ', ''))
                 flag = True
             if 'def ' in line and flag:
-                sections.append(line.replace('\n', '').replace('  ', ''))
+                lines.append(line.replace('\n', '').replace('  ', ''))
                 flag = False
             if 'initflow' in line and not 'import' in line:
+                lines.append(line.replace('\n', '').replace('  ', ''))
                 flows.append(line.replace('\n', '').replace('  ', '').replace('@initflow(', '').replace(')', '').replace('"', '').replace("'", ''))
         fi.close()
+        sections = {}
+        section = {}
+        for index, one in enumerate(lines):
+            if 'next' in one:
+                section['next'] = one.replace('@next(', '').replace(')', '')
+            if 'index' in one:
+                section['index'] = one.replace('@index(', '').replace(')', '').replace('"', '').replace("'", "")
+            if 'retry' in one:
+                section['retry'] = one.replace('@retry(', '').replace(')', '')
+            if 'timelimit' in one:
+                section['timelimit'] = one.replace('@timelimit(', '').replace(')', '')
+            if 'store' in one:
+                section['store'] = 1
+            if 'initflow' in one and not 'import' in one:
+                section['flow'] = one.replace('\n', '').replace('  ', '').replace('@initflow(', '').replace(')', '').replace('"', '').replace("'", '')
+            if 'def ' in one:
+                section['name'] = one.replace('def ', '').split('(')[0]
+                sections[section['name']]=section
+                section = {}
         if article is None:
-            create_time = datetime.datetime.now()
             article = Article(uid=unit['_id'], name=name, pinyin=pinyin, host=host, filepath=filepath[filepath.rindex('/')+1:], create_time=datetime.datetime.now())
-            article['_id'] = Article.insert(article)
-            section = {}
-            flow = ''
-            for index, one in enumerate(sections):
-                if 'next' in one:
-                    if flows[0] in one.lower():
-                        flow = flows[0]
-                        flows.remove(flows[0])
-                    section['next_id'] = Section.queryOne({'name':one.replace('@next(', '').replace(')', ''), 'aid':article['_id']})['_id']
-                if 'index' in one:
-                    section['index'] = one.replace('@index(', '').replace(')', '').replace('"', '').replace("'", "")
-                if 'retry' in one:
-                    section['retry'] = one.replace('@retry(', '').replace(')', '')
-                if 'timelimit' in one:
-                    section['timelimit'] = one.replace('@timelimit(', '').replace(')', '')
-                if 'store' in one:
-                    section['store'] = 1
-                if 'def ' in one:
-                    if flows and flows[0] in one.lower():
-                        flow = flows[0]
-                        flows.remove(flows[0])
-                    section_name = one.replace('def ', '').split('(')[0]
-                    step = len(sections) - index
-                    section = Section(aid=article['_id'], next_id=section.get('next_id'), name=section_name, flow=flow, step=step, index=section.get('index'), retry=section.get('retry', 0), timelimit=section.get('timelimit', 30), store=section.get('store', 0), distribute='SN', create_time=datetime.datetime.now())
-                    Section.insert(section)
-                    section = {}
-            print 'Article is set successfully.'
+            article['_id'] = Article.insert({'username':USER, 'secret':SECRET}, article)
+            print 'Article %s is set successfully.' % name
         else:
-            section = {}
-            flow = ''
-            for index, one in enumerate(sections):
-                if 'next' in one:
-                    if flows and flows[0] in one.lower():
-                        flow = flows[0]
-                        flows.remove(flows[0])
-                    section['next_id'] = Section.queryOne({'name':one.replace('@next(', '').replace(')', ''), 'aid':article['_id'], 'flow':flow})['_id']
-                if 'index' in one:
-                    section['index'] = one.replace('@index(', '').replace(')', '').replace('"', '').replace("'", "")
-                if 'retry' in one:
-                    section['retry'] = one.replace('@retry(', '').replace(')', '')
-                if 'timelimit' in one:
-                    section['timelimit'] = one.replace('@timelimit(', '').replace(')', '')
-                if 'store' in one:
-                    section['store'] = 1
-                if 'def ' in one:
-                    if flows and flows[0] in one.lower():
-                        flow = flows[0]
-                        flows.remove(flows[0])
-                    section_name = one.replace('def ', '').split('(')[0]
-                    step = len(sections) - index
-                    if Section.queryOne({'name':section_name, 'aid':article['_id'], 'flow':flow}) is None:
-                        section = Section(aid=article['_id'], next_id=section.get('next_id'), name=section_name, flow=flow, step=step, index=section.get('index'), retry=section.get('retry', 0), timelimit=section.get('timelimit', 30), store=section.get('store', 0), distribute='SN', create_time=datetime.datetime.now())
-                        Section.insert(section)
-                    section = {}
-            print 'Article has been set.'
+            print 'Article %s has been set.' % name
+        for section_name, section in sections.items():
+            if section.get('flow') is None:
+                continue
+            flow_section = section
+            step = 1
+            setSection(section['flow'], step, section['name'], sections, article['_id'])
+
+def setSection(flow, step, section_name, sections, article_id):
+    section = sections.get(section_name)
+    next = section.get('next')
+    if next is not None:
+        section['next_id'] = setSection(flow, step+1, next, sections, article_id)
+    exist = Section.queryOne({'username':USER, 'secret':SECRET}, {'name':section_name, 'aid':article_id, 'flow':flow})
+    if exist is None:
+        section = Section(aid=article_id, next_id=section.get('next_id'), name=section_name, flow=flow, step=step, index=section.get('index'), retry=section.get('retry', 0), timelimit=section.get('timelimit', 30), store=section.get('store', 0), distribute='SN', create_time=datetime.datetime.now())
+        print 'Section %s %s is set successfully.' % (flow, section_name)
+        return Section.insert({'username':USER, 'secret':SECRET}, section)
+    else:
+        print 'Section %s %s has been set.' % (flow, section_name)
+        return exist['_id']
+
 
 if __name__ == '__main__':
     getUnit(1)

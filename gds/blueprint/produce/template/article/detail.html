@@ -35,7 +35,7 @@
     </div>
     {% for flow in article['flows'] %}
         <div class="ui input" style="width:100%; margin:15px 20px;">
-            <a href="/gds/p/section/list/{{article['_id']}}?flow={{flow}}">脚本抓取流</a>
+            <a href="/gds/p/section/list/{{article['_id']}}?flow={{flow}}">{{flow}}脚本抓取流</a>
         </div>
     {% endfor %}
     <div class="ui input" style="width:100%; margin:15px 20px;">

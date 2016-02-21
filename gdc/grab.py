@@ -72,11 +72,12 @@ def schedule():
     user_id = 0
     tasks = Task.queryAll({'username':USER, 'secret':SECRET}, {'status':{'$gt':0}}, projection={'_id':1, 'type':1, 'period':1, 'aid':1, 'sid':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'timeout':1, 'category':1, 'tag':1, 'name':1, 'extra':1, 'update_time':1, 'push_url':1})
     for task in tasks:
-        section = Section.queryOne({'username':USER, 'secret':SECRET}, {'_id':task['sid']}, projection={'step':1, 'index':1})
+        section = Section.queryOne({'username':USER, 'secret':SECRET}, {'_id':task['sid']}, projection={'step':1, 'index':1, 'additions':1})
         article = Article.queryOne({'username':USER, 'secret':SECRET}, {'_id':task['aid']}, projection={'uid':1, 'filepath':1, 'name':1})
         unit = Unit.queryOne({'_id':article['uid']}, projection={'name':1})
         task['step'] = section['step']
         task['index'] = section['index']
+        task['additions'] = section.get('additions') or '{}'
         task['filepath'] = article['filepath']
         task['a'] = article['name']
         task['u'] = unit['name']
@@ -107,24 +108,28 @@ def task():
             try:
                 changestate(task['_id'], 2)
                 step = task.get('step', 1) - 1
+                additions = {}
+                additions['name'] = task['name']
+                additions['cat'] = task['category'].split(',')
+                additions['tag'] = task['tag'].split(',')
+                additions = dict(json.loads(task['additions']), **additions)
                 if task.get('type', 'FOREVER') == 'FOREVER':
                     if ((datetime.datetime.now() - task['update_time']).seconds)/3600 < task.get('period', 12):
                         continue
                     weight = spider.weight(task['flow'], once=True)
                     section = spider.section(task['flow'], step)
                     if task['params'] is None or task['params'].strip() == '':
-                        workflow.task(weight, section)
+                        workflow.task(weight, section, **{'additions':additions})
                     elif task['params'].startswith('{'):
-                        workflow.task(weight, section, **json.loads(task['params']))
+                        workflow.task(weight, section, **dict(json.loads(task['params']), **{'additions':additions}))
                     elif task['params'].startswith('('):
-                        workflow.task(weight, section, *tuple(task['params'][1:-1].split(',')))
+                        workflow.task(weight, section, *tuple(task['params'][1:-1].split(',')), **{'additions':additions})
                     else:
-                        workflow.task(weight, section, task['params'])
+                        if task['index'] is None or task['index'].isdigit():
+                            workflow.task(weight, section, task['params'], **{'additions':additions})
+                        else:
+                            workflow.task(weight, section, **{task['index']:task['params'], 'additions':additions})
                 else:
-                    additions = {}
-                    additions['name'] = task['name']
-                    additions['cat'] = task['category'].split(',')
-                    additions['tag'] = task['tag'].split(',')
                     if task['params'] is None or task['params'].strip() == '':
                         spider.fetchDatas(task['flow'], step, **{'additions':additions})
                     elif task['params'].startswith('{'):

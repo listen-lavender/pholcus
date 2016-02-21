@@ -52,6 +52,7 @@
                     retry:$("#retry").val(),
                     timelimit:$("#timelimit").val(),
                     store:$("#store").val(),
+                    additions:$("#additions").val(),
                     type:'section',
                     addcid:addcid.join(','),
                     delcid:delcid.join(',')
@@ -96,6 +97,9 @@
             </div>
             <div class="ui input" style="width:100%; margin:15px 20px;">
                 <span>store:&nbsp;&nbsp;</span><input id="store" type="text" style="width:60%;" value="{{section['store']|default('', true)}}">
+            </div>
+            <div class="ui input" style="width:100%; margin:15px 20px;">
+                <span>additions:&nbsp;&nbsp;</span><input id="additions" type="text" style="width:60%;" value="{{section['additions']|default('', true)}}">
             </div>
         </div>
     </div>
