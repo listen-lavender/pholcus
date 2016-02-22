@@ -55,7 +55,7 @@ admin.send_static_file  = types.MethodType(send_static_file, admin)
 @withBase(WDB, resutype='DICT', autocommit=True)
 def login():
     username = request.form.get('username')
-    password = request.form.get('password')
+    password = request.form.get('password', '')
     user = request.user
     m = hashlib.md5()
     m.update(password)

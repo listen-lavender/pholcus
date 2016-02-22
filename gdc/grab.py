@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 import time, datetime
-import sys, json
+import sys, json, requests
 import random
 import traceback
 sys.path.append('../')

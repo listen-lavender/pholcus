@@ -19,17 +19,9 @@ from webcrawl.handleRequest import ensureurl
 from webcrawl.handleRequest import parturl
 from videospider import Data
 from videospider import TIMEOUT
-from videospider import withData
-from videospider import DBCONN, RDB, WDB, initDB
+from videospider import withData, RDB, WDB
 from videospider import SpiderVideoOrigin
 
-try:
-    # from adesk.db import mongo_v2
-    # conn = mongo_v2.conn
-    # conn = MongoClient(host='localhost', port=27019)
-    conn = MongoClient('localhost')
-except:
-    conn = MongoClient('localhost')
 #_print, logger = logprint(modulename(__file__), modulepath(__file__))
 
 bili_re = re.compile('duration: *\'.*\'')
@@ -48,20 +40,23 @@ class SpiderYouku(SpiderVideoOrigin):
     """
 
     def __init__(self, worknum=6, queuetype='P', worktype='COROUTINE', timeout=-1, tid=0):
-        super(SpiderYouku, self).__init__(worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout)
-        self.tid = tid
+        super(SpiderYouku, self).__init__(worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout, tid=tid)
         self.clsname = self.__class__.__name__
-        initDB()
         self.end = datetime.now()
         self.begin = self.end - timedelta(days=7)
 
-    @store(withData(WDB, conn), Data.insert, update=True, method='MANY')
+    @store(withData(WDB), Data.insert, update=True, method='MANY')
     @timelimit(3)
     @index('url')
     def fetchDetail(self, url, additions={}, timeout=TIMEOUT, implementor=None):
         cat = additions['cat']
 
         try:
+            if 'show_page' in url:
+                url = url.split('?')[0]
+                outid = url[url.rindex('/')+1:url.rindex('.')]
+                url = 'http://www.youku.com/show_point/%s.html?dt=json&tab=0&divid=point_reload_1' % outid
+                
             page_result = requGet(url, timeout=TIMEOUT, format='HTML')
             pages = page_result.findall('.//div[@class="item"]')
             if len(pages) < 20:

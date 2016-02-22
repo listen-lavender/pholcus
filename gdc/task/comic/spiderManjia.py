@@ -19,17 +19,9 @@ from webcrawl.handleRequest import ensureurl
 from webcrawl.handleRequest import parturl
 from comicspider import Data
 from comicspider import TIMEOUT
-from comicspider import withData
-from comicspider import DBCONN, RDB, WDB, initDB
+from comicspider import withData, RDB, WDB
 from comicspider import SpiderComicOrigin
 
-try:
-    # from adesk.db import mongo_v2
-    # conn = mongo_v2.conn
-    # conn = MongoClient(host='localhost', port=27019)
-    conn = MongoClient('localhost')
-except:
-    conn = MongoClient('localhost')
 #_print, logger = logprint(modulename(__file__), modulepath(__file__))
 
 dmzj_re = re.compile('initIntroData\(\[.*\]\);')
@@ -41,15 +33,13 @@ class SpiderDmzj(SpiderComicOrigin):
     """
 
     def __init__(self, worknum=6, queuetype='P', worktype='COROUTINE', timeout=-1, tid=0):
-        super(SpiderDmzj, self).__init__(worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout)
-        self.tid = tid
+        super(SpiderDmzj, self).__init__(worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout, tid=tid)
         self.clsname = self.__class__.__name__
-        initDB()
         self.headers = {}
         self.end = datetime.now()
         self.begin = self.end - timedelta(days=7)
 
-    @store(withData(WDB, conn), Data.insert, update=True, method='MANY')
+    @store(withData(WDB), Data.insert, update=True, method='MANY')
     @timelimit(3)
     def fetchDetail(self, url, additions={}, timeout=TIMEOUT, implementor=None):
         cat = additions['cat']

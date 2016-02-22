@@ -19,19 +19,11 @@ from webcrawl.handleRequest import ensureurl
 from webcrawl.handleRequest import parturl
 from audiospider import Data
 from audiospider import TIMEOUT
-from audiospider import withData
-from audiospider import DBCONN, RDB, WDB, initDB
+from audiospider import withData, RDB, WDB
 from audiospider import SpiderAudioOrigin
 
 from task.util.wangyi import encrypt_163
 
-try:
-    # from adesk.db import mongo_v2
-    # conn = mongo_v2.conn
-    # conn = MongoClient(host='localhost', port=27019)
-    conn = MongoClient('localhost')
-except:
-    conn = MongoClient('localhost')
 #_print, logger = logprint(modulename(__file__), modulepath(__file__))
 
 class Spider163(SpiderAudioOrigin):
@@ -41,12 +33,10 @@ class Spider163(SpiderAudioOrigin):
     """
 
     def __init__(self, worknum=6, queuetype='P', worktype='COROUTINE', timeout=-1, tid=0):
-        super(Spider163, self).__init__(worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout)
-        self.tid = tid
+        super(Spider163, self).__init__(worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout, tid=tid)
         self.clsname = self.__class__.__name__
-        initDB()
 
-    @store(withData(WDB, conn), Data.insert, update=True, method='MANY')
+    @store(withData(WDB), Data.insert, update=True, method='MANY')
     @timelimit(3)
     def fetchDetail(self, url, additions={}, timeout=TIMEOUT, implementor=None):
         result = requGet(url, timeout=timeout, format='HTML')

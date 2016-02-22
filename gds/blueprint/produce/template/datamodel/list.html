@@ -11,7 +11,7 @@
     <ul>
         {% for one in datamodels %}
             <li>
-                <a href="detail/{{one['_id']}}"><span>{{one["id"]}}&nbsp;&nbsp;&nbsp;&nbsp;</span><span>{{one["name"]}}&nbsp;&nbsp;&nbsp;&nbsp;</span><span>{{one["comment"]}}</span></a>
+                <a href="detail/{{one['_id']}}"><span>{{one['_id']}}&nbsp;&nbsp;&nbsp;&nbsp;</span><span>{{one["name"]}}&nbsp;&nbsp;&nbsp;&nbsp;</span><span>{{one["comment"]}}</span></a>
             </li>
         {% endfor %}
     </ul>

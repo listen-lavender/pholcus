@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
-
+import datetime
 from setting import baseorm, dataorm
 
 class MarkModel(dataorm.Model):
@@ -60,12 +60,8 @@ class Video(MarkModel):
     name = dataorm.StrField(ddl='str', comment='资源名称')
     desc = dataorm.StrField(ddl='str', comment='资源描述')
     cover = dataorm.StrField(ddl='str', comment='资源封面')
-    # director = dataorm.StrField(ddl='str')
-    # actor = dataorm.ListField(ddl='list')
-    # role = dataorm.ListField(ddl='list')
     author = dataorm.StrField(ddl='str', comment='资源作者')
     owner = dataorm.DictField(ddl='dict', comment='资源拥有者')
-    # url_type = dataorm.StrField(ddl='str')
     snum = dataorm.IntField(ddl='int', comment='资源序号')
     src = dataorm.StrField(ddl='str', comment='资源来源')
     host = dataorm.StrField(ddl='str', comment='资源域名')
@@ -89,7 +85,6 @@ class Audio(MarkModel):
     desc = dataorm.StrField(ddl='str', comment='资源描述')
     cover = dataorm.StrField(ddl='str', comment='资源封面')
     singer = dataorm.StrField(ddl='str', comment='资源歌手')
-    # url_type = dataorm.StrField(ddl='str')
     snum = dataorm.IntField(ddl='int', comment='资源序号')
     src = dataorm.StrField(ddl='str', comment='资源来源')
     host = dataorm.StrField(ddl='str', comment='资源域名')
@@ -109,15 +104,12 @@ class Comic(MarkModel):
     name = dataorm.StrField(ddl='str', comment='资源名称')
     desc = dataorm.StrField(ddl='str', comment='资源描述')
     cover = dataorm.StrField(ddl='str', comment='资源封面')
-    # director = dataorm.StrField(ddl='str')
-    # actor = dataorm.ListField(ddl='list')
-    # role = dataorm.ListField(ddl='list')
     author = dataorm.StrField(ddl='str', comment='资源作者')
     owner = dataorm.DictField(ddl='dict', comment='资源拥有者')
-    # url_type = dataorm.StrField(ddl='str')
     snum = dataorm.IntField(ddl='int', comment='资源序号')
     src = dataorm.StrField(ddl='str', comment='资源来源')
     host = dataorm.StrField(ddl='str', comment='资源域名')
+    relate_page = dataorm.DictField(ddl='dict', comment='相关资源页面id:url')
     page_url = dataorm.StrField(ddl='str', comment='资源原页面地址')
     page_id = dataorm.IntField(ddl='int', unique='data', updatable=False, comment='资源页面id')
     parent_page_id = dataorm.IntField(ddl='int', comment='资源父页面id')

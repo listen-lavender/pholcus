@@ -18,17 +18,8 @@ from webcrawl.handleRequest import ensureurl
 from webcrawl.handleRequest import parturl
 from proxyspider import Data
 from proxyspider import TIMEOUT
-from proxyspider import withData
-from proxyspider import DBCONN, RDB, WDB, initDB
+from proxyspider import withData, RDB, WDB
 from proxyspider import SpiderProxyOrigin
-
-try:
-    # from adesk.db import mongo_v2
-    # conn = mongo_v2.conn
-    # conn = MongoClient(host='localhost', port=27019)
-    conn = MongoClient('localhost')
-except:
-    conn = MongoClient('localhost')
 
 class SpiderXicidaili(SpiderProxyOrigin):
 
@@ -37,14 +28,11 @@ class SpiderXicidaili(SpiderProxyOrigin):
     """
 
     def __init__(self, worknum=30, queuetype='P', worktype='COROUTINE', timeout=-1, tid=0):
-        super(SpiderXicidaili, self).__init__(
-            worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout)
-        self.tid = tid
+        super(SpiderXicidaili, self).__init__(worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout, tid=tid)
         self.dt = datetime.now()
         self.headers = {
             'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.93 Safari/537.36'
         }
-        initDB()
 
     @store(withData(WDB), Data.insert, update=True, method='MANY')
     @timelimit(3)
