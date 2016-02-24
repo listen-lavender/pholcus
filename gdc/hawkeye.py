@@ -123,6 +123,7 @@ def setArticle(filepath, pinyin, host):
             name = name[1]
         else:
             name = name[0]
+        name = name.replace('-', '')
         article = Article.queryOne({'username':USER, 'secret':SECRET}, {'name':name, 'uid':unit['_id']})
         lines = []
         flows = []
