@@ -240,7 +240,7 @@ class Hash(baseorm.Model):
 class Permit(baseorm.Model):
     __table__ = 'grab_permit'
     cid = baseorm.IdField(unique='gp')
-    oid = baseorm.IdField(unique='gp')
+    oid = baseorm.IdField(unique='gp', default=None)
     otype = baseorm.StrField(ddl='varchar', max_length=50, nullable=0, updatable=False, unique='gp')
     authority = baseorm.IntField(ddl='int', max_length=3)
     desc = baseorm.StrField(ddl='char', max_length=4)

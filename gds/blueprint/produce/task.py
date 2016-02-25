@@ -39,10 +39,15 @@ def taskdetail(tid=None):
         if tid is None:
             task = {'_id':'', 'aid':'', 'sid':'', 'task_name':'', 'extra':'', 'type':'ONCE', 'period':0, 'flow':'', 'params':'', 'worknum':6, 'queuetype':'P', 'worktype':'THREAD', 'trace':0, 'timeout':30, 'category':'', 'push_url':'', 'pull_url':'', 'tag':'', 'current':True}
         else:
-            urlparas = dict(urlparse.parse_qsl(urlparse.urlparse(request.referrer).query))
+            if request.referrer is not None and request.referrer.startswith('http'):
+                urlparas = dict(urlparse.parse_qsl(urlparse.urlparse(request.referrer).query))
+            else:
+                urlparas = None
             projection = {'_id':1, 'aid':1, 'sid':1, 'name':1, 'extra':1, 'type':1, 'period':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'trace':1, 'timeout':1, 'category':1, 'push_url':1, 'tag':1, 'creator':1}
             task = Task.queryOne(user, {'_id':tid}, projection=projection)
             if task is None:
+                if urlparas is None:
+                    return redirect('/gds/a/login')
                 urlparas['alert'] = urllib.quote('你没有该任务的权限')
                 return redirect('%s?%s' % (request.referrer.split('?')[0], '&'.join('%s=%s' % (k, v) for k, v in urlparas.items())))
             task['task_name'] = task['name']
@@ -51,11 +56,11 @@ def taskdetail(tid=None):
             projection = {'filepath':1, 'uid':1}
             article = Article.queryOne(user, {'_id':task['aid']}, projection=projection)
             if article is None:
+                if urlparas is None:
+                    return redirect('/gds/a/login')
                 urlparas['alert'] = urllib.quote('你没有该任务的权限')
                 return redirect('%s?%s' % (request.referrer.split('?')[0], '&'.join('%s=%s' % (k, v) for k, v in urlparas.items())))
             projection = {'dirpath':1}
-            unit = Unit.queryOne({'_id':article['uid']}, projection=projection)
-            projection = {'val':1}
             config = Config.queryOne({'type':'ROOT', 'key':'dir'}, projection=projection)
             task['section_name'] = section['name']
             task['article_name'] = config['val'] + unit['dirpath'] + article['filepath']
