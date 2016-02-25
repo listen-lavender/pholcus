@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # coding=utf8
-import json, datetime, urllib
+import json, datetime, urllib, urlparse
 from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
-from flask import Blueprint, request, Response, render_template, g
+from flask import Blueprint, request, Response, render_template, g, redirect
 from views import produce
 from model.base import Task, Section, Article, Unit, Config, Permit, Creator
 from model.setting import baseorm
@@ -39,13 +39,20 @@ def taskdetail(tid=None):
         if tid is None:
             task = {'_id':'', 'aid':'', 'sid':'', 'task_name':'', 'extra':'', 'type':'ONCE', 'period':0, 'flow':'', 'params':'', 'worknum':6, 'queuetype':'P', 'worktype':'THREAD', 'trace':0, 'timeout':30, 'category':'', 'push_url':'', 'pull_url':'', 'tag':'', 'current':True}
         else:
+            urlparas = dict(urlparse.parse_qsl(urlparse.urlparse(request.referrer).query))
             projection = {'_id':1, 'aid':1, 'sid':1, 'name':1, 'extra':1, 'type':1, 'period':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'trace':1, 'timeout':1, 'category':1, 'push_url':1, 'tag':1, 'creator':1}
             task = Task.queryOne(user, {'_id':tid}, projection=projection)
+            if task is None:
+                urlparas['alert'] = urllib.quote('你没有该任务的权限')
+                return redirect('%s?%s' % (request.referrer.split('?')[0], '&'.join('%s=%s' % (k, v) for k, v in urlparas.items())))
             task['task_name'] = task['name']
             projection = {'name':1}
             section = Section.queryOne(user, {'_id':task['sid']}, projection=projection)
             projection = {'filepath':1, 'uid':1}
             article = Article.queryOne(user, {'_id':task['aid']}, projection=projection)
+            if article is None:
+                urlparas['alert'] = urllib.quote('你没有该任务的权限')
+                return redirect('%s?%s' % (request.referrer.split('?')[0], '&'.join('%s=%s' % (k, v) for k, v in urlparas.items())))
             projection = {'dirpath':1}
             unit = Unit.queryOne({'_id':article['uid']}, projection=projection)
             projection = {'val':1}

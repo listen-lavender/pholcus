@@ -53,3 +53,10 @@
         </div>
     </div>
 {% endblock %}
+{% block postjs %}
+    <script type="text/javascript">
+        var txt = parseurl('alert');
+        if(txt)
+            alert(decodeURIComponent(txt));
+    </script>
+{% endblock %}
