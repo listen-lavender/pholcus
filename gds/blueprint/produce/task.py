@@ -61,6 +61,8 @@ def taskdetail(tid=None):
                 urlparas['alert'] = urllib.quote('你没有该任务的权限')
                 return redirect('%s?%s' % (request.referrer.split('?')[0], '&'.join('%s=%s' % (k, v) for k, v in urlparas.items())))
             projection = {'dirpath':1}
+            unit = Unit.queryOne({'_id':article['uid']}, projection=projection)
+            projection = {'val':1}
             config = Config.queryOne({'type':'ROOT', 'key':'dir'}, projection=projection)
             task['section_name'] = section['name']
             task['article_name'] = config['val'] + unit['dirpath'] + article['filepath']
