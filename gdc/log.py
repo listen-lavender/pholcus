@@ -38,6 +38,7 @@ class Consumer(Daemon):
                 time.sleep(SLEEP)
             else:
                 data = logqueue.get()
+                data['atime'] =datetime.datetime.now()
                 RunLog.insert(RunLog(**data))
 
 def main():
