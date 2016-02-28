@@ -40,7 +40,14 @@ class ProxyLog(dataorm.Model):
     elapse = dataorm.FloatField(ddl='float')
     create_time = dataorm.DatetimeField(ddl='datetime')
 
-
+class RunLog(dataorm.Model):
+    __table__ = 'grab_runlog'
+    tid = baseorm.IdField(updatable=False)
+    sname = dataorm.StrField(ddl='varchar', max_length=20)
+    args = dataorm.StrField(ddl='varchar', max_length=20)
+    kwargs = dataorm.StrField(ddl='varchar', max_length=20)
+    txt = dataorm.StrField(ddl='varchar', max_length=20)
+    create_time = dataorm.DatetimeField(ddl='datetime')
 
 if __name__ == '__main__':
     pass
