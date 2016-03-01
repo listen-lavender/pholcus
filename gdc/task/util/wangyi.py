@@ -37,7 +37,18 @@ class RSA163(RSA):
             y = self.biToHex(a) if n['radix'] == 16 else self.biToString(a, n['radix'])
             o += y + " "
             i = i + n['chunkSize']
-        return o[0:len(o) - 1]    
+        return o[0:len(o) - 1]
+
+    """
+    function decryptedString(a, b) {
+        var e, f, g, h, c = b.split(" "),
+        d = "";
+        for (e = 0; e < c.length; ++e) 
+            for (h = 16 == a.radix ? biFromHex(c[e]) : biFromString(c[e], a.radix), g = a.barrett.powMod(h, a.d), f = 0; f <= biHighIndex(g); ++f) 
+                d += String.fromCharCode(255 & g.digits[f], g.digits[f] >> 8);
+        return 0 == d.charCodeAt(d.length - 1) && (d = d.substring(0, d.length - 1)), d
+    }
+    """
 
 
 def random_lenstr(length):
