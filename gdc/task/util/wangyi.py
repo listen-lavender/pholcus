@@ -47,6 +47,7 @@ def random_lenstr(length):
     while index < length:
         sentence += ori[int(random.random() * len(ori))]
         index = index + 1
+    # sentence = 'wsiuDrSHrFP6eP84'
     return sentence
 
 def pad(data):
@@ -72,9 +73,8 @@ def encrypt_163(content, userid=USERID, passwd=PASSWD, key=KEY):
 
 if __name__ == '__main__':
     import requests
-    content = '{"id":"23526199","ids":"[23526199]","csrf_token":""}'
-    result = requests.post('http://music.163.com/weapi/song/detail/', encrypt_163(content))
-    print result.content
+    content = '{"a":"hao","b":"kuan"}'
+    print encrypt_163(content)
     
 
 
