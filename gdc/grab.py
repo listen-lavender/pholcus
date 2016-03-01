@@ -119,16 +119,16 @@ def task():
                     weight = spider.weight(task['flow'], once=True)
                     section = spider.section(task['flow'], step)
                     if task['params'] is None or task['params'].strip() == '':
-                        workflow.task(weight, section, **{'additions':additions})
+                        workflow.task(weight, section, task['_id'], **{'additions':additions})
                     elif task['params'].startswith('{'):
-                        workflow.task(weight, section, **dict(json.loads(task['params']), **{'additions':additions}))
+                        workflow.task(weight, section, task['_id'], **dict(json.loads(task['params']), **{'additions':additions}))
                     elif task['params'].startswith('('):
-                        workflow.task(weight, section, *tuple(task['params'][1:-1].split(',')), **{'additions':additions})
+                        workflow.task(weight, section, task['_id'], *tuple(task['params'][1:-1].split(',')), **{'additions':additions})
                     else:
                         if task['index'] is None or task['index'].isdigit():
-                            workflow.task(weight, section, task['params'], **{'additions':additions})
+                            workflow.task(weight, section, task['_id'], task['params'], **{'additions':additions})
                         else:
-                            workflow.task(weight, section, **{task['index']:task['params'], 'additions':additions})
+                            workflow.task(weight, section, task['_id'], **{task['index']:task['params'], 'additions':additions})
                 else:
                     if task['params'] is None or task['params'].strip() == '':
                         spider.fetchDatas(task['flow'], step, **{'additions':additions})

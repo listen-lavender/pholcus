@@ -12,16 +12,18 @@ from Queue import Queue
 
 path = os.path.abspath('.')
 
-logqueue = Queue()
+q = Queue()
+
 
 class Producer(KokologHandler):
 
-    def __init__(self):
-        self._name = ''
+    def __init__(self, q):
+        self._name = 'koko'
+        self.q = q
         Handler.__init__(self)
 
     def emit(self, record):
-        logqueue.put(record.kwargs)
+        self.q.put(record.kwargs)
 
 
 hdr = Producer()
@@ -30,16 +32,20 @@ hdr.setFormatter(frt)
 CFG.handlers.append(hdr)
 
 
-class Consumer(Daemon):
+class Consumer(Thread):
+    def __init__(self, q):
+        super(Consumer, self).__init__()
+        self.q = q
 
     def _run(self):
         while True:
-            if logqueue.empty():
+            if self.q.empty():
                 time.sleep(SLEEP)
             else:
-                data = logqueue.get()
-                data['atime'] =datetime.datetime.now()
+                data = self.q.get()
+                data['atime'] = datetime.datetime.now()
                 RunLog.insert(RunLog(**data))
+
 
 def main():
     log = Consumer(os.path.join(path, 'log', 'log.pid'), stdout=os.path.join(
@@ -50,6 +56,7 @@ def main():
     else:
         print "Consumer start successfully."
         log.start()
+
 
 if __name__ == '__main__':
     main()
