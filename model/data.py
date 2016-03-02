@@ -115,7 +115,7 @@ class Comic(MarkModel):
     page_url = dataorm.StrField(ddl='str', comment='资源原页面地址')
     page_id = dataorm.IntField(ddl='int', unique='data', updatable=False, comment='资源页面id')
     parent_page_id = dataorm.IntField(ddl='int', comment='资源父页面id')
-    atime = dataorm.StrField(ddl='datetime', comment='资源来源时间')
+    atime = dataorm.DatetimeField(ddl='datetime', comment='资源来源时间')
     download = dataorm.BoolField(ddl='bool', comment='是否下载', default=False)
 
 if __name__ == '__main__':
