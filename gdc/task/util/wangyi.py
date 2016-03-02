@@ -14,6 +14,9 @@ USERID = trans(["流泪", "强"])
 PASSWD = trans(src)
 KEY = trans(["爱心", "女孩", "惊恐", "大笑"])
 
+def fromCharCode(*b):
+    return ''.join(chr(a) for a in b)
+
 class RSA163(RSA):
     def encryptedString(self, n, t):
         p = len(t)
@@ -38,18 +41,36 @@ class RSA163(RSA):
             o += y + " "
             i = i + n['chunkSize']
         return o[0:len(o) - 1]
+# function decryptedString(a, b) {
+#     var e, f, g, h, c = b.split(" "),
+#     d = "";
+#     for (e = 0; e < c.length; ++e)
+#     for (h = 16 == a.radix ? biFromHex(c[e]) : biFromString(c[e], a.radix), 
+#         g = a.barrett.powMod(h, a.d), f = 0; 
+#         f <= biHighIndex(g); ++f) 
+#     d += String.fromCharCode(255 & g.digits[f], g.digits[f] >> 8);
+#     return 0 == d.charCodeAt(d.length - 1) && (d = d.substring(0, d.length - 1)),
+#     d
+# }
 
-    """
-    function decryptedString(a, b) {
-        var e, f, g, h, c = b.split(" "),
-        d = "";
-        for (e = 0; e < c.length; ++e) 
-            for (h = 16 == a.radix ? biFromHex(c[e]) : biFromString(c[e], a.radix), g = a.barrett.powMod(h, a.d), f = 0; f <= biHighIndex(g); ++f) 
-                d += String.fromCharCode(255 & g.digits[f], g.digits[f] >> 8);
-        return 0 == d.charCodeAt(d.length - 1) && (d = d.substring(0, d.length - 1)), d
-    }
-    """
-
+    def decryptedString(self, n, t):
+        e = 0
+        c = t
+        d = ""
+        while e < len(c):
+            if n['radix'] == 16:
+                h = self.biFromHex(c[e])
+            else:
+                h = self.biFromString(c[e], n['radix'])
+            g = n['barrett']['powMod'](n['barrett'], h, n['d'])
+            f = 0
+            while f <= self.biHighIndex(g):
+                d = d + fromCharCode(255 & g['digits'][f], g['digits'][f] >> 8)
+                f = f + 1
+            e = e + 1
+        if 0 == ord(d[len(d) - 1]):
+            d = d[:len(d) - 1]
+        return d
 
 def random_lenstr(length):
     ori = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -72,7 +93,11 @@ def encrypt_crypto(sentence, key):
 def encrypt_rsa(sentence, userid, passwd):
     rsa = RSA163()
     ab = rsa.RSAKeyPair(userid, "", passwd)
-    return rsa.encryptedString(ab, sentence)
+    print '>>>>', sentence
+    c = rsa.encryptedString(ab, sentence)
+    print ab['barrett']
+    print rsa.decryptedString(ab, c)
+    return c
 
 def encrypt_163(content, userid=USERID, passwd=PASSWD, key=KEY):
     result = {}
