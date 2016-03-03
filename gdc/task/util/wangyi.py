@@ -10,7 +10,8 @@ desc = {"色":"00e0b","流感":"509f6","这边":"259df","弱":"8642d","嘴唇":"
 def trans(codes):
     return ''.join(desc[one] for one in codes)
 
-USERID = trans(["流泪", "强"]) 
+PUB = trans(["流泪", "强"])
+PRI = trans(["憨笑", "弱"])
 PASSWD = trans(src)
 KEY = trans(["爱心", "女孩", "惊恐", "大笑"])
 
@@ -55,7 +56,7 @@ class RSA163(RSA):
 
     def decryptedString(self, n, t):
         e = 0
-        c = t
+        c = t.split(' ')
         d = ""
         while e < len(c):
             if n['radix'] == 16:
@@ -92,14 +93,14 @@ def encrypt_crypto(sentence, key):
 
 def encrypt_rsa(sentence, userid, passwd):
     rsa = RSA163()
-    ab = rsa.RSAKeyPair(userid, "", passwd)
-    print '>>>>', sentence
+    ab = rsa.RSAKeyPair(PUB, PRI, passwd)
+    sentence = '4iLCZMe8op5jkcc9'
+    print '>>>>', sentence, PUB, PRI
     c = rsa.encryptedString(ab, sentence)
-    print ab['barrett']
     print rsa.decryptedString(ab, c)
     return c
 
-def encrypt_163(content, userid=USERID, passwd=PASSWD, key=KEY):
+def encrypt_163(content, userid=PUB, passwd=PASSWD, key=KEY):
     result = {}
     sentence = random_lenstr(16)
     result['encText'] = encrypt_crypto(content, key)

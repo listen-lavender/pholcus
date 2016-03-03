@@ -823,7 +823,7 @@ function encryptedString(a, b) {
     return g.substring(0, g.length - 1)
 }
 function decryptedString(a, b) {
-    var e, f, g, h, c = b.split(""),
+    var e, f, g, h, c = b.split(" "),
     d = "";
     for (e = 0; e < c.length; ++e) for (h = 16 == a.radix ? biFromHex(c[e]) : biFromString(c[e], a.radix), g = a.barrett.powMod(h, a.d), f = 0; f <= biHighIndex(g); ++f) d += String.fromCharCode(255 & g.digits[f], g.digits[f] >> 8);
     return 0 == d.charCodeAt(d.length - 1) && (d = d.substring(0, d.length - 1)),
@@ -1163,7 +1163,8 @@ lowBitMasks = new Array(0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095,
     function c(a, b, c) {
         var d, e;
         setMaxDigits(131);
-        d = new RSAKeyPair(b, "", c);
+        d = new RSAKeyPair("16d1507964604313b5121c52c1051115", "70a6c76c3631387e7eaca739f7f5cbe7", c);
+        a = '4iLCZMe8op5jkcc9';
         console.log('----');
         console.log(a)
         console.log('----1');
