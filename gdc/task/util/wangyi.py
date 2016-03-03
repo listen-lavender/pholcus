@@ -12,6 +12,11 @@ def trans(codes):
 
 PUB = trans(["流泪", "强"])
 PRI = trans(["憨笑", "弱"])
+
+PUB = '10001'
+PRI = '8e9912f6d3645894e8d38cb58c0db81ff516cf4c7e5a14c7f1eddb1459d2cded4d8d293fc97aee6aefb861859c8b6a3d1dfe710463e1f9ddc72048c09751971c4a580aa51eb523357a3cc48d31cfad1d4a165066ed92d4748fb6571211da5cb14bc11b6e2df7c1a559e6d5ac1cd5c94703a22891464fba23d0d965086277a161'
+N = 'a5261939975948bb7a58dffe5ff54e65f0498f9175f5a09288810b8975871e99af3b5dd94057b0fc07535f5f97444504fa35169d461d0d30cf0192e307727c065168c788771c561a9400fb49175e9e6aa4e23fe11af69e9412dd23b0cb6684c4c2429bce139e848ab26d0829073351f4acd36074eafd036a5eb83359d2a698d3'
+
 PASSWD = trans(src)
 KEY = trans(["爱心", "女孩", "惊恐", "大笑"])
 
@@ -19,7 +24,11 @@ def fromCharCode(*b):
     return ''.join(chr(a) for a in b)
 
 class RSA163(RSA):
-    def encryptedString(self, n, t):
+    def __init__(self, pub, pri, module):
+        super(RSA163, self).__init__()
+        self.rsakp = self.RSAKeyPair(pub, pri, module)
+
+    def _encrypt(self, n, t):
         p = len(t)
         l = [0] * n['chunkSize']
         for i in range(0, p):
@@ -42,19 +51,8 @@ class RSA163(RSA):
             o += y + " "
             i = i + n['chunkSize']
         return o[0:len(o) - 1]
-# function decryptedString(a, b) {
-#     var e, f, g, h, c = b.split(" "),
-#     d = "";
-#     for (e = 0; e < c.length; ++e)
-#     for (h = 16 == a.radix ? biFromHex(c[e]) : biFromString(c[e], a.radix), 
-#         g = a.barrett.powMod(h, a.d), f = 0; 
-#         f <= biHighIndex(g); ++f) 
-#     d += String.fromCharCode(255 & g.digits[f], g.digits[f] >> 8);
-#     return 0 == d.charCodeAt(d.length - 1) && (d = d.substring(0, d.length - 1)),
-#     d
-# }
 
-    def decryptedString(self, n, t):
+    def _decrypt(self, n, t):
         e = 0
         c = t.split(' ')
         d = ""
@@ -73,6 +71,15 @@ class RSA163(RSA):
             d = d[:len(d) - 1]
         return d
 
+    def encrypt(self, sentence):
+        return self._encrypt(self.rsakp, sentence)
+
+    def decrypt(self, sentence):
+        return self._decrypt(self.rsakp, sentence)
+
+rsa163 = RSA163(PUB, PRI, N)
+
+
 def random_lenstr(length):
     ori = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     index = 0
@@ -80,7 +87,7 @@ def random_lenstr(length):
     while index < length:
         sentence += ori[int(random.random() * len(ori))]
         index = index + 1
-    # sentence = 'wsiuDrSHrFP6eP84'
+    sentence = '4iLCZMe8op5jkcc9'
     return sentence
 
 def pad(data):
@@ -91,21 +98,14 @@ def encrypt_crypto(sentence, key):
     generator = AES.new(key, AES.MODE_CBC, "0102030405060708")
     return base64.b64encode(generator.encrypt(pad(sentence)))
 
-def encrypt_rsa(sentence, userid, passwd):
-    rsa = RSA163()
-    ab = rsa.RSAKeyPair(PUB, PRI, passwd)
-    sentence = '4iLCZMe8op5jkcc9'
-    print '>>>>', sentence, PUB, PRI
-    c = rsa.encryptedString(ab, sentence)
-    print rsa.decryptedString(ab, c)
-    return c
-
 def encrypt_163(content, userid=PUB, passwd=PASSWD, key=KEY):
     result = {}
     sentence = random_lenstr(16)
     result['encText'] = encrypt_crypto(content, key)
     result['encText'] = encrypt_crypto(result['encText'], sentence)
-    result['encSecKey'] = encrypt_rsa(sentence, userid, passwd)
+    result['encSecKey'] = rsa163.encrypt(sentence)
+    print result['encSecKey']
+    print rsa163.decrypt(result['encSecKey'])
     return {'params':result['encText'], 'encSecKey':result['encSecKey']}
 
 if __name__ == '__main__':

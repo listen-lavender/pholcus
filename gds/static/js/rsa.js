@@ -1163,13 +1163,13 @@ lowBitMasks = new Array(0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095,
     function c(a, b, c) {
         var d, e;
         setMaxDigits(131);
-        d = new RSAKeyPair("16d1507964604313b5121c52c1051115", "70a6c76c3631387e7eaca739f7f5cbe7", c);
+        PUB = '10001';
+        PRI = '8e9912f6d3645894e8d38cb58c0db81ff516cf4c7e5a14c7f1eddb1459d2cded4d8d293fc97aee6aefb861859c8b6a3d1dfe710463e1f9ddc72048c09751971c4a580aa51eb523357a3cc48d31cfad1d4a165066ed92d4748fb6571211da5cb14bc11b6e2df7c1a559e6d5ac1cd5c94703a22891464fba23d0d965086277a161';
+        N = 'a5261939975948bb7a58dffe5ff54e65f0498f9175f5a09288810b8975871e99af3b5dd94057b0fc07535f5f97444504fa35169d461d0d30cf0192e307727c065168c788771c561a9400fb49175e9e6aa4e23fe11af69e9412dd23b0cb6684c4c2429bce139e848ab26d0829073351f4acd36074eafd036a5eb83359d2a698d3';
+        d = new RSAKeyPair(PUB, PRI, N);
         a = '4iLCZMe8op5jkcc9';
-        console.log('----');
-        console.log(a)
-        console.log('----1');
         e = encryptedString(d, a);
-        console.log('----');
+        console.log(e);
         console.log(decryptedString(d, e))
         console.log('----2');
         return e
