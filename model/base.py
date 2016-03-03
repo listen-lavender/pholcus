@@ -311,6 +311,19 @@ class Unit(baseorm.Model):
     update_time = baseorm.DatetimeField(ddl='timestamp')
 
 
+class Node(baseorm.Model):
+    __table__ = 'grab_node'
+    dmid = baseorm.IdField()
+    ip = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='gn')
+    port = baseorm.IntField(ddl='int', max_length=6)
+    status = baseorm.IntField(ddl='int', max_length=1)
+    extra = baseorm.StrField(ddl='varchar', max_length=300, default=None)
+    creator = baseorm.IdField(updatable=False)
+    updator = baseorm.IdField()
+    create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
+    update_time = baseorm.DatetimeField(ddl='timestamp')
+
+
 class Waycon(baseorm.Model):
     __table__ = 'grab_waycon'
     name = baseorm.StrField(ddl='varchar', max_length=50, nullable=0, updatable=False, unique='gw')
