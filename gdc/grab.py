@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
+import copy
 import time, datetime
 import sys, json, requests
 import random
@@ -11,9 +12,13 @@ from model.base import Task, Section, Article, Unit
 from model.log import ProxyLog, Statistics, Log
 from model.data import Proxy
 from webcrawl.handleRequest import PROXY
-from webcrawl.work import Workflows
-from setting import USER, SECRET
+from webcrawl.work import Workflows, DataQueue
+from setting import USER, SECRET, DQ
 import task
+
+DataQueue.redis = copy.deepcopy(DQ['redis'])
+del DataQueue.redis['log']
+DataQueue.beanstalkd = copy.deepcopy(DQ['beanstalkd'])
 
 LIMIT = 600
 
