@@ -23,7 +23,16 @@ class Producer(KokologHandler):
         Handler.__init__(self)
 
     def emit(self, record):
-        self.q.put(record.kwargs)
+        data = {'tid':record.kwargs['tid'], 
+            'sid':record.kwargs['sid'],
+            'sname':record.kwargs['sname'],
+            'priority':record.kwargs['priority'],
+            'times':record.kwargs['times'],
+            'args':record.kwargs['args'],
+            'kwargs':record.kwargs['kwargs'],
+            'txt':record.kwargs['txt'],
+        }
+        self.q.put(data)
 
 
 hdr = Producer()

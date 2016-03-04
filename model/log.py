@@ -43,6 +43,7 @@ class ProxyLog(dataorm.Model):
 class RunLog(dataorm.Model):
     __table__ = 'grab_runlog'
     tid = baseorm.IdField(updatable=False)
+    sid = dataorm.StrField(ddl='varchar', max_length=30)
     sname = dataorm.StrField(ddl='varchar', max_length=20)
     priority = dataorm.IntField(ddl='int', max_length=5)
     times = dataorm.IntField(ddl='int', max_length=2)
