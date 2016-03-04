@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
-import time, datetime
+import time, datetime, copy
 import sys, json, requests
 import random
 import traceback
@@ -11,9 +11,15 @@ from model.base import Task, Section, Article, Unit
 from model.log import ProxyLog, Statistics, Log
 from model.data import Proxy
 from webcrawl.handleRequest import PROXY
-from webcrawl.work import Workflows
+from webcrawl.work import Workflows, DataQueue
 from setting import USER, SECRET
+from log import Producer
+from setting import DQ
 import task
+
+dq = copy.deepcopy(DQ)
+del dq['redis']['log']
+DataQueue.update(**dq)
 
 LIMIT = 600
 
@@ -104,7 +110,7 @@ def task():
                     spider = cls(worknum=20, queuetype='R', worktype='THREAD', tid=int(task['_id']))
                     local_spider[cls_name] = spider
             else:
-                spider = cls(worknum=6, queuetype='P', worktype='THREAD', tid=int(task['_id']))
+                spider = cls(worknum=task['worknum'], queuetype=task['queuetype'], worktype=task['worktype'], tid=int(task['_id']))
             try:
                 changestate(task['_id'], 2)
                 step = task.get('step', 1) - 1

@@ -13,14 +13,14 @@ class PeriodMonitor(Daemon):
         task()
 
 def main():
-    moni = PeriodMonitor(os.path.join(path, 'log', 'moni.pid'), stdout=os.path.join(
-        path, 'log', 'moni.out'), stderr=os.path.join(path, 'log', 'moni.err'))
-    if os.path.exists(os.path.join(path, 'log', 'moni.pid')):
+    pmoni = PeriodMonitor(os.path.join(path, 'log', 'pmoni.pid'), stdout=os.path.join(
+        path, 'log', 'pmoni.out'), stderr=os.path.join(path, 'log', 'pmoni.err'))
+    if os.path.exists(os.path.join(path, 'log', 'pmoni.pid')):
         print "PeriodMonitor stop successfully."
-        moni.stop()
+        pmoni.stop()
     else:
         print "PeriodMonitor start successfully."
-        moni.start()
+        pmoni.start()
 
 if __name__ == '__main__':
     main()
