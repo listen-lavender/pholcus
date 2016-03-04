@@ -2,24 +2,25 @@
 # coding=utf-8
 
 import os, sys
+import cPickle as pickle
 sys.path.append('../')
 
 from webcrawl.daemon import Daemon
 from kokolog import KokologHandler, logging
 from kokolog.prettyprint import CFG
 from model.log import RunLog
-from Queue import Queue
+from webcrawl.daemon import Daemon
+from setting import DQ
 
 path = os.path.abspath('.')
-
-q = Queue()
 
 
 class Producer(KokologHandler):
 
-    def __init__(self, q):
+    def __init__(self, queue_config=DQ['redis']['log']):
         self._name = 'koko'
-        self.q = q
+        self.q = redis.StrictRedis(**{'host':queue_config['host'], 'port':queue_config['port'], 'db':queue_config['db']})
+        self.tube = queue_config['tube']
         Handler.__init__(self)
 
     def emit(self, record):
@@ -31,8 +32,8 @@ class Producer(KokologHandler):
             'args':record.kwargs['args'],
             'kwargs':record.kwargs['kwargs'],
             'txt':record.kwargs['txt'],
-        }
-        self.q.put(data)
+        }        
+        self.q.put(pickle.dumps(data))
 
 
 hdr = Producer()
@@ -56,16 +57,25 @@ class Consumer(Thread):
                 RunLog.insert(RunLog(**data))
 
 
-def main():
-    log = Consumer(os.path.join(path, 'log', 'log.pid'), stdout=os.path.join(
-        path, 'log', 'log.out'), stderr=os.path.join(path, 'log', 'log.err'))
-    if os.path.exists(os.path.join(path, 'log', 'log.pid')):
-        print "Consumer stop successfully."
-        log.stop()
-    else:
-        print "Consumer start successfully."
-        log.start()
+from webcrawl.daemon import Daemon
+from grab import task
 
+path = os.path.abspath('.')
+
+class PeriodMonitor(Daemon):
+
+    def _run(self):
+        task()
+
+def main():
+    moni = PeriodMonitor(os.path.join(path, 'log', 'moni.pid'), stdout=os.path.join(
+        path, 'log', 'moni.out'), stderr=os.path.join(path, 'log', 'moni.err'))
+    if os.path.exists(os.path.join(path, 'log', 'moni.pid')):
+        print "PeriodMonitor stop successfully."
+        moni.stop()
+    else:
+        print "PeriodMonitor start successfully."
+        moni.start()
 
 if __name__ == '__main__':
     main()

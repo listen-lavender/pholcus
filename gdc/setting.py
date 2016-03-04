@@ -16,6 +16,7 @@ DQ = {
             'port':6379,
             'db':0,
             'tube':'pholcus-log',
+            'worker':10
         }
     },
     'beanstalkd':{

@@ -93,7 +93,7 @@ def changestate(tid, status, extra=None):
     Task.update({'username':USER, 'secret':SECRET}, {'_id':tid}, {'status':status})
 
 def task():
-    workflow = Workflows(6, 'R', 'THREAD')
+    workflow = Workflows(20, 'R', 'THREAD')
     workflow.start()
     last_stat = datetime.datetime.now()
     local_spider = {}
@@ -109,7 +109,7 @@ def task():
                     spider = cls(worknum=20, queuetype='R', worktype='THREAD', tid=int(task['_id']))
                     local_spider[cls_name] = spider
             else:
-                spider = cls(worknum=6, queuetype='P', worktype='THREAD', tid=int(task['_id']))
+                spider = cls(worknum=task['worknum'], queuetype=task['queuetype'], worktype=task['worktype'], tid=int(task['_id']))
             try:
                 changestate(task['_id'], 2)
                 step = task.get('step', 1) - 1

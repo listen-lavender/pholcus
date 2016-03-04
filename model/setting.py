@@ -20,7 +20,7 @@ MAXSIZE = 1000
 _DBCONN = {"mysql":{"host": "127.0.0.1",
                 "port": 3306,
                 "user": "root",
-                "passwd": "",
+                "passwd": "tian8442yi08",
                 "db": "pholcus",
                 "charset": "utf8",
                 "use_unicode":False,},
