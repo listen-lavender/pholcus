@@ -5,7 +5,6 @@ import os, sys, redis, time, datetime
 import cPickle as pickle
 sys.path.append('../')
 
-from webcrawl.daemon import Daemon
 from kokolog import KokologHandler, logging
 from kokolog.prettyprint import CFG
 from model.log import RunLog
@@ -24,7 +23,6 @@ class Producer(KokologHandler):
         self._name = 'koko'
         self.tube = config['tube']
         self.q = redis.StrictRedis(host=config['host'], port=config['port'], db=config['db'])
-
 
     def emit(self, record):
         data = {'tid':record.kwargs['tid'], 
@@ -77,6 +75,7 @@ class LogMonitor(Daemon):
 
 
 def main():
+
     lmoni = LogMonitor(os.path.join(path, 'log', 'lmoni.pid'), stdout=os.path.join(
         path, 'log', 'lmoni.out'), stderr=os.path.join(path, 'log', 'lmoni.err'))
     if os.path.exists(os.path.join(path, 'log', 'lmoni.pid')):

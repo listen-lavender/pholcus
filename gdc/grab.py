@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
+
 import time, datetime, copy
 import sys, json, requests
 import random
@@ -12,9 +13,9 @@ from model.log import ProxyLog, Statistics, Log
 from model.data import Proxy
 from webcrawl.handleRequest import PROXY
 from webcrawl.work import Workflows, DataQueue
-from setting import USER, SECRET
+
+from setting import USER, SECRET, DQ
 from log import Producer
-from setting import DQ
 import task
 
 dq = copy.deepcopy(DQ)
@@ -94,7 +95,7 @@ def changestate(tid, status, extra=None):
     Task.update({'username':USER, 'secret':SECRET}, {'_id':tid}, {'status':status})
 
 def task():
-    workflow = Workflows(6, 'R', 'THREAD')
+    workflow = Workflows(20, 'R', 'THREAD')
     workflow.start()
     last_stat = datetime.datetime.now()
     local_spider = {}
