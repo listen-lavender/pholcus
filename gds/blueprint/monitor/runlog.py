@@ -13,7 +13,7 @@ from model.log import RunLog
 @monitor.route('/task/runlog/<tid>', methods=['GET', 'POST'])
 @withBase(RDB, resutype='DICT', autocommit=True)
 @withData(RDB)
-def runlog(tid):
+def taskrunlog(tid):
     if request.method == 'GET':
         user = request.user
     else:
@@ -56,6 +56,6 @@ def runlog(tid):
         for c in dc:
             one[c] = json.dumps(one[c], ensure_ascii=False)
     if request.method == 'GET':
-        return render_template('task/data.html', appname=g.appname, user=user, title=model['name'], columns=columns, rows=logs, pagetotal=pagetotal, page=page, total=total, count=count)
+        return render_template('task/runlog.html', appname=g.appname, user=user, title=model['name'], columns=columns, rows=logs, pagetotal=pagetotal, page=page, total=total, count=count)
     else:
         return json.dumps({'stat':1, 'desc':'success', 'logs':logs, 'pagetotal':pagetotal, 'page':page, 'total':total, 'count':count}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
