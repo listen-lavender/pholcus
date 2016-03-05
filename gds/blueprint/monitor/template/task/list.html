@@ -53,6 +53,7 @@
             <a href="time/detail/{{one['_id']}}"><span style="margin-left:20px;">耗时统计</span></a>
             <a href="count/detail/{{one['_id']}}"><span style="margin-left:20px;">数量统计</span></a>
             <a href="data/{{one['_id']}}"><span style="margin-left:20px;">查看数据</span></a>
+            <a href="runlog/{{one['_id']}}"><span style="margin-left:20px;">查看bug</span></a>
             <span style="margin-left:20px;">最大抓取量-{{one['max']}}</span>
             <span id="status_{{loop.index}}" style="margin-left:20px;">{{one['status_desc']}}</span>
             {% if one['change'] %}

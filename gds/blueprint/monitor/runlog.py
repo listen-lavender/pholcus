@@ -2,26 +2,24 @@
 # coding=utf8
 import json, urlparse
 import time, datetime
+from bson import ObjectId
 from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
+from model.setting import baseorm
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import monitor
-from model.base import Task
 from model.log import RunLog
 
 
-@monitor.route('/task/runlog/<tid>', methods=['GET', 'POST'])
-@withBase(RDB, resutype='DICT', autocommit=True)
-@withData(RDB)
+@monitor.route('/task/runlog/<tid>', methods=['GET'])
+@withData(RDB, resutype='DICT')
 def taskrunlog(tid):
-    if request.method == 'GET':
-        user = request.user
-    else:
-        user = {}
+    user = request.user
     pagetotal = int(request.args.get('pagetotal', 10))
     page = int(request.args.get('page', 1))
     total = int(request.args.get('total', 0))
     count = (total - 1)/pagetotal + 1
+    tid = baseorm.IdField.verify(tid)
     logs = RunLog.queryAll({'tid':tid}, sort=[('_id', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     if total == 0:
         total = logs.count()
@@ -55,7 +53,4 @@ def taskrunlog(tid):
             one[c] = ','.join([str(item) for item in one[c]])
         for c in dc:
             one[c] = json.dumps(one[c], ensure_ascii=False)
-    if request.method == 'GET':
-        return render_template('task/runlog.html', appname=g.appname, user=user, title=model['name'], columns=columns, rows=logs, pagetotal=pagetotal, page=page, total=total, count=count)
-    else:
-        return json.dumps({'stat':1, 'desc':'success', 'logs':logs, 'pagetotal':pagetotal, 'page':page, 'total':total, 'count':count}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+    return render_template('task/runlog.html', appname=g.appname, user=user, title='RunLog', columns=columns, rows=logs, pagetotal=pagetotal, page=page, total=total, count=count)

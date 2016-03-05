@@ -65,7 +65,10 @@ def login():
     user = Creator.queryOne({}, {'username':username, 'password':password, 'status':{'$ne':0}})
     if user is not None:
         user = {'name':user['username'], '_id':str(user['_id']), 'status':user['status'], 'group':user['group']}
-        response = make_response(redirect('/gds/m/task/list'))
+        if user['group'] == 'developer':
+            response = make_response(redirect('/gds/m/task/activity'))
+        else:
+            response = make_response(redirect('/gds/m/task/list'))
         sid = str(uuid.uuid4())
         session[sid] = user
         response.set_cookie('sid', sid)

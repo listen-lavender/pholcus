@@ -9,6 +9,7 @@ from kokolog import KokologHandler, logging
 from kokolog.prettyprint import CFG
 from model.log import RunLog
 from webcrawl.daemon import Daemon
+from model.setting import baseorm
 from model.setting import withBase, withData, RDB, WDB, DQ, LOGWORKERNUM, LOGSTATUS
 from threading import Thread
 
@@ -24,7 +25,7 @@ class Producer(KokologHandler):
         self.q = redis.StrictRedis(host=config['host'], port=config['port'], db=config['db'])
 
     def emit(self, record):
-        data = {'tid':record.kwargs['tid'], 
+        data = {'tid':baseorm.IdField.verify(record.kwargs['tid']), 
             'sid':record.kwargs['sid'],
             'type':record.kwargs['type'],
             'status':record.kwargs['status'],
@@ -62,6 +63,8 @@ class Consumer(Thread):
                 time.sleep(10)
             else:
                 data = self.q.lpop(self.tube)
+                if data is None:
+                    continue
                 data = pickle.loads(data)
                 data['atime'] = datetime.datetime.now()
                 record(data)

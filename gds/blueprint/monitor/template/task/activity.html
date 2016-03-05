@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{% block meta %}
+    <meta http-equiv="refresh" content="3"/>
+{% endblock %}
 {% block precss %}
     <style type="text/css">
     </style>
@@ -9,28 +12,31 @@
 {% endblock %}
 {% block content %}
     <div class="ui sizer vertical segment" style="font-size: 20px; text-align: center;">
-        <div class="ui large header">任务数据</div>
+        <div class="ui large header">活动任务</div>
     </div>
     <table>
         <caption style="font-size:20px;">{{title}}</caption>
         <thead>
             <tr>
-                {% for one in columns %}
-                    <th>{{one}}</th>
-                {% endfor %}
-                
+                <th>tid</th>
+                <th>sid</th>
+                <th>priority</th>
+                <th>methodId</th>
+                <th>times</th>
+                <th>args</th>
+                <th>kwargs</th>
             </tr>
         </thead>
         <tbody>
-            {% for row in rows %}
+            {% for one in tasks %}
                 <tr>
-                    {% for col in columns %}
-                        {% if row[col] is string and row[col].startswith('http') %}
-                            <td style="padding-right:10px;"><a href="{{row[col]}}">{{row[col]}}</a></td>
-                        {% else %}
-                            <td style="padding-right:10px;">{{row[col]}}</td>
-                        {% endif %}
-                    {% endfor %}
+                    <td style="padding-right:10px;">{{one['tid']}}</td>
+                    <td style="padding-right:10px;">{{one['sid']}}</td>
+                    <td style="padding-right:10px;">{{one['priority']}}</td>
+                    <td style="padding-right:10px;">{{one['methodId']}}</td>
+                    <td style="padding-right:10px;">{{one['times']}}</td>
+                    <td style="padding-right:10px;">{{one['args']}}</td>
+                    <td style="padding-right:10px;">{{one['kwargs']}}</td>
                 </tr>
             {% endfor %}
         </tbody>

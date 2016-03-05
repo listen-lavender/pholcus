@@ -9,6 +9,8 @@ monitor = Blueprint('monitor', __name__, template_folder='template')
 
 from task import *
 from data import *
+from activity import *
+from runlog import *
 
 @monitor.route('/index', methods=['GET'])
 def index():
