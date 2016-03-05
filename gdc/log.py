@@ -27,6 +27,8 @@ class Producer(KokologHandler):
     def emit(self, record):
         data = {'tid':record.kwargs['tid'], 
             'sid':record.kwargs['sid'],
+            'type':record.kwargs['type'],
+            'status':record.kwargs['status'],
             'sname':record.kwargs['sname'],
             'priority':record.kwargs['priority'],
             'times':record.kwargs['times'],
