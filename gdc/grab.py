@@ -7,14 +7,14 @@ import random
 import traceback
 sys.path.append('../')
 
-from model.setting import withBase, withData, RDB, WDB
+from model.setting import withBase, withData, RDB, WDB, DQ
 from model.base import Task, Section, Article, Unit
 from model.log import ProxyLog, Statistics, Log
 from model.data import Proxy
 from webcrawl.handleRequest import PROXY
 from webcrawl.work import Workflows, DataQueue
 
-from setting import USER, SECRET, DQ
+from setting import USER, SECRET
 from log import Producer
 import task
 

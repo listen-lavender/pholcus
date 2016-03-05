@@ -20,7 +20,7 @@ MAXSIZE = 1000
 _DBCONN = {"mysql":{"host": "127.0.0.1",
                 "port": 3306,
                 "user": "root",
-                "passwd": "tian8442yi08",
+                "passwd": "",
                 "db": "pholcus",
                 "charset": "utf8",
                 "use_unicode":False,},
@@ -28,7 +28,7 @@ _DBCONN = {"mysql":{"host": "127.0.0.1",
                 "port": 27017,
                 "user": "root",
                 "passwd": "",
-                "db": "dandan-jiang",
+                "db": "pholcus",
                 "charset": "utf8",
                 "use_unicode":False,},
             }
@@ -43,3 +43,25 @@ withBase = withMysql
 withData = withMongo
 base = ms_dbpc
 data = mg_dbpc
+
+DQ = {
+    'redis':{
+        'host':'localhost',
+        'port':6379,
+        'db':0,
+        'tube':'pholcus-task',
+        'log':{
+            'host':'localhost',
+            'port':6379,
+            'db':0,
+            'tube':'pholcus-log',
+        }
+    },
+    'beanstalkd':{
+        'host':'localhost',
+        'port':11300,
+        'tube':'pholcus-task',
+    }
+}
+LOGWORKERNUM = 6
+LOGSTATUS = [0, 1]

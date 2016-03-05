@@ -9,9 +9,8 @@ from kokolog import KokologHandler, logging
 from kokolog.prettyprint import CFG
 from model.log import RunLog
 from webcrawl.daemon import Daemon
-from model.setting import withBase, withData, RDB, WDB
+from model.setting import withBase, withData, RDB, WDB, DQ, LOGWORKERNUM, LOGSTATUS
 from threading import Thread
-from setting import DQ, LOGWORKERNUM
 
 path = os.path.abspath('.')
 
@@ -36,7 +35,8 @@ class Producer(KokologHandler):
             'kwargs':record.kwargs['kwargs'],
             'txt':record.kwargs['txt'],
         }
-        self.q.rpush(self.tube, pickle.dumps(data))
+        if data['status'] in LOGSTATUS:
+            self.q.rpush(self.tube, pickle.dumps(data))
 
 
 hdr = Producer(**DQ['redis']['log'])
