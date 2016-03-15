@@ -144,10 +144,10 @@
         <div id="tasktype" class="ui selection dropdown" tabindex="0">
             <input type="hidden" id="type" value="{{task['type']|default('', 'ONCE')}}">
             <i class="dropdown icon"></i>
-            <div class="default text">{{task['type_name']|default('', '临时')}}</div>
+            <div class="default text">{{task['type_name']|default('', '临时任务')}}</div>
             <div id="tmenu" class="menu">
-                <div class="item" data-value="ONCE">临时</div>
-                <div class="item" data-value="FOREVER">周期</div>
+                <div class="item" data-value="ONCE">临时任务</div>
+                <div class="item" data-value="FOREVER">周期任务</div>
             </div>
         </div>
     </div>

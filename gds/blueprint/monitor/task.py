@@ -10,6 +10,7 @@ from model.base import Task
 from model.log import Statistics
 
 STATDESC = {0:'stopped', 1:'started', 2:'running', 3:'error'}
+EXETYPE = {'ONCE':'临时任务', 'FOREVER':'周期任务'}
 
 @monitor.route('/task/list', methods=['GET'])
 @withBase(RDB, resutype='DICT')
@@ -27,6 +28,7 @@ def tasklist():
         one['change'] = (one['status'] in (0, 1, 2) and one['type'] == 'FOREVER') or (one['status'] in (0, 1) and one['type'] == 'ONCE')
         one['status_desc'] = STATDESC.get(one['status'], '')
         one['max'] = (Statistics.queryOne({'tid':one['_id']}, projection={'succ':1}, sort=[('succ', -1)]) or {'succ':0})['succ']
+        one['type_name'] = EXETYPE.get(one['type'], '')
     return render_template('task/list.html', appname=g.appname, user=user, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @monitor.route('/task/time/detail/<tid>', methods=['GET'])

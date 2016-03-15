@@ -11,7 +11,7 @@ from model.setting import baseorm
 QUEUETYPE = {'P':'本地队列', 'B':'beanstalk队列'}
 WORKTYPE = {'THREAD':'线程', 'COROUTINE':'协程'}
 TRACE = {0:'否', 1:'是'}
-EXETYPE = {'ONCE':'临时', 'FOREVER':'周期'}
+EXETYPE = {'ONCE':'临时任务', 'FOREVER':'周期任务'}
 
 
 @produce.route('/task/list', methods=['GET'])

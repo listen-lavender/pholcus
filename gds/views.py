@@ -107,14 +107,10 @@ def is_login():
 #     pass
 
 if __name__ == "__main__":
-    import logging
     from werkzeug.serving import run_simple
-
-    app.logger.setLevel(logging.DEBUG)
-    logging.getLogger().setLevel(logging.DEBUG)
-    logging.info("Launching server at port %d" % useport)
+    print("Launching server at port %d" % useport)
 
     run_simple('0.0.0.0', useport, app, use_reloader=True,
         passthrough_errors=True, threaded=True)
 
-    logging.info("Server sucessfully terminated")
+    print("Server sucessfully terminated")
