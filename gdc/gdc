@@ -22,12 +22,13 @@ if __name__ == '__main__':
     """
     params = docopt(helpdoc)
     if params.get('init'):
-        initConfig()
-        print 'Init config settings successfully.'
-        initModel()
-        print 'Init data models successfully.'
-        initScript()
-        print 'Init task scripts successfully.'
+        pass
+        # initConfig()
+        # print 'Init config settings successfully.'
+        # initModel()
+        # print 'Init data models successfully.'
+        # initScript()
+        # print 'Init task scripts successfully.'
     elif params.get('register'):
         if params.get('model'):
             setModel(os.path.abspath(params.get('<filepath>')))

@@ -14,6 +14,7 @@ from util.session import Session
 from blueprint.admin.views import admin
 from blueprint.monitor.views import monitor
 from blueprint.produce.views import produce
+from blueprint.api.data import api
 
 cache = SimpleCache()
 def cached(func):
@@ -58,6 +59,7 @@ app.jinja_options['loader'] = LeafinlineLoader(app)
 app.register_blueprint(admin, url_prefix='/gds/a')
 app.register_blueprint(monitor, url_prefix='/gds/m')
 app.register_blueprint(produce, url_prefix='/gds/p')
+app.register_blueprint(api, url_prefix='/api')
 
 # @app.context_processor
 # def override_url_for():

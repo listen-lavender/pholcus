@@ -40,6 +40,7 @@ class ProxyLog(dataorm.Model):
     elapse = dataorm.FloatField(ddl='float')
     create_time = dataorm.DatetimeField(ddl='datetime')
 
+
 class RunLog(dataorm.Model):
     __table__ = 'grab_runlog'
     tid = baseorm.IdField(updatable=False)
