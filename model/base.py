@@ -104,6 +104,7 @@ class Article(AuthModel):
     pinyin = baseorm.StrField(ddl='varchar', max_length=50)
     host = baseorm.StrField(ddl='varchar', max_length=50)
     filepath = baseorm.StrField(ddl='varchar', max_length=64)
+    fileupdate = baseorm.StrField(ddl='int', max_length=1, default=1)
     status = baseorm.IntField(ddl='int', max_length=1)
     extra = baseorm.StrField(ddl='varchar', max_length=300, default=None)
     creator = baseorm.IdField(updatable=False)
@@ -130,11 +131,8 @@ class Codetree(baseorm.Model):
 
 class Config(baseorm.Model):
     __table__ = 'grab_config'
-    type = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='gc')
-    name = baseorm.StrField(ddl='varchar', max_length=50, nullable=0, updatable=False, unique='gc')
     key = baseorm.StrField(ddl='varchar', max_length=50, nullable=0, updatable=False, unique='gc')
     val = baseorm.StrField(ddl='varchar', max_length=200)
-    filepath = baseorm.StrField(ddl='varchar', max_length=100)
     status = baseorm.IntField(ddl='int', max_length=1)
     extra = baseorm.StrField(ddl='varchar', max_length=300, default=None)
     creator = baseorm.IdField(updatable=False)
@@ -191,6 +189,8 @@ class Datamodel(baseorm.Model):
     comment = baseorm.StrField(ddl='varchar', max_length=200)
     autocreate = baseorm.IntField(ddl='int', max_length=1)
     iscreated = baseorm.IntField(ddl='int', max_length=1)
+    filepath = baseorm.StrField(ddl='varchar', max_length=64)
+    fileupdate = baseorm.StrField(ddl='int', max_length=1, default=1)
     status = baseorm.IntField(ddl='int', max_length=1)
     extra = baseorm.StrField(ddl='varchar', max_length=300, default=None)
     creator = baseorm.IdField(updatable=False)
@@ -303,6 +303,7 @@ class Unit(baseorm.Model):
     name = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='gu')
     dirpath = baseorm.StrField(ddl='varchar', max_length=64)
     filepath = baseorm.StrField(ddl='varchar', max_length=64)
+    fileupdate = baseorm.StrField(ddl='int', max_length=1, default=1)
     status = baseorm.IntField(ddl='int', max_length=1)
     extra = baseorm.StrField(ddl='varchar', max_length=300, default=None)
     creator = baseorm.IdField(updatable=False)
