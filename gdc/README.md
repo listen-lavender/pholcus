@@ -2,20 +2,28 @@
 
 Client of pholcus.
 
-## init.py
-
-create executable .py file in derectory *task/*.
-
 ## grab.py
 
-execute .py file in derectory *task/*.
+根据task工程目录和服务端的任务管理，执行抓取任务
 
 ## godhand.py
 
-according to element datas of code tree from server, create code tree. 
+根据服务端的code tree元数据生成可执行脚本（暂不可用）
 
-## Dependence
+## gdc命令
 
-pip install webcrawl
+- 脚本注册
 
-pip install dbskit
+# Getting started
+
+No example now.
+
+## Installation
+
+To install gdc, simply:
+
+````bash
+
+    $ python setup.py install
+    ✨🍰✨
+````

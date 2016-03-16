@@ -2,24 +2,41 @@
 
 Server of pholcus.
 
-## blueprint/produce
+## api
 
-- list and detail of datamodel, model of datas
-- list and detail of unit, class of datas
-- list and detail of article, source of datas
-- list and detail of section, fetching step of datas and several steps make up a flow
-- hawkeye.py, transfer setting datas from web page to element datas of code tree
+- 脚本注册
 
-## blueprint/monitor
+## produce
 
-    TODO
+- 脚本管理
+- 任务注册
 
-## blueprint/admin
+## monitor
 
-    TODO
+- 任务管理，包括活动子任务(活动子任务对应每一个执行步骤的执行态)
+- 日志管理
+- 数据管理
 
-## Dependence
+## admin
 
-pip install webcrawl
+- 用户注册
+- 用户登录
+- 用户管理
 
-pip install dbskit
+## gds命令
+
+- 初始化工程
+
+# Getting started
+
+No example now.
+
+## Installation
+
+To install gds, simply:
+
+````bash
+
+    $ python setup.py install
+    ✨🍰✨
+````
