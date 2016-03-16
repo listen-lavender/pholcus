@@ -60,12 +60,10 @@ def taskdetail(tid=None):
                     return redirect('/gds/a/login')
                 urlparas['alert'] = urllib.quote('你没有该任务的权限')
                 return redirect('%s?%s' % (request.referrer.split('?')[0], '&'.join('%s=%s' % (k, v) for k, v in urlparas.items())))
-            projection = {'dirpath':1}
-            unit = Unit.queryOne({'_id':article['uid']}, projection=projection)
             projection = {'val':1}
-            config = Config.queryOne({'type':'ROOT', 'key':'dir'}, projection=projection)
+            config = Config.queryOne({'key':'task'}, projection=projection)
             task['section_name'] = section['name']
-            task['article_name'] = config['val'] + unit['dirpath'] + article['filepath']
+            task['article_name'] = config['val'] + article['filepath']
             task['current'] = str(task['creator']) == user['_id']
             task['pull_url'] = 'http://%s/gds/m/task/data/%s' % (request.host, str(task['_id']))
             del task['creator']
@@ -169,11 +167,10 @@ def taskdetail(tid=None):
 @withBase(RDB, resutype='DICT')
 def taskarticles():
     user = request.user
-    config = Config.queryOne({'type':'ROOT', 'key':'dir'}, projection={'val':1})
+    config = Config.queryOne({'key':'task'}, projection={'val':1})
     articles = Article.queryAll(user, {}, projection={'uid':1, '_id':1, 'filepath':1})
     for article in articles:
-        unit = Unit.queryOne({'_id':article['uid']}, projection={'dirpath':1})
-        article['article_name'] = config['val'] + unit['dirpath'] +  article['filepath']
+        article['article_name'] = config['val'] + article['filepath']
     return json.dumps(articles, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
 

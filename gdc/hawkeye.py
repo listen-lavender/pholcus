@@ -25,9 +25,9 @@ def ensure(filepath):
 
 @withBase(WDB, resutype='DICT')
 def getUnit(uid):
-    config = Config.queryOne({'type':'ROOT', 'key':'dir'}, projection={'val':1})
-    unit = Unit.queryOne({'_id':uid}, projection={'dmid':1, 'name':1, 'dirpath':1, 'filepath':1})
-    dirfile = ''.join([config['val'], unit['dirpath'], unit['filepath']])
+    config = Config.queryOne({'key':'task'}, projection={'val':1})
+    unit = Unit.queryOne({'_id':uid}, projection={'dmid':1, 'name':1, 'filepath':1})
+    dirfile = ''.join([config['val'], unit['filepath']])
     material = {}
     for one in Datapath.queryAll({'btype':'unit', '$or':[{'bid':uid}, {'bid':0}]}):
         material[str(one['_id'])] = one
@@ -40,8 +40,8 @@ def getUnit(uid):
 def getArticle(aid, flow):
     config = Config.queryOne({'type':'ROOT', 'key':'dir'}, projection={'val':1})
     article = Article.queryOne({'username':USER, 'secret':SECRET}, {'_id':aid}, projection={'filepath':1, 'uid':1})
-    unit = Unit.queryOne({'_id':article['uid']}, projection={'dmid':1, 'name':1, 'dirpath':1})
-    dirfile = ''.join([config['val'], unit['dirpath'], article['filepath']])
+    unit = Unit.queryOne({'_id':article['uid']}, projection={'dmid':1, 'name':1})
+    dirfile = ''.join([config['val'], article['filepath']])
     material = {}
     sids = [str(one['_id']) for one in Section.queryAll({'username':USER, 'secret':SECRET}, {'aid':aid, 'flow':flow}, projection={'_id':1})]
     for one in Datapath.queryAll({'$or':[{'btype':'article', '$or':[{'bid':baseorm.IdField.verify(aid)}, {'bid':0}]}, {'btype':'section', 'bid':{'$in':sids}}]}):
@@ -53,10 +53,10 @@ def getArticle(aid, flow):
 
 @withBase(WDB, resutype='DICT')
 def initScript():
-    for unit in Unit.queryAll({'distribute':'SC'}):
+    for unit in Unit.queryAll():
         getUnit(unit['_id'])
-        for article in Article.queryAll({'username':USER, 'secret':SECRET}, {'distribute':'SC', 'uid':unit['_id']}):
-            for flow in set([section['flow'] for section in Section.queryAll({'username':USER, 'secret':SECRET}, {'distribute':'SC', 'aid':article['aid']}, projection={'flow':1})]):
+        for article in Article.queryAll({'username':USER, 'secret':SECRET}, {'uid':unit['_id']}):
+            for flow in set([section['flow'] for section in Section.queryAll({'username':USER, 'secret':SECRET}, {'aid':article['aid']}, projection={'flow':1})]):
                 getArticle(article['_id'], flow)
 
 
@@ -98,11 +98,10 @@ def setUnit(filepath, comment):
                 dmid = (Datamodel.queryOne({'name':model}, projection={'_id':1}) or {'_id':None})['_id']
                 break
         fi.close()
-        dirpath = name + '/'
-        filepath = filepath[filepath.rindex('/')+1:]
+        filepath = '%s/%s' % (name, filepath[filepath.rindex('/')+1:])
         extra = comment
         create_time = datetime.datetime.now()
-        unit = Unit(dmid=dmid, name=name, dirpath=dirpath, filepath=filepath, status=1, extra=comment, create_time=datetime.datetime.now())
+        unit = Unit(dmid=dmid, name=name, filepath=filepath, status=1, extra=comment, create_time=datetime.datetime.now())
         Unit.insert(unit)
         print 'Unit %s is set successfully.' % name
     else:
@@ -179,7 +178,7 @@ def setSection(flow, step, section_name, sections, article_id):
         section['next_id'] = setSection(flow, step+1, next, sections, article_id)
     exist = Section.queryOne({'username':USER, 'secret':SECRET}, {'name':section_name, 'aid':article_id, 'flow':flow})
     if exist is None:
-        section = Section(aid=article_id, next_id=section.get('next_id'), name=section_name, flow=flow, step=step, index=section.get('index'), retry=section.get('retry', 0), timelimit=section.get('timelimit', 30), store=section.get('store', 0), distribute='SN', create_time=datetime.datetime.now())
+        section = Section(aid=article_id, next_id=section.get('next_id'), name=section_name, flow=flow, step=step, index=section.get('index'), retry=section.get('retry', 0), timelimit=section.get('timelimit', 30), store=section.get('store', 0), create_time=datetime.datetime.now())
         print 'Section %s %s is set successfully.' % (flow, section_name)
         return Section.insert({'username':USER, 'secret':SECRET}, section)
     else:

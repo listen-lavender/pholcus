@@ -27,10 +27,9 @@ def unit(tid=None):
     elif request.method == 'POST':
         dmid = request.form.get('dmid')
         name = request.form.get('name')
-        dirpath = request.form.get('dirpath')
         filepath = request.form.get('filepath')
         extra = request.form.get('extra')
-        unit = Unit(dmid=dmid, name=name, dirpath=dirpath, filepath=filepath, status=1, extra=extra, create_time=datetime.datetime.now())
+        unit = Unit(dmid=dmid, name=name, filepath=filepath, status=1, extra=extra, create_time=datetime.datetime.now())
         uid = Unit.insert(user, unit)
         return json.dumps({'stat':1, 'desc':'Unit %s is set successfully.' % name, 'uid':uid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 

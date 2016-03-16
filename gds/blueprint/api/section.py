@@ -33,7 +33,7 @@ def section(tid=None):
         index = request.form.get('index')
         retry = request.form.get('retry')
         timelimit = request.form.get('store')
-        section = Section(aid=article_id, next_id=next_id, name=name, flow=flow, step=step, index=index, retry=retry, timelimit=timelimit, store=store, distribute='SN', create_time=datetime.datetime.now())
+        section = Section(aid=article_id, next_id=next_id, name=name, flow=flow, step=step, index=index, retry=retry, timelimit=timelimit, store=store, create_time=datetime.datetime.now())
         sid = Section.insert(user, section)
         return json.dumps({'stat':1, 'desc':'Section %s %s is set successfully.' % (flow, section_name), 'sid':sid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 

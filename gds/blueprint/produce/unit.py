@@ -43,14 +43,12 @@ def unitdetail(uid=None):
     elif request.method == 'POST':
         user = request.user
         unit_name = request.form.get('unit_name')
-        dirpath = request.form.get('dirpath')
         filepath = request.form.get('filepath')
         extra = request.form.get('extra')
         dmid = request.form.get('dmid')
         print request.form
         if uid is None:
             unit = Unit(name=unit_name,
-                dirpath=dirpath,
                 filepath=filepath,
                 status=1, 
                 extra=extra,
@@ -65,7 +63,6 @@ def unitdetail(uid=None):
         else:
             doc = {
                 'name':unit_name,
-                'dirpath':dirpath,
                 'filepath':filepath,
                 'extra':extra,
                 'dmid':dmid,
