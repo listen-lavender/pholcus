@@ -101,6 +101,7 @@ class Article(AuthModel):
     __table__ = 'grab_article'
     uid = baseorm.IdField(unique='ga')
     name = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='ga')
+    desc = baseorm.StrField(ddl='char', max_length=4)
     pinyin = baseorm.StrField(ddl='varchar', max_length=50)
     host = baseorm.StrField(ddl='varchar', max_length=50)
     filepath = baseorm.StrField(ddl='varchar', max_length=64)
@@ -301,7 +302,7 @@ class Unit(baseorm.Model):
     __table__ = 'grab_unit'
     dmid = baseorm.IdField()
     name = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='gu')
-    dirpath = baseorm.StrField(ddl='varchar', max_length=64)
+    desc = baseorm.StrField(ddl='char', max_length=4)
     filepath = baseorm.StrField(ddl='varchar', max_length=64)
     fileupdate = baseorm.StrField(ddl='int', max_length=1, default=1)
     status = baseorm.IntField(ddl='int', max_length=1)

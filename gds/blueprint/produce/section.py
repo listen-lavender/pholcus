@@ -106,7 +106,7 @@ def sectiondetail(sid=None):
             sid = baseorm.IdField.verify(sid)
             Section.update(user, {'_id':sid}, {'index':index, 'retry':retry, 'timelimit':timelimit, 'store':store, 'additions':additions})
         else:
-            section = Section(aid=baseorm.IdField.verify(aid), next_id=next, name=section_name, flow=flow, step=0, index=index, retry=retry, timelimit=timelimit, store=store, additions=additions, distribute='SN', create_time=datetime.datetime.now())
+            section = Section(aid=baseorm.IdField.verify(aid), next_id=next, name=section_name, flow=flow, step=0, index=index, retry=retry, timelimit=timelimit, store=store, additions=additions, create_time=datetime.datetime.now())
             sid = Section.insert(user, section)
         for cid in addcid:
             if cid == '':

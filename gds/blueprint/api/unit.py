@@ -10,9 +10,9 @@ from model.base import Unit, Creator
 from model.log import Statistics
 
 @monitor.route('/unit', methods=['GET', 'POST'])
-@monitor.route('/unit/<tid>', methods=['GET'])
+@monitor.route('/unit/<uid>', methods=['GET'])
 @withBase(RDB, resutype='DICT')
-def unit(tid=None):
+def unit(uid=None):
     paras = dict(urlparse.parse_qsl(urlparse.urlparse(request.url).query))
     user = Creator.queryOne({}, {'username':paras['appKey']})
     if checksign(paras, user['secret']):
@@ -20,17 +20,18 @@ def unit(tid=None):
     else:
         user = {}
     if request.method == 'GET':
-        if tid is None:
-            return Unit.queryOne(user)
+        cond = dict(urlparse.parse_qsl(urlparse.urlparse(request.url).query))
+        if uid is None:
+            result = Unit.queryAll(user, cond)
         else:
-            return Unit.queryOne(user, {'_id':tid})
+            result = Unit.queryOne(user, {'_id':uid})
+        return json.dumps({'stat':1, 'desc':'', 'unit':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     elif request.method == 'POST':
         dmid = request.form.get('dmid')
         name = request.form.get('name')
-        dirpath = request.form.get('dirpath')
         filepath = request.form.get('filepath')
         extra = request.form.get('extra')
-        unit = Unit(dmid=dmid, name=name, dirpath=dirpath, filepath=filepath, status=1, extra=extra, create_time=datetime.datetime.now())
+        unit = Unit(dmid=dmid, name=name, filepath=filepath, status=1, extra=extra, create_time=datetime.datetime.now())
         uid = Unit.insert(user, unit)
         return json.dumps({'stat':1, 'desc':'Unit %s is set successfully.' % name, 'uid':uid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 

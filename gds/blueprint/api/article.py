@@ -10,9 +10,9 @@ from model.base import Article, Creator
 from model.log import Statistics
 
 @monitor.route('/article', methods=['GET', 'POST'])
-@monitor.route('/article/<tid>', methods=['GET'])
+@monitor.route('/article/<aid>', methods=['GET'])
 @withBase(RDB, resutype='DICT')
-def article(tid=None):
+def article(aid=None):
     paras = dict(urlparse.parse_qsl(urlparse.urlparse(request.url).query))
     user = Creator.queryOne({}, {'username':paras['appKey']})
     if checksign(paras, user['secret']):
@@ -20,17 +20,18 @@ def article(tid=None):
     else:
         user = {}
     if request.method == 'GET':
-        if tid is None:
-            return Article.queryAll(user)
+        cond = dict(urlparse.parse_qsl(urlparse.urlparse(request.url).query))
+        if aid is None:
+            result = Article.queryAll(user, cond)
         else:
-            return Article.queryOne(user, {'_id':tid})
+            result = Article.queryOne(user, {'_id':aid})
+        return json.dumps({'stat':1, 'desc':'', 'article':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     elif request.method == 'POST':
         uid = request.form.get('uid')
         name = request.form.get('name')
         pinyin = request.form.get('pinyin')
         host = request.form.get('host')
         filepath = request.form.get('filepath')
-        extra = request.form.get('extra')
         article = Article(uid=uid, name=name, pinyin=pinyin, host=host, filepath=filepath, create_time=datetime.datetime.now())
         aid = Article.insert(user, article)
         return json.dumps({'stat':1, 'desc':'Article %s is set successfully.' % name, 'aid':aid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')

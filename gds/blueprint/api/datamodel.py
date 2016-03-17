@@ -20,10 +20,12 @@ def datamodel(tid=None):
     else:
         user = {}
     if request.method == 'GET':
+        cond = dict(urlparse.parse_qsl(urlparse.urlparse(request.url).query))
         if tid is None:
-            Datamodel.queryAll(user)
+            result = Datamodel.queryAll(user, cond)
         else:
-            Datamodel.queryOne(user, {'_id':tid})
+            result = Datamodel.queryOne(user, {'_id':tid})
+        return json.dumps({'stat':1, 'desc':'', 'datamodel':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     elif request.method == 'POST':
         name = request.form.get('name')
         table = request.form.get('name')
