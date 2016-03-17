@@ -3,8 +3,6 @@
 import time, datetime
 import os, sys, json
 from webcrawl.handleRequest import requPost
-sys.path.append('../')
-from optparse import OptionParser
 from godhand import cook
 from setting import USER, SECRET, HOST
 import task

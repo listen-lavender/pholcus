@@ -3,7 +3,6 @@
 
 import os, sys, redis, time, datetime
 import cPickle as pickle
-sys.path.append('../')
 
 from kokolog import KokologHandler, logging
 from kokolog.prettyprint import CFG

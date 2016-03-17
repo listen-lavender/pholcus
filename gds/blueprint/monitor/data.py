@@ -2,7 +2,7 @@
 # coding=utf8
 import json, urlparse
 import time, datetime
-from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
+from model.setting import withBase, withDataQuery, withDataCount, base, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import monitor
@@ -15,7 +15,6 @@ from bson import ObjectId
 
 @monitor.route('/task/data/<tid>', methods=['GET', 'POST'])
 @withBase(RDB, resutype='DICT', autocommit=True)
-@withData(RDB)
 def taskdata(tid):
     if request.method == 'GET':
         user = request.user
@@ -33,11 +32,10 @@ def taskdata(tid):
     task = Task.queryOne(user, {'_id':tid}, projection={'aid':1})
     article = Article.queryOne(user, {'_id':task['aid']}, projection={'uid':1})
     unit = Unit.queryOne({'_id':article['uid']}, projection={'dmid':1})
-    model = Datamodel.queryOne({'_id':unit['dmid']}, projection={'name':1})
-    datamodel = getattr(grabdata, model['name'].capitalize())
-    datas = datamodel.queryAll({'tid':tid}, sort=[('_id', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
+    datamodel = Datamodel.queryOne({'_id':unit['dmid']}, projection={'name':1, 'table':1})
+    datas = withDataQuery(datamodel['table'], {'tid':tid}, sort=[('_id', -1)], skip=(page-1)*pagetotal, limit=pagetotal, qt='all')
     if total == 0:
-        total = datas.count()
+        total = withDataCount(datamodel['table'], {'tid':tid})
     count = (total - 1)/pagetotal + 1
     datas = list(datas)
     oc = []

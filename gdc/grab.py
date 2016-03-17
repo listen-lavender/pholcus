@@ -5,7 +5,6 @@ import time, datetime, copy
 import os, sys, json
 import random
 import traceback
-sys.path.append('../')
 
 from model.setting import withData, RDB, WDB, DQ
 from model.log import ProxyLog, Statistics, Log
