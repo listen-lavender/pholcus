@@ -2,7 +2,7 @@
 # coding=utf-8
 
 import time, datetime, copy
-import sys, json
+import os, sys, json
 import random
 import traceback
 sys.path.append('../')
@@ -91,21 +91,23 @@ def schedule():
         article = article['article']
         if article['fileupdate']:
             result = requGet('%sgds/static/exe/%s/%s' % (HOST, CONFIG['val'], article['filepath']), format='TEXT')
-            fi = open(article['filepath'], 'w')
-            fi.write(result.content)
-            fi.close()
-            fi = open(os.path.join(os.path.dirname(os.path.abspath(article['filepath'])), "__init__.py"))
-            fi.write('#!/usr/bin/env python\n# coding=utf8')
+            filepath = '%s%s' % (CONFIG['val'], article['filepath'])
+            fi = open(filepath, 'w')
+            fi.write(result)
             fi.close()
             requPost('%sgds/api/article/%s' % (HOST, str(task['aid'])), {'data':json.dumps({'fileupdate':0})})
 
-        projection = {'name':1, 'filepath':1, 'fileupdate':1}
+        projection = {'name':1, 'filepath':1, 'fileupdate':1, 'dmid':1}
         unit = requPost('%sgds/api/unit/%s' % (HOST, str(article['uid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
         unit = unit['unit']
         if unit['fileupdate']:
             result = requGet('%sgds/static/exe/%s/%s' % (HOST, CONFIG['val'], unit['filepath']), format='TEXT')
-            fi = open(unit['filepath'], 'w')
-            fi.write(result.content)
+            filepath = '%s%s' % (CONFIG['val'], unit['filepath'])
+            fi = open(filepath, 'w')
+            fi.write(result)
+            fi.close()
+            fi = open(os.path.join(os.path.dirname(os.path.abspath(filepath)), "__init__.py"), 'w')
+            fi.write('#!/usr/bin/env python\n# coding=utf8')
             fi.close()
             requPost('%sgds/api/unit/%s' % (HOST, str(article['uid'])), {'data':json.dumps({'fileupdate':0})})
 
@@ -114,8 +116,9 @@ def schedule():
         datamodel = datamodel['datamodel']
         if datamodel['fileupdate']:
             result = requGet('%sgds/static/exe/%s/%s' % (HOST, CONFIG['val'], datamodel['filepath']), format='TEXT')
-            fi = open(datamodel['filepath'], 'w')
-            fi.write(result.content)
+            filepath = datamodel['filepath']
+            fi = open(filepath, 'w')
+            fi.write(result)
             fi.close()
             requPost('%sgds/api/datamodel/%s' % (HOST, str(unit['dmid'])), {'data':json.dumps({'fileupdate':0})})
 

@@ -5,7 +5,7 @@ import time, datetime
 from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
-from rest import api
+from rest import api, format_datetime
 from model.base import Unit, Creator
 from model.log import Statistics
 
@@ -31,12 +31,16 @@ def unit(uid=None):
             uid = condition['_id']
         else:
             uid = Unit.insert(data)
-        result = json.dumps({'stat':1, 'desc':'Unit %s is set successfully.' % name, 'uid':uid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+        result = json.dumps({'stat':1, 'desc':'Unit is set successfully.', 'uid':uid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         if limit == 'one':
-            result = Unit.queryOne(user, condition)
+            result = Unit.queryOne(condition, projection=projection)
+            result = format_datetime(result)
         else:
-            result = list(Unit.queryAll(user, condition))
+            result = []
+            for one in Unit.queryAll(condition, projection=projection):
+                one = format_datetime(one)
+                result.append(one)
         result = json.dumps({'stat':1, 'desc':'', 'unit':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result
         

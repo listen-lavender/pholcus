@@ -5,7 +5,7 @@ import time, datetime
 from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
-from rest import api
+from rest import api, format_datetime
 from model.base import Task, Creator
 from model.log import Statistics
 
@@ -30,18 +30,16 @@ def task(tid=None):
             Task.update(user, condition, data)
             tid = condition['_id']
         else:
-            tid = Task.insert(data)
-        result = json.dumps({'stat':1, 'desc':'Task %s is set successfully.' % name, 'tid':tid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+            tid = Task.insert(user, data)
+        result = json.dumps({'stat':1, 'desc':'Task is set successfully.', 'tid':tid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         if limit == 'one':
-            result = Task.queryOne(user, condition)
+            result = Task.queryOne(user, condition, projection=projection)
+            result = format_datetime(result)
         else:
             result = []
-            for one in Task.queryAll(user, condition):
-                if 'create_time' in one:
-                    one['create_time'] = one['create_time'].strftime('%Y-%m-%d %H:%M:%S')
-                if 'update_time' in one:
-                    one['update_time'] = one['update_time'].strftime('%Y-%m-%d %H:%M:%S')
+            for one in Task.queryAll(user, condition, projection=projection):
+                one = format_datetime(one)
                 result.append(one)
         result = json.dumps({'stat':1, 'desc':'', 'task':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result

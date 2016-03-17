@@ -5,7 +5,7 @@ import time, datetime
 from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
-from rest import api
+from rest import api, format_datetime
 from model.base import Datamodel, Creator
 from model.log import Statistics
 
@@ -31,12 +31,16 @@ def datamodel(dmid=None):
             dmid = condition['_id']
         else:
             dmid = Datamodel.insert(data)
-        result = json.dumps({'stat':1, 'desc':'Datamodel %s is set successfully.' % name, 'dmid':dmid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+        result = json.dumps({'stat':1, 'desc':'Datamodel is set successfully.', 'dmid':dmid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         if limit == 'one':
-            result = Datamodel.queryOne(user, condition)
+            result = Datamodel.queryOne(condition, projection=projection)
+            result = format_datetime(result)
         else:
-            result = list(Datamodel.queryAll(user, condition))
+            result = []
+            for one in Datamodel.queryAll(condition, projection=projection):
+                one = format_datetime(one)
+                result.append(one)
         result = json.dumps({'stat':1, 'desc':'', 'datamodel':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result
         
