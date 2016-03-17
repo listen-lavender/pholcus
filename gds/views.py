@@ -14,7 +14,7 @@ from util.session import Session
 from blueprint.admin.views import admin
 from blueprint.monitor.views import monitor
 from blueprint.produce.views import produce
-from blueprint.api.data import api
+from blueprint.api.rest import api
 
 cache = SimpleCache()
 def cached(func):

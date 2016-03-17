@@ -10,8 +10,8 @@
                 url:location.href,
                 type:'post',
                 data:{
-                    host:$("#host").val(),
-                    pinyin:$("#pinyin").val(),
+                    // host:$("#host").val(),
+                    // pinyin:$("#pinyin").val(),
                 },
                 async:false,
                 dataType:'json',
@@ -33,16 +33,22 @@
     <div class="ui sizer vertical segment" style="font-size: 20px; text-align: center;">
         <div class="ui large header">脚本数据源</div>
     </div>
+    <div class="ui input" style="width:100%; margin:15px 20px;">
+        <span>脚本文件路径:&nbsp;&nbsp;</span><span>{{article['filepath']}}</span>
+    </div>
+    <div class="ui input" style="width:100%; margin:15px 20px;">
+        <span>脚本文件路径是否更新:&nbsp;&nbsp;</span><span>{{article['fileupdate']}}</span>
+    </div>
     {% for flow in article['flows'] %}
         <div class="ui input" style="width:100%; margin:15px 20px;">
             <a href="/gds/p/section/list/{{article['_id']}}?flow={{flow}}">{{flow}}脚本抓取流</a>
         </div>
     {% endfor %}
     <div class="ui input" style="width:100%; margin:15px 20px;">
-        <span >host:&nbsp;&nbsp;</span><input id="host" type="text" style="width:60%;" value="{{article['host']}}"><span>&nbsp;&nbsp;*例如 如家(www.homeinns.com)</span>
+        <span >host:&nbsp;&nbsp;</span><span>{{article['host']}}&nbsp;&nbsp;*例如 如家(www.homeinns.com)</span>
     </div>
     <div class="ui input" style="width:100%; margin:15px 20px;">
-        <span>pinyin:&nbsp;&nbsp;</span><input id="pinyin" type="text" style="width:60%;" value="{{article['pinyin']}}"><span>&nbsp;&nbsp;*例如 如家(rujia)</span>
+        <span>pinyin:&nbsp;&nbsp;</span><span>{{article['pinyin']}}&nbsp;&nbsp;*例如 如家(rujia)</span>
     </div>
     <button class="ui primary button" onclick="save()">保存</button>
     <button class="ui button" onclick="reset()">重置</button>

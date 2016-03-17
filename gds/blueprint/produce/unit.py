@@ -6,7 +6,7 @@ from webcrawl.character import unicode2utf8
 from hawkeye import seeunit
 from flask import Blueprint, request, Response, render_template, g
 from views import produce
-from model.base import Unit, Datamodel
+from model.base import Unit, Datamodel, Config
 
 @produce.route('/unit/list', methods=['GET'])
 @withBase(RDB, resutype='DICT')
@@ -32,9 +32,11 @@ def unitdetail(uid=None):
     datamodels = Datamodel.queryAll({'status':1}, projection={'_id':1, 'name':1}, sort=[('_id', -1)])
     if request.method == 'GET':
         if uid is None:
-            unit = {'_id':'', 'unit_name':'', 'datamodel_name':'', 'extra':'', 'dmid':''}
+            unit = {'_id':'', 'unit_name':'', 'datamodel_name':'', 'extra':'', 'dmid':'', 'filepath':'', 'fileupdate':0}
         else:
-            unit = Unit.queryOne({'_id':uid}, projection={'_id':1, 'name':1, 'extra':1})
+            config = Config.queryOne({'key':'task'})
+            unit = Unit.queryOne({'_id':uid}, projection={'_id':1, 'name':1, 'extra':1, 'filepath':1, 'fileupdate':1})
+            unit['filepath'] = '%s%s' % (config['val'], unit['filepath'])
             datamodel = Datamodel.queryOne({'_id':unit['dmid']}, projection={'name':1, '_id':1})
             unit['unit_name'] = unit['name']
             unit['datamodel_name'] = datamodel['name']
@@ -62,10 +64,7 @@ def unitdetail(uid=None):
             # seeunit(baseConn, uid)
         else:
             doc = {
-                'name':unit_name,
-                'filepath':filepath,
                 'extra':extra,
-                'dmid':dmid,
                 'updator':user['_id'],
                 'update_time':datetime.datetime.now()
             }

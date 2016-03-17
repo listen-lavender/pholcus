@@ -9,29 +9,33 @@ from views import monitor
 from model.base import Unit, Creator
 from model.log import Statistics
 
-@monitor.route('/unit', methods=['GET', 'POST'])
-@monitor.route('/unit/<uid>', methods=['GET'])
+@monitor.route('/unit', methods=['POST'])
+@monitor.route('/unit/<uid>', methods=['POST'])
 @withBase(RDB, resutype='DICT')
 def unit(uid=None):
-    paras = dict(urlparse.parse_qsl(urlparse.urlparse(request.url).query))
-    user = Creator.queryOne({}, {'username':paras['appKey']})
-    if checksign(paras, user['secret']):
-        user['name'] = user['username']
-    else:
-        user = {}
-    if request.method == 'GET':
-        cond = dict(urlparse.parse_qsl(urlparse.urlparse(request.url).query))
-        if uid is None:
-            result = Unit.queryAll(user, cond)
-        else:
-            result = Unit.queryOne(user, {'_id':uid})
-        return json.dumps({'stat':1, 'desc':'', 'unit':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
-    elif request.method == 'POST':
-        dmid = request.form.get('dmid')
-        name = request.form.get('name')
-        filepath = request.form.get('filepath')
-        extra = request.form.get('extra')
-        unit = Unit(dmid=dmid, name=name, filepath=filepath, status=1, extra=extra, create_time=datetime.datetime.now())
-        uid = Unit.insert(user, unit)
-        return json.dumps({'stat':1, 'desc':'Unit %s is set successfully.' % name, 'uid':uid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+    condition = request.form.get('condition', '{}')
+    condition = json.loads(condition)
+    data = request.form.get('data', '{}')
+    data = json.loads(data)
+    projection = request.form.get('projection', '{}')
+    projection = json.loads(projection)
 
+    limit = request.form.get('limit', 'one')
+
+    if uid is not None:
+        condition['_id'] = uid
+    if data:
+        if '_id' in condition:
+            Unit.update(condition, {'$set':data})
+            uid = condition['_id']
+        else:
+            uid = Unit.insert(data)
+        result = json.dumps({'stat':1, 'desc':'Unit %s is set successfully.' % name, 'uid':uid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+    else:
+        if limit == 'one':
+            result = Unit.queryOne(user, condition)
+        else:
+            result = list(Unit.queryAll(user, condition))
+        result = json.dumps({'stat':1, 'desc':'', 'unit':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+    return result
+        

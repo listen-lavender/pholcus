@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # coding=utf-8
 import time, datetime
-import os, sys
-from webcrawl.handleRequest import requGet, requPost
+import os, sys, json
+from webcrawl.handleRequest import requPost
 sys.path.append('../')
 from optparse import OptionParser
 from godhand import cook
-from model.setting import baseorm, withBase, WDB, RDB
-from model.base import Section, Article, Unit, Config, Datamodel
 from setting import USER, SECRET
 import task
 
@@ -60,7 +58,7 @@ LIMIT = 20
 #             for flow in set([section['flow'] for section in Section.queryAll({'username':USER, 'secret':SECRET}, {'aid':article['aid']}, projection={'flow':1})]):
 #                 getArticle(article['_id'], flow)
 
-def setModel(filepath):
+def setModel(filepath, fileupdate=False):
     fi = open(filepath, 'r')
     data = fi.read()
     fi.close()
@@ -77,7 +75,8 @@ def setModel(filepath):
                     model = info[1].lower()
                     break
             if model is not None:
-                datamodel = requGet('http://localhost/api/datamodel?name=%s' % model)
+                fileupdate = True
+                datamodel = requPost('http://localhost/gds/api/datamodel', {'condition':json.dumps({'name':model}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
                 datamodel = datamodel['datamodel']
                 if datamodel:
                     continue
@@ -86,14 +85,14 @@ def setModel(filepath):
                     "table"=model,
                     "comment"=comment,
                 }
-                print requPost('http://localhost/api/datamodel', data, format='JSON')
-                # datamodel = Datamodel(name=model, table=model, comment=comment, autocreate=1, iscreated=1, status=1, create_time=datetime.datetime.now())
-                # Datamodel.insert(datamodel)
+                print requPost('http://localhost/gds/api/datamodel', {'data':json.dumps(data)}, format='JSON')
+    if fileupdate:
+        print requPost('http://localhost/gds/api/datamodel', files={'file': open(filepath, 'rb')}, format='JSON')
 
 
 def setUnit(filepath, comment):
     name = filepath[filepath.rindex('/')+1:].replace('spider.py', '')
-    unit = requGet('http://localhost/api/unit?name=%s' % name)
+    unit = requPost('http://localhost/gds/api/unit', {'condition':json.dumps({'name':name}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
     unit = unit['unit']
     if not unit:
         dmid = None
@@ -101,9 +100,9 @@ def setUnit(filepath, comment):
         for one in fi.readlines():
             if 'as Data' in one:
                 model = one.replace('as Data', '').split('import')[-1].strip().lower()
-                datamodel = requGet('http://localhost/api/datamodel?name=%s' % model)
+                datamodel = requPost('http://localhost/gds/api/datamodel', {'condition':json.dumps({'name':model}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
                 datamodel = datamodel['datamodel']
-                dmid = datamodel[0]['_id']
+                dmid = datamodel['_id']
                 break
         fi.close()
         filepath = '%s/%s' % (name, filepath[filepath.rindex('/')+1:])
@@ -115,31 +114,28 @@ def setUnit(filepath, comment):
             "filepath":filepath,
             "extra":comment,
         }
-        print requPost('http://localhost/api/unit', data, format='JSON')
-        # unit = Unit(dmid=dmid, name=name, filepath=filepath, status=1, extra=comment, create_time=datetime.datetime.now())
-        # Unit.insert(unit)
-        # print 'Unit %s is set successfully.' % name
+        print requPost('http://localhost/gds/api/unit', {'data':json.dumps(data)}, files={'file': open(filepath, 'rb')}, format='JSON')
     else:
         print 'Unit %s has been set.' % name
 
 
-def setArticle(filepath, pinyin, host):
+def setArticle(filepath, pinyin, host, fileupdate=False):
     unit = None
     for one in os.listdir(os.path.dirname(filepath)):
         if one.endswith('spider.py'):
-            unit = requGet('http://localhost/api/unit?name=%s' % one.replace('spider.py', ''))
+            unit = requPost('http://localhost/gds/api/unit', {'condition':json.dumps({'name':one.replace('spider.py', '')}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
+            unit = unit['unit']
             break
-    if not unit['unit']:
+    if not unit:
         print 'Please set unit firstly.'
         return
-    unit = unit[0]
     name = host.split('.')
     if len(name) > 2:
         name = name[1]
     else:
         name = name[0]
     name = name.replace('-', '')
-    article = requGet('http://localhost/api/article?name=%s&uid=%s' % (name, str(unit['_id'])))
+    article = requPost('http://localhost/gds/api/article', {'condition':json.dumps({'name':name, 'uid':str(unit['_id'])}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
     article = article['article']
     lines = []
     flows = []
@@ -175,10 +171,11 @@ def setArticle(filepath, pinyin, host):
             section['name'] = one.replace('def ', '').split('(')[0]
             sections[section['name']]=section
             section = {}
-    if not article:
-        # article = Article(uid=unit['_id'], name=name, pinyin=pinyin, host=host, filepath=filepath[filepath.rindex('/')+1:], create_time=datetime.datetime.now())
-        # article['_id'] = Article.insert({'username':USER, 'secret':SECRET}, article)
-        # print 'Article %s is set successfully.' % name
+    if article:
+        print 'Article %s has been set.' % name
+        if fileupdate:
+            print requPost('http://localhost/gds/api/article', files={'file': open(filepath, 'rb')}, format='JSON')
+    else:
         data = {
             "uid":unit['_id'],
             "name":name,
@@ -186,9 +183,8 @@ def setArticle(filepath, pinyin, host):
             "host":host,
             "filepath":filepath[filepath.rindex('/')+1:],
         }
-        print requPost('http://localhost/api/article', data, format='JSON')
-    else:
-        print 'Article %s has been set.' % name
+        print requPost('http://localhost/gds/api/article', {'data':json.dumps(data)}, files={'file': open(filepath, 'rb')}, format='JSON')
+
     for section_name, section in sections.items():
         if section.get('flow') is None:
             continue
@@ -202,9 +198,12 @@ def setSection(flow, step, section_name, sections, article_id):
     next = data.get('next')
     if next is not None:
         data['next_id'] = setSection(flow, step+1, next, sections, article_id)
-    section = requGet('http://localhost/api/section?name=%s&aid=%s&flow=%s' % (name, str(article['_id']), flow))
+    section = requPost('http://localhost/gds/api/section', {'condition':json.dumps({'name':section_name, 'aid':str(article['_id']), 'flow':flow}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
     section = section['section']
-    if not section:
+    if section:
+        print 'Section %s %s has been set.' % (flow, section_name)
+        return section['_id']
+    else:
         data = {
             "aid":article_id,
             "next_id":data.get('next_id'),
@@ -216,14 +215,8 @@ def setSection(flow, step, section_name, sections, article_id):
             "timelimit":data.get('timelimit', 30),
             "store":data.get('store', 0)
         }
-        section = requPost('http://localhost/api/section', data, format='JSON')
+        section = requPost('http://localhost/gds/api/section', {'data':json.dumps(data)}, format='JSON')
         return section['sid']
-        # section = Section(aid=article_id, next_id=section.get('next_id'), name=section_name, flow=flow, step=step, index=section.get('index'), retry=section.get('retry', 0), timelimit=section.get('timelimit', 30), store=section.get('store', 0), create_time=datetime.datetime.now())
-        # print 'Section %s %s is set successfully.' % (flow, section_name)
-        # return Section.insert({'username':USER, 'secret':SECRET}, section)
-    else:
-        print 'Section %s %s has been set.' % (flow, section_name)
-        return section[0]['_id']
 
 
 if __name__ == '__main__':

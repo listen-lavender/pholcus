@@ -6,7 +6,7 @@ from webcrawl.character import unicode2utf8
 from hawkeye import seearticle
 from flask import Blueprint, request, Response, render_template, g
 from views import produce
-from model.base import Article, Section, Permit
+from model.base import Article, Section, Permit, Config
 
 @produce.route('/article/list', methods=['GET'])
 @produce.route('/article/list/<uid>', methods=['GET'])
@@ -30,9 +30,11 @@ def articledetail(aid=None):
     uid = int(request.args.get('uid') or 0)
     if request.method == 'GET':
         if aid is None:
-            article = {'_id':'', 'host':'', 'pinyin':''}
+            article = {'_id':'', 'host':'', 'pinyin':'', 'filepath':'', 'fileupdate':0}
         else:
-            article = Article.queryOne(user, {'_id':aid}, projection={'_id':1, 'host':1, 'pinyin':1})
+            config = Config.queryOne({'key':'task'})
+            article = Article.queryOne(user, {'_id':aid}, projection={'_id':1, 'host':1, 'pinyin':1, 'filepath':1, 'fileupdate':1})
+            article['filepath'] = '%s%s' % (config['val'], article['filepath'])
             sections = Section.queryAll(user, {'aid':aid}, projection={'flow':1})
             article['flows'] = list(set([section['flow'] for section in sections]))
         return render_template('article/detail.html', appname=g.appname, user=user, uid=uid, article=article)
@@ -56,7 +58,7 @@ def articledetail(aid=None):
                 update_time=datetime.datetime.now())
             aid = Article.insert(user, article)
         else:
-            Article.update(user, {'_id':aid}, {'name':article_name, 'host':host, 'pinyin':pinyin, 'filepath':filepath, 'updator':user['_id'], 'update_time':datetime.datetime.now()})
+            Article.update(user, {'_id':aid}, {})
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         pass

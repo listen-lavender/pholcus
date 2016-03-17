@@ -2,13 +2,12 @@
 # coding=utf-8
 
 import time, datetime, copy
-import sys, json, requests
+import sys, json
 import random
 import traceback
 sys.path.append('../')
 
-from model.setting import withBase, withData, RDB, WDB, DQ
-from model.base import Task, Section, Article, Unit
+from model.setting import withData, RDB, WDB, DQ
 from model.log import ProxyLog, Statistics, Log
 from model.data import Proxy
 from webcrawl.handleRequest import PROXY
@@ -37,15 +36,12 @@ def choose():
 @withData(WDB, resutype='DICT', autocommit=True)
 def log(pid, elapse):
     create_time = datetime.datetime.now()
-    # dbpc.handler.insert(""" insert into grab_proxy_log(`pid`, `elapse`, `create_time`)values(%s, %s, %s) """, (pid, elapse, create_time))
     proxylog = ProxyLog(pid=pid, elapse=elapse, create_time=create_time)
     ProxyLog.insert(proxylog)
     
     proxy = Proxy.queryOne({'_id':pid})
-    # proxy = dbpc.handler.queryOne(""" select * from grab_proxy where id = %s """, (pid, ))
     proxy['usespeed'] = (proxy['usespeed'] * proxy['usenum'] + elapse)/float(proxy['usenum']+1)
     proxy['usenum'] = proxy['usenum'] + 1
-    # dbpc.handler.update(""" update grab_proxy_log set usespeed = %s, usenum = %s, update_time=now() where id = %s """, (usespeed, usenum, pid))
     Proxy.update({'_id':pid}, {'$set':{'usespeed':proxy['usespeed'], 'usenum':proxy['usenum'], 'update_time':create_time}})
 
 # PROXY.use = True
@@ -58,13 +54,9 @@ def record(tid, succ, fail, timeout, elapse=None, sname=None, create_time=None):
     create_time = create_time or datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     if sname is None:
         statistics = Statistics(tid=tid, succ=succ, fail=fail, timeout=timeout, elapse=elapse, create_time=create_time)
-        # dbpc.handler.insert(""" insert into grab_statistics(`tid`,`succ`,`fail`,`timeout`,`elapse`,`create_time`)
-        #                                             values( %s,   %s,    %s,    %s,   %s,        %s)""", (tid, succ, fail, timeout, elapse, create_time))
         return Statistics.insert(statistics)
     else:
         log = Log(gsid=tid, sname=sname, succ=succ, fail=fail, timeout=timeout, create_time=create_time)
-        # dbpc.handler.insert(""" insert into grab_log(`gsid`,`sname`,`succ`,`fail`,`timeout`,`create_time`)
-        #                                             values( %s, %s,   %s,    %s,    %s,    %s)""", (tid, sname, succ, fail, timeout, create_time))
         Log.insert(log)
 
 def stat(task, spider, create_time=None):
@@ -74,25 +66,69 @@ def stat(task, spider, create_time=None):
         if not name == 'total':
             record(gsid, spider.stat[name]['succ'], spider.stat[name]['fail'], spider.stat[name]['timeout'], sname=name, create_time=create_time)
 
-@withBase(WDB, resutype='DICT', autocommit=True)
+def config():
+    condition = {'key':'task'}
+    projection = {'val':1, 'index':1, 'additions':1}
+    config = requPost('http://localhost/gds/api/config', {'condition':json.dumps(condition), 'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+    config = config['config']
+    return config
+
+CONFIG = config()
+
 def schedule():
     user_id = 0
-    tasks = Task.queryAll({'username':USER, 'secret':SECRET}, {'status':{'$gt':0}}, projection={'_id':1, 'type':1, 'period':1, 'aid':1, 'sid':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'timeout':1, 'category':1, 'tag':1, 'name':1, 'extra':1, 'update_time':1, 'push_url':1})
+    condition = {'status':{'$gt':0}}
+    projection = {'_id':1, 'type':1, 'period':1, 'aid':1, 'sid':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'timeout':1, 'category':1, 'tag':1, 'name':1, 'extra':1, 'update_time':1, 'push_url':1}
+    tasks = requPost('http://localhost/gds/api/task', {'condition':json.dumps(condition), 'projection':json.dumps(projection), 'limit':'all'}, format='JSON')
+    tasks = tasks['task']
     for task in tasks:
-        section = Section.queryOne({'username':USER, 'secret':SECRET}, {'_id':task['sid']}, projection={'step':1, 'index':1, 'additions':1})
-        article = Article.queryOne({'username':USER, 'secret':SECRET}, {'_id':task['aid']}, projection={'uid':1, 'filepath':1, 'name':1})
-        unit = Unit.queryOne({'_id':article['uid']}, projection={'name':1})
+        projection = {'step':1, 'index':1, 'additions':1}
+        section = requPost('http://localhost/gds/api/section/%s' % str(task['sid']), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+        section = section['section']
+
+        projection = {'uid':1, 'filepath':1, 'name':1, 'filepath':1, 'fileupdate':1}
+        article = requPost('http://localhost/gds/api/article/%s' % str(task['aid']), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+        article = article['article']
+        if article['fileupdate']:
+            result = requGet('http://localhost/gds/static/exe/%s/%s' % (CONFIG['val'], article['filepath']), format='TEXT')
+            fi = open(article['filepath'], 'w')
+            fi.write(result.content)
+            fi.close()
+            fi = open(os.path.join(os.path.dirname(os.path.abspath(article['filepath'])), "__init__.py"))
+            fi.write('#!/usr/bin/env python\n# coding=utf8')
+            fi.close()
+            requPost('http://localhost/gds/api/article/%s' % str(task['aid']), {'data':json.dumps({'fileupdate':0})})
+
+        projection = {'name':1, 'filepath':1, 'fileupdate':1}
+        unit = requPost('http://localhost/gds/api/unit/%s' % str(article['uid']), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+        unit = unit['unit']
+        if unit['fileupdate']:
+            result = requGet('http://localhost/gds/static/exe/%s/%s' % (CONFIG['val'], unit['filepath']), format='TEXT')
+            fi = open(unit['filepath'], 'w')
+            fi.write(result.content)
+            fi.close()
+            requPost('http://localhost/gds/api/unit/%s' % str(article['uid']), {'data':json.dumps({'fileupdate':0})})
+
+        projection = {'filepath':1, 'fileupdate':1}
+        datamodel = requPost('http://localhost/gds/api/datamodel/%s' % str(unit['dmid']), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+        datamodel = datamodel['datamodel']
+        if datamodel['fileupdate']:
+            result = requGet('http://localhost/gds/static/exe/%s/%s' % (CONFIG['val'], datamodel['filepath']), format='TEXT')
+            fi = open(datamodel['filepath'], 'w')
+            fi.write(result.content)
+            fi.close()
+            requPost('http://localhost/gds/api/datamodel/%s' % str(unit['_id']), {'data':json.dumps({'fileupdate':0})})
+
         task['step'] = section['step']
         task['index'] = section['index']
         task['additions'] = section.get('additions') or '{}'
         task['filepath'] = article['filepath']
-        task['a'] = article['name']
-        task['u'] = unit['name']
+        task['article'] = article['name']
+        task['unit'] = unit['name']
     return tasks
 
-@withBase(WDB, resutype='DICT', autocommit=True)
 def changestate(tid, status, extra=None):
-    Task.update({'username':USER, 'secret':SECRET}, {'_id':tid}, {'status':status})
+    requPost('http://localhost/gds/api/task/%s' % str(tid), {'data':json.dumps({'status':status})})
 
 def task():
     workflow = Workflows(20, 'R', 'THREAD')
@@ -101,9 +137,9 @@ def task():
     local_spider = {}
     while True:
         for task in schedule():
-            module_name = 'task.%s.%s' % (task['u'], task['filepath'].replace('.py', ''))
-            cls_name = 'Spider%s' % task['a'].capitalize()
-            module = __import__(module_name, fromlist=['task.%s' % task['u']])
+            module_name = 'task.%s.%s' % (task['unit'], task['filepath'].replace('.py', ''))
+            cls_name = 'Spider%s' % task['article'].capitalize()
+            module = __import__(module_name, fromlist=['task.%s' % task['unit']])
             cls = getattr(module, cls_name)
             if task.get('type', 'FOREVER') == 'FOREVER':
                 spider = local_spider.get(cls_name, None)
@@ -151,7 +187,7 @@ def task():
                     spider.statistic()
                     changestate(task['_id'], 0)
                     if task.get('push_url') is not None:
-                        requests.post(task['push_url'], {'type':'video', 'tid':task['_id']})
+                        requPost(task['push_url'], {'type':'video', 'tid':task['_id']})
             except:
                 t, v, b = sys.exc_info()
                 err_messages = traceback.format_exception(t, v, b)

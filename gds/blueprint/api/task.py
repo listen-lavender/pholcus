@@ -6,13 +6,13 @@ from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB,
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import monitor
-from model.base import Article, Creator
+from model.base import Task, Creator
 from model.log import Statistics
 
-@monitor.route('/article', methods=['POST'])
-@monitor.route('/article/<aid>', methods=['POST'])
+@monitor.route('/task', methods=['POST'])
+@monitor.route('/task/<tid>', methods=['POST'])
 @withBase(RDB, resutype='DICT')
-def article(aid=None):
+def task(tid=None):
     condition = request.form.get('condition', '{}')
     condition = json.loads(condition)
     data = request.form.get('data', '{}')
@@ -28,20 +28,20 @@ def article(aid=None):
     else:
         user = {}
 
-    if aid is not None:
-        condition['_id'] = aid
+    if tid is not None:
+        condition['_id'] = tid
     if data:
         if '_id' in condition:
-            Article.update(user, condition, data)
-            aid = condition['_id']
+            Task.update(user, condition, data)
+            tid = condition['_id']
         else:
-            aid = Article.insert(data)
-        result = json.dumps({'stat':1, 'desc':'Article %s is set successfully.' % name, 'aid':aid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+            tid = Task.insert(data)
+        result = json.dumps({'stat':1, 'desc':'Task %s is set successfully.' % name, 'tid':tid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         if limit == 'one':
-            result = Article.queryOne(user, condition)
+            result = Task.queryOne(user, condition)
         else:
-            result = list(Article.queryAll(user, condition))
-        result = json.dumps({'stat':1, 'desc':'', 'article':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+            result = list(Task.queryAll(user, condition))
+        result = json.dumps({'stat':1, 'desc':'', 'task':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result
         
