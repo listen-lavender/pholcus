@@ -5,14 +5,15 @@ import time, datetime
 from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
-from views import monitor
+from rest import api
 from model.base import Datamodel, Creator
 from model.log import Statistics
 
-@monitor.route('/datamodel', methods=['POST'])
-@monitor.route('/datamodel/<dmid>', methods=['POST'])
+@api.route('/datamodel', methods=['POST'])
+@api.route('/datamodel/<dmid>', methods=['POST'])
 @withBase(RDB, resutype='DICT')
 def datamodel(dmid=None):
+    user = request.user
     condition = request.form.get('condition', '{}')
     condition = json.loads(condition)
     data = request.form.get('data', '{}')

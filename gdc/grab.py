@@ -10,10 +10,10 @@ sys.path.append('../')
 from model.setting import withData, RDB, WDB, DQ
 from model.log import ProxyLog, Statistics, Log
 from model.data import Proxy
-from webcrawl.handleRequest import PROXY
+from webcrawl.handleRequest import PROXY, requGet, requPost
 from webcrawl.work import Workflows, DataQueue
 
-from setting import USER, SECRET
+from setting import USER, SECRET, HOST
 from log import Producer
 import task
 
@@ -68,8 +68,8 @@ def stat(task, spider, create_time=None):
 
 def config():
     condition = {'key':'task'}
-    projection = {'val':1, 'index':1, 'additions':1}
-    config = requPost('http://localhost/gds/api/config', {'condition':json.dumps(condition), 'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+    projection = {'val':1}
+    config = requPost('%sgds/api/config' % HOST, {'condition':json.dumps(condition), 'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
     config = config['config']
     return config
 
@@ -79,45 +79,45 @@ def schedule():
     user_id = 0
     condition = {'status':{'$gt':0}}
     projection = {'_id':1, 'type':1, 'period':1, 'aid':1, 'sid':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'timeout':1, 'category':1, 'tag':1, 'name':1, 'extra':1, 'update_time':1, 'push_url':1}
-    tasks = requPost('http://localhost/gds/api/task', {'condition':json.dumps(condition), 'projection':json.dumps(projection), 'limit':'all'}, format='JSON')
+    tasks = requPost('%sgds/api/task' % HOST, {'condition':json.dumps(condition), 'projection':json.dumps(projection), 'limit':'all'}, format='JSON')
     tasks = tasks['task']
     for task in tasks:
         projection = {'step':1, 'index':1, 'additions':1}
-        section = requPost('http://localhost/gds/api/section/%s' % str(task['sid']), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+        section = requPost('%sgds/api/section/%s' % (HOST, str(task['sid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
         section = section['section']
 
         projection = {'uid':1, 'filepath':1, 'name':1, 'filepath':1, 'fileupdate':1}
-        article = requPost('http://localhost/gds/api/article/%s' % str(task['aid']), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+        article = requPost('%sgds/api/article/%s' % (HOST, str(task['aid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
         article = article['article']
         if article['fileupdate']:
-            result = requGet('http://localhost/gds/static/exe/%s/%s' % (CONFIG['val'], article['filepath']), format='TEXT')
+            result = requGet('%sgds/static/exe/%s/%s' % (HOST, CONFIG['val'], article['filepath']), format='TEXT')
             fi = open(article['filepath'], 'w')
             fi.write(result.content)
             fi.close()
             fi = open(os.path.join(os.path.dirname(os.path.abspath(article['filepath'])), "__init__.py"))
             fi.write('#!/usr/bin/env python\n# coding=utf8')
             fi.close()
-            requPost('http://localhost/gds/api/article/%s' % str(task['aid']), {'data':json.dumps({'fileupdate':0})})
+            requPost('%sgds/api/article/%s' % (HOST, str(task['aid'])), {'data':json.dumps({'fileupdate':0})})
 
         projection = {'name':1, 'filepath':1, 'fileupdate':1}
-        unit = requPost('http://localhost/gds/api/unit/%s' % str(article['uid']), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+        unit = requPost('%sgds/api/unit/%s' % (HOST, str(article['uid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
         unit = unit['unit']
         if unit['fileupdate']:
-            result = requGet('http://localhost/gds/static/exe/%s/%s' % (CONFIG['val'], unit['filepath']), format='TEXT')
+            result = requGet('%sgds/static/exe/%s/%s' % (HOST, CONFIG['val'], unit['filepath']), format='TEXT')
             fi = open(unit['filepath'], 'w')
             fi.write(result.content)
             fi.close()
-            requPost('http://localhost/gds/api/unit/%s' % str(article['uid']), {'data':json.dumps({'fileupdate':0})})
+            requPost('%sgds/api/unit/%s' % (HOST, str(article['uid'])), {'data':json.dumps({'fileupdate':0})})
 
         projection = {'filepath':1, 'fileupdate':1}
-        datamodel = requPost('http://localhost/gds/api/datamodel/%s' % str(unit['dmid']), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+        datamodel = requPost('%sgds/api/datamodel/%s' % (HOST, str(unit['dmid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
         datamodel = datamodel['datamodel']
         if datamodel['fileupdate']:
-            result = requGet('http://localhost/gds/static/exe/%s/%s' % (CONFIG['val'], datamodel['filepath']), format='TEXT')
+            result = requGet('%sgds/static/exe/%s/%s' % (HOST, CONFIG['val'], datamodel['filepath']), format='TEXT')
             fi = open(datamodel['filepath'], 'w')
             fi.write(result.content)
             fi.close()
-            requPost('http://localhost/gds/api/datamodel/%s' % str(unit['_id']), {'data':json.dumps({'fileupdate':0})})
+            requPost('%sgds/api/datamodel/%s' % (HOST, str(unit['dmid'])), {'data':json.dumps({'fileupdate':0})})
 
         task['step'] = section['step']
         task['index'] = section['index']
@@ -128,7 +128,7 @@ def schedule():
     return tasks
 
 def changestate(tid, status, extra=None):
-    requPost('http://localhost/gds/api/task/%s' % str(tid), {'data':json.dumps({'status':status})})
+    requPost('%sgds/api/task/%s' % (HOST, str(tid)), {'data':json.dumps({'status':status})})
 
 def task():
     workflow = Workflows(20, 'R', 'THREAD')

@@ -5,14 +5,15 @@ import time, datetime
 from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
-from views import monitor
+from rest import api
 from model.base import Unit, Creator
 from model.log import Statistics
 
-@monitor.route('/unit', methods=['POST'])
-@monitor.route('/unit/<uid>', methods=['POST'])
+@api.route('/unit', methods=['POST'])
+@api.route('/unit/<uid>', methods=['POST'])
 @withBase(RDB, resutype='DICT')
 def unit(uid=None):
+    user = request.user
     condition = request.form.get('condition', '{}')
     condition = json.loads(condition)
     data = request.form.get('data', '{}')

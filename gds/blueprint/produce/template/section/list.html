@@ -24,8 +24,8 @@
     </div>
     {% for section in sections %}
         <div name="section_{{loop.index}}" class="ui input" style="width:100%; margin:15px 20px;">
-            <span>{{loop.index}}:&nbsp;&nbsp;</span><input name="section_id" type="hidden" value="{{section['_id']}}"/><input name="section_name" type="text" style="width:60%;" value="{{section['name']}}" onblur="check(this)"/>&nbsp;&nbsp;
-            <a href="/gds/p/section/detail/{{section['_id']}}?aid={{aid}}">详情</a>
+            <span>{{loop.index}}:&nbsp;&nbsp;</span><input name="section_id" type="hidden" value="{{section['_id']}}"/><span>{{section['name']}}&nbsp;&nbsp;
+            <a href="/gds/p/section/detail/{{section['_id']}}?aid={{aid}}">详情</a></span>
         </div>
     {% endfor %}
 {% endblock %}

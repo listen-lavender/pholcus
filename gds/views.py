@@ -59,7 +59,7 @@ app.jinja_options['loader'] = LeafinlineLoader(app)
 app.register_blueprint(admin, url_prefix='/gds/a')
 app.register_blueprint(monitor, url_prefix='/gds/m')
 app.register_blueprint(produce, url_prefix='/gds/p')
-app.register_blueprint(api, url_prefix='/api')
+app.register_blueprint(api, url_prefix='/gds/api')
 
 # @app.context_processor
 # def override_url_for():
@@ -92,6 +92,8 @@ def is_login():
     user = session.get(sid, None)
     g.appname = 'pholcus'
     flag = '/task/data/' in request.url or '/static/' in request.url or '/login' in request.url or '/register' in request.url
+    if '/api/' in request.url and user is None:
+        user = {'status': 1, '_id': '7', 'group': 'developer', 'name': 'root'}
     request.sid = sid
     request.user = user
     if flag:

@@ -46,8 +46,8 @@
                 type:'post',
                 data:delnull({
                     _id:$("#sid").val(),
-                    name:$("#section_name").val(),
-                    next:$("#next").val(),
+                    // name:$("#section_name").val(),
+                    // next:$("#next").val(),
                     index:$("#index").val(),
                     retry:$("#retry").val(),
                     timelimit:$("#timelimit").val(),
@@ -73,18 +73,23 @@
     <div class="ui sizer vertical segment" style="font-size: 20px; text-align: center;">
         <div class="ui large header">脚本分步抓取流</div>
     </div>
-    <div class="ui container" style="padding: .75em 1em;">
-        &nbsp;&nbsp;&nbsp;&nbsp;<i class="save icon" alt="save" onclick="savesection(this)"></i>
+    <div class="ui container" style="padding: .75em 0em;">
+        <i class="save icon" alt="save" onclick="savesection(this)"></i>
     </div>
     <div class="ui styled accordion" style="width:100%">
         <div id="section_title" class="title active">{{section['name']}}</div>
         <div class="content active">
             <input id="sid" type="hidden" value="{{sid|default('', true)}}"/>
             <div class="ui input" style="width:100%; margin:15px 20px;">
-                <span>section_name:&nbsp;&nbsp;</span><input id="section_name" name="section_name" type="text" style="width:60%;" value="{{section['name']}}" onblur="check(this)">
+                <span>section_name:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span>{{section['name']}}</span>
             </div>
             <div class="ui input" style="width:100%; margin:15px 20px;">
-                <span>next:&nbsp;&nbsp;</span><input id="next_id" type="text" style="width:60%;" value="{{section['next']}}" readonly="true">
+                <span>next:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <span>
+                    {% if section['next_id'] %}
+                        <a href="http://www.mypholcus.com/gds/p/section/detail/{{section['next_id']}}?aid={{section['aid']}}">{{section['next']}}</a>
+                    {% endif %}
+                </span>
             </div>
             <div class="ui input" style="width:100%; margin:15px 20px;">
                 <span>index:&nbsp;&nbsp;</span><input id="index" type="text" style="width:60%;" value="{{section['index']|default('', true)}}">

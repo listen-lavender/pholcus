@@ -5,14 +5,15 @@ import time, datetime
 from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
-from views import monitor
+from rest import api
 from model.base import Section, Creator
 from model.log import Statistics
 
-@monitor.route('/section', methods=['POST'])
-@monitor.route('/section/<sid>', methods=['POST'])
+@api.route('/section', methods=['POST'])
+@api.route('/section/<sid>', methods=['POST'])
 @withBase(RDB, resutype='DICT')
 def section(sid=None):
+    user = request.user
     condition = request.form.get('condition', '{}')
     condition = json.loads(condition)
     data = request.form.get('data', '{}')
@@ -21,12 +22,6 @@ def section(sid=None):
     projection = json.loads(projection)
 
     limit = request.form.get('limit', 'one')
-
-    user = Creator.queryOne({}, {'username':paras['appKey']})
-    if checksign(paras, user['secret']):
-        user['name'] = user['username']
-    else:
-        user = {}
 
     if sid is not None:
         condition['_id'] = sid

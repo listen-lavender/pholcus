@@ -70,7 +70,7 @@ def sectiondetail(sid=None):
     aid = int(request.args.get('aid', 0))
     if request.method == 'GET':
         if sid is None:
-            section = {'_id':'', 'aid':'', 'next_id':'', 'name':'', 'flow':'', 'index':'', 'retry':'', 'timelimit':'', 'store':'', 'additions':'', 'datasource':[], 'dataextract':[], 'current':True}
+            section = {'_id':'', 'aid':'', 'next_id':'', 'next':'', 'name':'', 'flow':'', 'index':'', 'retry':'', 'timelimit':'', 'store':'', 'additions':'', 'datasource':[], 'dataextract':[], 'current':True}
         else:
             projection = {'_id':1 ,'aid':1 ,'next_id':1 ,'name':1 ,'flow':1 ,'index':1 ,'retry':1 ,'timelimit':1 ,'store':1, 'additions':1, 'creator':1}
             section = Section.queryOne(user, {'_id':sid}, projection=projection)

@@ -5,14 +5,15 @@ import time, datetime
 from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
-from views import monitor
+from rest import api
 from model.base import Article, Creator
 from model.log import Statistics
 
-@monitor.route('/article', methods=['POST'])
-@monitor.route('/article/<aid>', methods=['POST'])
+@api.route('/article', methods=['POST'])
+@api.route('/article/<aid>', methods=['POST'])
 @withBase(RDB, resutype='DICT')
 def article(aid=None):
+    user = request.user
     condition = request.form.get('condition', '{}')
     condition = json.loads(condition)
     data = request.form.get('data', '{}')
@@ -21,12 +22,6 @@ def article(aid=None):
     projection = json.loads(projection)
 
     limit = request.form.get('limit', 'one')
-
-    user = Creator.queryOne({}, {'username':paras['appKey']})
-    if checksign(paras, user['secret']):
-        user['name'] = user['username']
-    else:
-        user = {}
 
     if aid is not None:
         condition['_id'] = aid

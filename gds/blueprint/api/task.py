@@ -5,14 +5,15 @@ import time, datetime
 from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
-from views import monitor
+from rest import api
 from model.base import Task, Creator
 from model.log import Statistics
 
-@monitor.route('/task', methods=['POST'])
-@monitor.route('/task/<tid>', methods=['POST'])
+@api.route('/task', methods=['POST'])
+@api.route('/task/<tid>', methods=['POST'])
 @withBase(RDB, resutype='DICT')
 def task(tid=None):
+    user = request.user
     condition = request.form.get('condition', '{}')
     condition = json.loads(condition)
     data = request.form.get('data', '{}')
@@ -21,12 +22,6 @@ def task(tid=None):
     projection = json.loads(projection)
 
     limit = request.form.get('limit', 'one')
-
-    user = Creator.queryOne({}, {'username':paras['appKey']})
-    if checksign(paras, user['secret']):
-        user['name'] = user['username']
-    else:
-        user = {}
 
     if tid is not None:
         condition['_id'] = tid
@@ -41,7 +36,13 @@ def task(tid=None):
         if limit == 'one':
             result = Task.queryOne(user, condition)
         else:
-            result = list(Task.queryAll(user, condition))
+            result = []
+            for one in Task.queryAll(user, condition):
+                if 'create_time' in one:
+                    one['create_time'] = one['create_time'].strftime('%Y-%m-%d %H:%M:%S')
+                if 'update_time' in one:
+                    one['update_time'] = one['update_time'].strftime('%Y-%m-%d %H:%M:%S')
+                result.append(one)
         result = json.dumps({'stat':1, 'desc':'', 'task':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result
         

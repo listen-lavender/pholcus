@@ -5,14 +5,15 @@ import time, datetime
 from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
-from views import monitor
+from rest import api
 from model.base import Config, Creator
 from model.log import Statistics
 
-@monitor.route('/config', methods=['POST'])
-@monitor.route('/config/<cid>', methods=['POST'])
+@api.route('/config', methods=['POST'])
+@api.route('/config/<cid>', methods=['POST'])
 @withBase(RDB, resutype='DICT')
 def config(cid=None):
+    user = request.user
     condition = request.form.get('condition', '{}')
     condition = json.loads(condition)
     data = request.form.get('data', '{}')
@@ -33,9 +34,9 @@ def config(cid=None):
         result = json.dumps({'stat':1, 'desc':'Config %s is set successfully.' % name, 'cid':cid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         if limit == 'one':
-            result = Config.queryOne(user, condition)
+            result = Config.queryOne(condition, projection=projection)
         else:
-            result = list(Config.queryAll(user, condition))
+            result = list(Config.queryAll(condition))
         result = json.dumps({'stat':1, 'desc':'', 'config':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result
         
