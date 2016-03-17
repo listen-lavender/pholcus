@@ -6,8 +6,8 @@ from dbskit.mongo import orm as mongo_orm
 from dbskit.mysql.suit import withMysql, dbpc as ms_dbpc
 from dbskit.mongo.suit import withMongo, dbpc as mg_dbpc
 
-RDB = 'localhost'
-WDB = 'localhost'
+RDB = 'rdb'
+WDB = 'wdb'
 
 """
      缓存SQL配置
@@ -18,17 +18,17 @@ MAXSIZE = 1000
     数据库配置
 """
 _DBCONN = {"mysql":{"host": "127.0.0.1",
-                "port": 3307,
+                "port": 3306,
                 "user": "root",
                 "passwd": "",
                 "db": "pholcus",
                 "charset": "utf8",
                 "use_unicode":False,},
             "mongo":{"host": "127.0.0.1",
-                "port": 27018,
+                "port": 27017,
                 "user": "root",
                 "passwd": "",
-                "db": "dandan-jiang",
+                "db": "pholcus",
                 "charset": "utf8",
                 "use_unicode":False,},
             }

@@ -3,8 +3,8 @@
 
 from dbskit.mysql import orm as mysql_orm
 from dbskit.mongo import orm as mongo_orm
-from dbskit.mysql.suit import withMysql, dbpc as ms_dbpc
-from dbskit.mongo.suit import withMongo, dbpc as mg_dbpc
+from dbskit.mysql.suit import withMysql, withMysqlQuery, withMysqlCount, dbpc as ms_dbpc
+from dbskit.mongo.suit import withMongo, withMongoQuery, withMongoCount, dbpc as mg_dbpc
 
 RDB = 'rdb'
 WDB = 'wdb'
@@ -41,6 +41,8 @@ baseorm = mysql_orm
 dataorm = mongo_orm
 withBase = withMysql
 withData = withMongo
+withDataQuery = withMongoQuery
+withDataCount = withMongoCount
 base = ms_dbpc
 data = mg_dbpc
 

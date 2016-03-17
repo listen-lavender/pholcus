@@ -139,7 +139,8 @@ def task():
     local_spider = {}
     while True:
         for task in schedule():
-            module_name = 'task.%s.%s' % (task['unit'], task['filepath'].replace('.py', ''))
+            module_name = 'task.%s.%s' % (task['unit'], task['filepath'].split('/')[-1].replace('.py', ''))
+            task['update_time'] = datetime.datetime.strptime(task['update_time'], '%Y-%m-%d %H:%M:%S')
             cls_name = 'Spider%s' % task['article'].capitalize()
             module = __import__(module_name, fromlist=['task.%s' % task['unit']])
             cls = getattr(module, cls_name)

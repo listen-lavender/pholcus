@@ -29,6 +29,8 @@ def taskdata(tid):
     page = int(request.args.get('page', 1))
     total = int(request.args.get('total', 0))
     count = (total - 1)/pagetotal + 1
+    # tid = Task.__mappings__['tid'].verify(tid)
+    tid = int(tid)
     task = Task.queryOne(user, {'_id':tid}, projection={'aid':1})
     article = Article.queryOne(user, {'_id':task['aid']}, projection={'uid':1})
     unit = Unit.queryOne({'_id':article['uid']}, projection={'dmid':1})
@@ -67,6 +69,6 @@ def taskdata(tid):
         for c in dc:
             one[c] = json.dumps(one[c], ensure_ascii=False)
     if request.method == 'GET':
-        return render_template('task/data.html', appname=g.appname, user=user, title=model['name'], columns=columns, rows=datas, pagetotal=pagetotal, page=page, total=total, count=count)
+        return render_template('task/data.html', appname=g.appname, user=user, title=datamodel['name'], columns=columns, rows=datas, pagetotal=pagetotal, page=page, total=total, count=count)
     else:
         return json.dumps({'stat':1, 'desc':'success', 'datas':datas, 'pagetotal':pagetotal, 'page':page, 'total':total, 'count':count}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
