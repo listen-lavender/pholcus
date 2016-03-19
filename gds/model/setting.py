@@ -46,28 +46,3 @@ datacfg.R = datacfg.W = data['name']
 datacfg.LIMIT = data['LIMIT']
 datacfg.BUFFER = data['buffer']
 datacfg.SETTING = extract(data)
-
-RDB = 'rdb'
-WDB = 'wdb'
-
-DQ = {
-    'redis':{
-        'host':'localhost',
-        'port':6379,
-        'db':0,
-        'tube':'pholcus-task',
-        'log':{
-            'host':'localhost',
-            'port':6379,
-            'db':0,
-            'tube':'pholcus-log',
-        }
-    },
-    'beanstalkd':{
-        'host':'localhost',
-        'port':11300,
-        'tube':'pholcus-task',
-    }
-}
-LOGWORKERNUM = 6
-LOGSTATUS = [0, 1, 2]

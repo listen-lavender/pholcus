@@ -3,7 +3,6 @@
 
 from webcrawl.spider import SpiderOrigin
 from model.data import Audio as Data
-from model.setting import withData, RDB, WDB
 
 TIMEOUT = 120
 

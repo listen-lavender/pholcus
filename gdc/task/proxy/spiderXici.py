@@ -16,9 +16,9 @@ from webcrawl.task import timelimit
 from webcrawl.task import next
 from webcrawl.request import ensureurl
 from webcrawl.request import parturl
+from model.setting import withData, datacfg
 from proxyspider import Data
 from proxyspider import TIMEOUT
-from proxyspider import withData, RDB, WDB
 from proxyspider import SpiderProxyOrigin
 
 class SpiderXicidaili(SpiderProxyOrigin):
@@ -34,7 +34,7 @@ class SpiderXicidaili(SpiderProxyOrigin):
             'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.93 Safari/537.36'
         }
 
-    @store(withData(WDB), Data.insert, update=True, method='MANY')
+    @store(withData(datacfg.W), Data.insert, update=True, method='MANY')
     @timelimit(3)
     def fetchDetail(self, proxy, additions={}, timeout=TIMEOUT, implementor=None):
         ip, port, location, safetype, usetype, refspeed, status, update_time = proxy

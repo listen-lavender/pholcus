@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 # coding=utf8
 import json
-from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
+from model.setting import withBase, basecfg
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import produce
 from model.base import Datamodel, Dataitem
 
 @produce.route('/datamodel/list', methods=['GET'])
-@withBase(RDB, resutype='DICT')
+@withBase(basecfg.R, resutype='DICT')
 def modellist():
     datamodels = Datamodel.queryAll({})
     return render_template('datamodel/list.html', appname=g.appname, user=user, datamodels=datamodels)
 
 @produce.route('/datamodel/detail/<dmid>', methods=['GET'])
-@withBase(WDB, resutype='DICT', autocommit=True)
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def modeldetail(dmid=None):
     rows = ['_id', 'name', 'extra']
     cols = ['_id', 'dmid', 'name', 'length', 'default']

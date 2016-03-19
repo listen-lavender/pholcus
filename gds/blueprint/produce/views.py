@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf8
 import json
-from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
+from model.setting import withBase, basecfg
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 
@@ -15,7 +15,7 @@ from article import *
 from section import *
 from task import *
 
-@withBase(WDB, resutype='DICT', autocommit=True)
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def codetree():
     # init(baseConn)
     pass

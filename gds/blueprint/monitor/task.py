@@ -2,7 +2,7 @@
 # coding=utf8
 import json
 import time, datetime
-from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
+from model.setting import withBase, basecfg, withData, datacfg
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import monitor
@@ -13,8 +13,8 @@ STATDESC = {0:'stopped', 1:'started', 2:'running', 3:'error'}
 EXETYPE = {'ONCE':'临时任务', 'FOREVER':'周期任务'}
 
 @monitor.route('/task/list', methods=['GET'])
-@withBase(RDB, resutype='DICT')
-@withData(RDB, resutype='DICT')
+@withBase(basecfg.R, resutype='DICT')
+@withData(datacfg.R, resutype='DICT')
 def tasklist():
     user = request.user
     pagetotal = int(request.args.get('pagetotal', 10))
@@ -32,7 +32,7 @@ def tasklist():
     return render_template('task/list.html', appname=g.appname, user=user, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @monitor.route('/task/time/detail/<tid>', methods=['GET'])
-@withBase(RDB, resutype='DICT')
+@withBase(basecfg.R, resutype='DICT')
 def tasktimedetail(tid):
     title = '任务耗时统计'
     end = request.args.get('end')
@@ -68,7 +68,7 @@ def tasktimedetail(tid):
     return render_template("task/detail.html", appname=g.appname, user=user, title=title, dataset=dataset, request=request, chart=chart, unit='s', begin=begin, end=end)
 
 @monitor.route('/task/count/detail/<tid>', methods=['GET'])
-@withBase(RDB, resutype='DICT')
+@withBase(basecfg.R, resutype='DICT')
 def taskcountdetail(tid):
     title = '任务数量统计'
     end = request.args.get('end')
@@ -131,7 +131,7 @@ def taskcountdetail(tid):
 
 
 @monitor.route('/task/change/<tid>', methods=['POST'])
-@withBase(WDB, resutype='DICT', autocommit=True)
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def taskchange(tid):
     user = request.user
     status = request.form.get('status', 1)

@@ -2,7 +2,7 @@
 # coding=utf8
 import os, types, datetime, uuid, random, hashlib, json
 from flask import Blueprint, request, Response, render_template, redirect, make_response, session, g
-from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
+from model.setting import withBase, basecfg
 from flask.helpers import send_from_directory
 from bson import ObjectId
 from model.base import Creator, Permit
@@ -52,7 +52,7 @@ admin.send_static_file  = types.MethodType(send_static_file, admin)
 
 
 @admin.route('/login', methods=['GET', 'POST'])
-@withBase(WDB, resutype='DICT', autocommit=True)
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def login():
     username = request.form.get('username')
     password = request.form.get('password', '')
@@ -86,7 +86,7 @@ def logout():
 
 
 @admin.route('/register', methods=['GET', 'POST'])
-@withBase(WDB, resutype='DICT', autocommit=True)
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def register():
     if request.method == 'GET':
         return render_template('register.html', appname=g.appname, user=None)
@@ -119,7 +119,7 @@ def register():
 
 
 @admin.route('/user/verify', methods=['GET', 'POST'])
-@withBase(WDB, resutype='DICT', autocommit=True)
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def verify():
     user = request.user
     if request.method == 'POST':
@@ -141,7 +141,7 @@ def verify():
 
 
 @admin.route('/user/list', methods=['GET', 'POST'])
-@withBase(WDB, resutype='DICT', autocommit=True)
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def userlist():
     user = request.user
     pagetotal = int(request.args.get('pagetotal', 10))
@@ -161,7 +161,7 @@ def userlist():
 
 
 @admin.route('/user/detail/<cid>', methods=['GET'])
-@withBase(WDB, resutype='DICT', autocommit=True)
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def userdetail(cid=None):
     user = request.user
     cid = cid or user['_id']
@@ -173,7 +173,7 @@ def userdetail(cid=None):
 
 
 @admin.route('/user/avatar', methods=['POST'])
-@withBase(WDB, resutype='DICT', autocommit=True)
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def useravatar():
     user = request.user
     avatar = request.files['avatar']
@@ -185,7 +185,7 @@ def useravatar():
 
 
 @admin.route('/user/password', methods=['GET', 'POST'])
-@withBase(WDB, resutype='DICT', autocommit=True)
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def userpassword():
     user = request.user
     if request.method == 'GET':

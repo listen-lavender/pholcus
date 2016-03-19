@@ -3,7 +3,6 @@
 
 from webcrawl.spider import SpiderOrigin
 from model.data import Comic as Data
-from model.setting import withData, RDB, WDB
 
 TIMEOUT = 120
 

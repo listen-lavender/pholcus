@@ -6,7 +6,7 @@ import os, sys, json
 import random
 import traceback
 
-from model.setting import withData, RDB, WDB, DQ
+from model.setting import withData, datacfg, WORKNUM, WORKQUEUE
 from model.log import ProxyLog, Statistics, Log
 from model.data import Proxy
 from webcrawl.request import PROXY, requGet, requPost
@@ -16,13 +16,11 @@ from setting import USER, SECRET, HOST
 from log import Producer
 import task
 
-dq = copy.deepcopy(DQ)
-del dq['redis']['log']
-DataQueue.update(**dq)
+DataQueue.update(**WORKQUEUE)
 
 LIMIT = 600
 
-@withData(WDB, resutype='DICT', autocommit=True)
+@withData(datacfg.W, resutype='DICT', autocommit=True)
 def choose():
     limit = datetime.datetime.now() - datetime.timedelta(days=3)
     # proxys = dbpc.handler.queryAll(""" select * from grab_proxy where usespeed < 1 and update_time > '2015-12-15 01:11:00' order by usespeed asc, refspeed asc limit 200; """)
@@ -32,7 +30,7 @@ def choose():
     # return random.choice(proxys)
     return proxys[0]
 
-@withData(WDB, resutype='DICT', autocommit=True)
+@withData(datacfg.W, resutype='DICT', autocommit=True)
 def log(pid, elapse):
     create_time = datetime.datetime.now()
     proxylog = ProxyLog(pid=pid, elapse=elapse, create_time=create_time)
@@ -48,7 +46,7 @@ def log(pid, elapse):
 # PROXY.log = log
 # PROXY.worker.start()
 
-@withData(WDB, resutype='DICT', autocommit=True)
+@withData(datacfg.W, resutype='DICT', autocommit=True)
 def record(tid, succ, fail, timeout, elapse=None, sname=None, create_time=None):
     create_time = create_time or datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     if sname is None:
@@ -133,7 +131,7 @@ def changestate(tid, status, extra=None):
     requPost('%sgds/api/task/%s' % (HOST, str(tid)), {'data':json.dumps({'status':status})})
 
 def task():
-    workflow = Workflows(20, 'R', 'THREAD')
+    workflow = Workflows(WORKNUM, 'R', 'THREAD')
     workflow.start()
     last_stat = datetime.datetime.now()
     local_spider = {}

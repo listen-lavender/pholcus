@@ -1,67 +1,54 @@
 #!/usr/bin/env python
 # coding=utf8
+import ConfigParser 
+from dbskit import parse
+from dbskit.mysql import CFG as mysql_cfg, orm as mysql_orm
+from dbskit.mongo import CFG as mongo_cfg, orm as mongo_orm
+from dbskit.mysql.suit import withMysql, withMysqlQuery, withMysqlCount, dbpc as mysql_dbpc
+from dbskit.mongo.suit import withMongo, withMongoQuery, withMongoCount, dbpc as mongo_dbpc
 
-from dbskit.mysql import orm as mysql_orm
-from dbskit.mongo import orm as mongo_orm
-from dbskit.mysql.suit import withMysql, dbpc as ms_dbpc
-from dbskit.mongo.suit import withMongo, dbpc as mg_dbpc
+config=ConfigParser.ConfigParser()
+config.read('../pholcus.cfg')
 
-RDB = 'rdb'
-WDB = 'wdb'
+# base = parse(config.items("base"))
 
-"""
-     缓存SQL配置
-"""
-MAXSIZE = 1000
+# if base['type'] == 'mysql':
+#     basecfg = mysql_cfg
+#     baseconn = mysql_dbpc
+#     baseorm = mysql_orm
+#     withBase = withMysql
+# else:
+#     basecfg = mongo_cfg
+#     baseconn = mongo_dbpc
+#     baseorm = mongo_orm
+#     withBase = withMongo
+# basecfg.R = basecfg.W = base['name']
+# basecfg.LIMIT = base['LIMIT']
+# basecfg.BUFFER = base['buffer']
+# basecfg.SETTING = extract(base)
 
-"""
-    数据库配置
-"""
-_DBCONN = {"mysql":{"host": "127.0.0.1",
-                "port": 3306,
-                "user": "root",
-                "passwd": "",
-                "db": "pholcus",
-                "charset": "utf8",
-                "use_unicode":False,},
-            "mongo":{"host": "127.0.0.1",
-                "port": 27017,
-                "user": "root",
-                "passwd": "",
-                "db": "pholcus",
-                "charset": "utf8",
-                "use_unicode":False,},
-            }
+data = parse(config.items("data"))
+if data['type'] == 'mysql':
+    datacfg = mysql_cfg
+    dataconn = mysql_dbpc
+    dataorm = mysql_orm
+    withData = withMysql
+    withDataQuery = withMysqlQuery
+    withDataCount = withMysqlCount
+else:
+    datacfg = mongo_cfg
+    dataconn = mongo_dbpc
+    dataorm = mongo_orm
+    withData = withMongo
+    withDataQuery = withMongoQuery
+    withDataCount = withMongoCount
+datacfg.R = datacfg.W = data['name']
+datacfg.LIMIT = data['LIMIT']
+datacfg.BUFFER = data['buffer']
+datacfg.SETTING = extract(data)
 
-_BASE_R = _DBCONN["mysql"]
-_BASE_W = _DBCONN["mysql"]
-_DATA_R = _DBCONN["mongo"]
-LIMIT = 20
-baseorm = mysql_orm
-dataorm = mongo_orm
-withBase = withMysql
-withData = withMongo
-base = ms_dbpc
-data = mg_dbpc
-
-DQ = {
-    'redis':{
-        'host':'localhost',
-        'port':6379,
-        'db':0,
-        'tube':'pholcus-task',
-        'log':{
-            'host':'localhost',
-            'port':6379,
-            'db':0,
-            'tube':'pholcus-log',
-        }
-    },
-    'beanstalkd':{
-        'host':'localhost',
-        'port':11300,
-        'tube':'pholcus-task',
-    }
-}
-LOGWORKERNUM = 6
-LOGSTATUS = [0, 1, 2]
+WORKNUM = config.getint("work", "worknum")
+WORKQUEUE = parse(config.items("work-queue"))
+LOGNUM = config.getint("log", "worknum")
+LOGSTATUS = config.getint("log", "status")
+LOGQUEUE = parse(config.items("log-queue"))

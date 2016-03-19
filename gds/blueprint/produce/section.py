@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf8
 import json, urllib, datetime
-from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
+from model.setting import withBase, basecfg
 from webcrawl.character import unicode2utf8
 from hawkeye import seesection
 from flask import Blueprint, request, Response, render_template, g
@@ -10,7 +10,7 @@ from model.base import Section, Dataextract, Datasource, Permit
 from model.setting import baseorm
 
 @produce.route('/section/list/<aid>', methods=['GET', 'POST', 'DELETE'])
-@withBase(WDB, resutype='DICT', autocommit=True)
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def sectionlist(aid):
     """
     select gs.id, gs.aid, gs.name, gs.flow, gs.index, gs.retry, gs.timelimit, gs.store, gsp.id, gsp.aid, gsp.name, gsp.flow, gsp.index, gsp.retry, gsp.timelimit, gsp.store
@@ -64,7 +64,7 @@ def sectionlist(aid):
 
 @produce.route('/section/detail', methods=['GET', 'POST', 'DELETE'])
 @produce.route('/section/detail/<sid>', methods=['GET', 'POST', 'DELETE'])
-@withBase(WDB, resutype='DICT', autocommit=True)
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def sectiondetail(sid=None):
     user = request.user
     aid = int(request.args.get('aid', 0))

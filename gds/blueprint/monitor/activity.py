@@ -2,7 +2,7 @@
 # coding=utf8
 import json
 import time, datetime
-from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
+from model.setting import withBase, basecfg
 from flask import Blueprint, request, Response, render_template, g
 from webcrawl.pjq import RedisQueue
 from model.setting import DQ

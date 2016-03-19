@@ -9,7 +9,7 @@ from kokolog.prettyprint import CFG
 from model.log import RunLog
 from webcrawl.daemon import Daemon
 from model.setting import baseorm
-from model.setting import withBase, withData, RDB, WDB, DQ, LOGWORKERNUM, LOGSTATUS
+from model.setting import withData, datacfg, LOGNUM, LOGSTATUS, LOGQUEUE
 from threading import Thread
 
 path = os.path.abspath('.')
@@ -35,17 +35,17 @@ class Producer(KokologHandler):
             'kwargs':record.kwargs['kwargs'],
             'txt':record.kwargs['txt'],
         }
-        if data['status'] in LOGSTATUS:
+        if data['status'] == LOGSTATUS:
             self.q.rpush(self.tube, pickle.dumps(data))
 
 
-hdr = Producer(**DQ['redis']['log'])
+hdr = Producer(**LOGQUEUE)
 frt = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 hdr.setFormatter(frt)
 CFG.handlers.append(hdr)
 
 
-@withData(WDB, autocommit=True)
+@withData(datacfg.W, autocommit=True)
 def record(data):
     RunLog.insert(RunLog(**data))
 
@@ -72,8 +72,8 @@ class Consumer(Thread):
 class LogMonitor(Daemon):
 
     def _run(self):
-        for k in range(LOGWORKERNUM):
-            c = Consumer(**DQ['redis']['log'])
+        for k in range(LOGNUM):
+            c = Consumer(**LOGQUEUE)
             c.setDaemon(False)
             c.start()
 

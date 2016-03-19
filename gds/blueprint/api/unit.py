@@ -2,7 +2,7 @@
 # coding=utf8
 import json
 import time, datetime
-from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
+from model.setting import withBase, basecfg
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from rest import api, format_datetime
@@ -11,7 +11,7 @@ from model.log import Statistics
 
 @api.route('/unit', methods=['POST'])
 @api.route('/unit/<uid>', methods=['POST'])
-@withBase(RDB, resutype='DICT')
+@withBase(basecfg.R, resutype='DICT')
 def unit(uid=None):
     user = request.user
     condition = request.form.get('condition', '{}')

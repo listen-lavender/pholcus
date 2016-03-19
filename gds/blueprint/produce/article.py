@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf8
 import json, datetime
-from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
+from model.setting import withBase, basecfg
 from webcrawl.character import unicode2utf8
 from hawkeye import seearticle
 from flask import Blueprint, request, Response, render_template, g
@@ -10,7 +10,7 @@ from model.base import Article, Section, Permit, Config
 
 @produce.route('/article/list', methods=['GET'])
 @produce.route('/article/list/<uid>', methods=['GET'])
-@withBase(RDB, resutype='DICT')
+@withBase(basecfg.R, resutype='DICT')
 def articlelist(uid=''):
     user = request.user
     pagetotal = int(request.args.get('pagetotal', 10))
@@ -24,7 +24,7 @@ def articlelist(uid=''):
 
 @produce.route('/article/detail', methods=['GET', 'POST'])
 @produce.route('/article/detail/<aid>', methods=['GET', 'POST'])
-@withBase(WDB, resutype='DICT', autocommit=True)
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def articledetail(aid=None):
     user = request.user
     uid = int(request.args.get('uid') or 0)

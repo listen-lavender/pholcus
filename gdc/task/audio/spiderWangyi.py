@@ -17,9 +17,9 @@ from webcrawl.task import timelimit
 from webcrawl.task import next
 from webcrawl.request import ensureurl
 from webcrawl.request import parturl
+from model.setting import withData, datacfg
 from audiospider import Data
 from audiospider import TIMEOUT
-from audiospider import withData, RDB, WDB
 from audiospider import SpiderAudioOrigin
 
 from task.util.wangyi import encrypt_163
@@ -36,7 +36,7 @@ class Spider163(SpiderAudioOrigin):
         super(Spider163, self).__init__(worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout, tid=tid)
         self.clsname = self.__class__.__name__
 
-    @store(withData(WDB), Data.insert, update=True, method='MANY')
+    @store(withData(datacfg.W), Data.insert, update=True, method='MANY')
     @timelimit(3)
     def fetchDetail(self, url, additions={}, timeout=TIMEOUT, implementor=None):
         result = requGet(url, timeout=timeout, format='HTML')

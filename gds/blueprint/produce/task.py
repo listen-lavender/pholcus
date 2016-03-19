@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf8
 import json, datetime, urllib, urlparse
-from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
+from model.setting import withBase, basecfg
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g, redirect
 from views import produce
@@ -15,7 +15,7 @@ EXETYPE = {'ONCE':'临时任务', 'FOREVER':'周期任务'}
 
 
 @produce.route('/task/list', methods=['GET'])
-@withBase(RDB, resutype='DICT')
+@withBase(basecfg.R, resutype='DICT')
 def tasklist():
     user = request.user
     pagetotal = int(request.args.get('pagetotal', 10))
@@ -30,7 +30,7 @@ def tasklist():
 
 @produce.route('/task/detail', methods=['GET', 'POST'])
 @produce.route('/task/detail/<tid>', methods=['GET', 'POST'])
-@withBase(WDB, resutype='DICT', autocommit=True)
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def taskdetail(tid=None):
     if request.method == 'GET':
         user = request.user
@@ -164,7 +164,7 @@ def taskdetail(tid=None):
 
 
 @produce.route('/task/articles', methods=['GET'])
-@withBase(RDB, resutype='DICT')
+@withBase(basecfg.R, resutype='DICT')
 def taskarticles():
     user = request.user
     config = Config.queryOne({'key':'task'}, projection={'val':1})
@@ -175,7 +175,7 @@ def taskarticles():
 
 
 @produce.route('/task/flows', methods=['GET'])
-@withBase(RDB, resutype='DICT')
+@withBase(basecfg.R, resutype='DICT')
 def taskflows():
     user = request.user
     aid = request.args.get('aid') or 0
@@ -189,7 +189,7 @@ def taskflows():
 
 
 @produce.route('/task/sections', methods=['GET'])
-@withBase(RDB, resutype='DICT')
+@withBase(basecfg.R, resutype='DICT')
 def tasksections():
     user = request.user
     aid = request.args.get('aid') or 0

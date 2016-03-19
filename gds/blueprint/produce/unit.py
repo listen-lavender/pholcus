@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf8
 import json
-from model.setting import withBase, withData, base, data, _BASE_R, _BASE_W, RDB, WDB
+from model.setting import withBase, basecfg
 from webcrawl.character import unicode2utf8
 from hawkeye import seeunit
 from flask import Blueprint, request, Response, render_template, g
@@ -9,7 +9,7 @@ from views import produce
 from model.base import Unit, Datamodel, Config
 
 @produce.route('/unit/list', methods=['GET'])
-@withBase(RDB, resutype='DICT')
+@withBase(basecfg.R, resutype='DICT')
 def unitlist():
     pagetotal = int(request.args.get('pagetotal', 10))
     page = int(request.args.get('page', 1))
@@ -27,7 +27,7 @@ def unitlist():
 
 @produce.route('/unit/detail', methods=['GET', 'POST'])
 @produce.route('/unit/detail/<uid>', methods=['GET', 'POST'])
-@withBase(WDB, resutype='DICT', autocommit=True)
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def unitdetail(uid=None):
     datamodels = Datamodel.queryAll({'status':1}, projection={'_id':1, 'name':1}, sort=[('_id', -1)])
     if request.method == 'GET':

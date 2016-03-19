@@ -2,7 +2,7 @@
 # coding=utf8
 import json, urlparse
 import time, datetime
-from model.setting import withBase, withDataQuery, withDataCount, base, baseorm, data, _BASE_R, _BASE_W, RDB, WDB
+from model.setting import withBase, withDataQuery, withDataCount, baseorm, basecfg
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import monitor
@@ -14,7 +14,7 @@ from bson import ObjectId
 
 
 @monitor.route('/task/data/<tid>', methods=['GET', 'POST'])
-@withBase(RDB, resutype='DICT', autocommit=True)
+@withBase(basecfg.R, resutype='DICT', autocommit=True)
 def taskdata(tid):
     if request.method == 'GET':
         user = request.user

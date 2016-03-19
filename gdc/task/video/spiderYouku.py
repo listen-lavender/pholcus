@@ -17,9 +17,9 @@ from webcrawl.task import timelimit
 from webcrawl.task import next
 from webcrawl.request import ensureurl
 from webcrawl.request import parturl
+from model.setting import withData, datacfg
 from videospider import Data
 from videospider import TIMEOUT
-from videospider import withData, RDB, WDB
 from videospider import SpiderVideoOrigin
 
 #_print, logger = logprint(modulename(__file__), modulepath(__file__))
@@ -45,7 +45,7 @@ class SpiderYouku(SpiderVideoOrigin):
         self.end = datetime.now()
         self.begin = self.end - timedelta(days=7)
 
-    @store(withData(WDB), Data.insert, update=True, method='MANY')
+    @store(withData(datacfg.W), Data.insert, update=True, method='MANY')
     @timelimit(3)
     @index('url')
     def fetchDetail(self, url, additions={}, timeout=TIMEOUT, implementor=None):
