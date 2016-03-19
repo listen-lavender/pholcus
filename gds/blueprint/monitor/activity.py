@@ -5,11 +5,11 @@ import time, datetime
 from model.setting import withBase, basecfg
 from flask import Blueprint, request, Response, render_template, g
 from webcrawl.pjq import RedisQueue
-from model.setting import DQ
+from model.setting import WORKQUEUE
 from views import monitor
 
 STATDESC = {0:'stopped', 1:'started', 2:'running', 3:'error'}
-q = RedisQueue(host=DQ['redis']['host'], port=DQ['redis']['port'], db=DQ['redis']['db'], tube=DQ['redis']['tube'], init=False)
+q = RedisQueue(host=WORKQUEUE['host'], port=WORKQUEUE['port'], db=WORKQUEUE['db'], tube=WORKQUEUE['tube'], init=False)
 
 @monitor.route('/task/activity', methods=['GET'])
 def taskactivity():

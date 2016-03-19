@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf8
 import ConfigParser 
-from dbskit import parse
+from dbskit import parse, extract
 from dbskit.mysql import CFG as mysql_cfg, orm as mysql_orm
 from dbskit.mongo import CFG as mongo_cfg, orm as mongo_orm
 from dbskit.mysql.suit import withMysql, withMysqlQuery, withMysqlCount, dbpc as mysql_dbpc
@@ -22,8 +22,7 @@ config.read('../pholcus.cfg')
 #     baseconn = mongo_dbpc
 #     baseorm = mongo_orm
 #     withBase = withMongo
-# basecfg.R = basecfg.W = base['name']
-# basecfg.LIMIT = base['LIMIT']
+# basecfg.LIMIT = base['limit']
 # basecfg.BUFFER = base['buffer']
 # basecfg.SETTING = extract(base)
 
@@ -42,8 +41,7 @@ else:
     withData = withMongo
     withDataQuery = withMongoQuery
     withDataCount = withMongoCount
-datacfg.R = datacfg.W = data['name']
-datacfg.LIMIT = data['LIMIT']
+datacfg.LIMIT = data['limit']
 datacfg.BUFFER = data['buffer']
 datacfg.SETTING = extract(data)
 

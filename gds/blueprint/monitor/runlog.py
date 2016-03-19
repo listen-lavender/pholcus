@@ -3,7 +3,7 @@
 import json, urlparse
 import time, datetime
 from bson import ObjectId
-from model.setting import withBase, basecfg
+from model.setting import withData, datacfg
 from model.setting import baseorm
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
@@ -12,7 +12,7 @@ from model.log import RunLog
 
 
 @monitor.route('/task/runlog/<tid>', methods=['GET'])
-@withData(basecfg.R, resutype='DICT')
+@withData(datacfg.R, resutype='DICT')
 def taskrunlog(tid):
     user = request.user
     pagetotal = int(request.args.get('pagetotal', 10))
