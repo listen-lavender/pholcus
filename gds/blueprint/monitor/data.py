@@ -2,7 +2,7 @@
 # coding=utf8
 import json, urlparse
 import time, datetime
-from model.setting import withBase, withDataQuery, withDataCount, base, data, _BASE_R, _BASE_W, RDB, WDB
+from model.setting import withBase, withDataQuery, withDataCount, base, baseorm, data, _BASE_R, _BASE_W, RDB, WDB
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import monitor
@@ -29,8 +29,7 @@ def taskdata(tid):
     page = int(request.args.get('page', 1))
     total = int(request.args.get('total', 0))
     count = (total - 1)/pagetotal + 1
-    # tid = Task.__mappings__['tid'].verify(tid)
-    tid = int(tid)
+    tid = baseorm.IdField.verify(tid)
     task = Task.queryOne(user, {'_id':tid}, projection={'aid':1})
     article = Article.queryOne(user, {'_id':task['aid']}, projection={'uid':1})
     unit = Unit.queryOne({'_id':article['uid']}, projection={'dmid':1})

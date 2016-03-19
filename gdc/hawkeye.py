@@ -2,7 +2,7 @@
 # coding=utf-8
 import time, datetime
 import os, sys, json
-from webcrawl.handleRequest import requPost
+from webcrawl.request import requPost
 from godhand import cook
 from setting import USER, SECRET, HOST
 import task

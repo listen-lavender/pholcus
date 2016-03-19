@@ -9,8 +9,8 @@ import traceback
 from model.setting import withData, RDB, WDB, DQ
 from model.log import ProxyLog, Statistics, Log
 from model.data import Proxy
-from webcrawl.handleRequest import PROXY, requGet, requPost
-from webcrawl.work import Workflows, DataQueue
+from webcrawl.request import PROXY, requGet, requPost
+from webcrawl.task import Workflows, DataQueue
 
 from setting import USER, SECRET, HOST
 from log import Producer
