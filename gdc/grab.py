@@ -87,7 +87,8 @@ def schedule():
         article = requPost('%sgds/api/article/%s' % (HOST, str(task['aid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
         article = article['article']
         if article['fileupdate']:
-            result = requGet('%sgds/static/exe/%s/%s' % (HOST, CONFIG['val'], article['filepath']), format='TEXT')
+            print CONFIG, article['filepath']
+            result = requGet('%sgds/static/exe/%s%s' % (HOST, CONFIG['val'], article['filepath']), format='TEXT')
             filepath = '%s%s' % (CONFIG['val'], article['filepath'])
             fi = open(filepath, 'w')
             fi.write(result)
@@ -98,7 +99,7 @@ def schedule():
         unit = requPost('%sgds/api/unit/%s' % (HOST, str(article['uid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
         unit = unit['unit']
         if unit['fileupdate']:
-            result = requGet('%sgds/static/exe/%s/%s' % (HOST, CONFIG['val'], unit['filepath']), format='TEXT')
+            result = requGet('%sgds/static/exe/%s%s' % (HOST, CONFIG['val'], unit['filepath']), format='TEXT')
             filepath = '%s%s' % (CONFIG['val'], unit['filepath'])
             fi = open(filepath, 'w')
             fi.write(result)
@@ -112,7 +113,7 @@ def schedule():
         datamodel = requPost('%sgds/api/datamodel/%s' % (HOST, str(unit['dmid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
         datamodel = datamodel['datamodel']
         if datamodel['fileupdate']:
-            result = requGet('%sgds/static/exe/%s/%s' % (HOST, CONFIG['val'], datamodel['filepath']), format='TEXT')
+            result = requGet('%sgds/static/exe/%s%s' % (HOST, CONFIG['val'], datamodel['filepath']), format='TEXT')
             filepath = datamodel['filepath']
             fi = open(filepath, 'w')
             fi.write(result)

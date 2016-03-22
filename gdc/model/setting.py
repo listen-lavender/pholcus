@@ -10,22 +10,12 @@ from dbskit.mongo.suit import withMongo, withMongoQuery, withMongoCount, dbpc as
 config=ConfigParser.ConfigParser()
 config.read('../pholcus.cfg')
 
-# base = parse(config.items("base"))
+base = parse(config.items("base"))
 
-# if base['type'] == 'mysql':
-#     basecfg = mysql_cfg
-#     baseconn = mysql_dbpc
-#     baseorm = mysql_orm
-#     withBase = withMysql
-# else:
-#     basecfg = mongo_cfg
-#     baseconn = mongo_dbpc
-#     baseorm = mongo_orm
-#     withBase = withMongo
-# basecfg.R = basecfg.W = base['name']
-# basecfg._LIMIT = base['limit']
-# basecfg._BUFFER = base['buffer']
-# basecfg._SETTING = extract(base)
+if base['type'] == 'mysql':
+    baseorm = mysql_orm
+else:
+    baseorm = mongo_orm
 
 data = parse(config.items("data"))
 if data['type'] == 'mysql':
