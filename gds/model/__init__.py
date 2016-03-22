@@ -3,9 +3,9 @@
 
 def initDB():
     from setting import baseconn, dataconn, basecfg, datacfg
-    baseconn.addDB(basecfg.R, basecfg.LIMIT, **basecfg.SETTING)
-    baseconn.addDB(basecfg.W, basecfg.LIMIT, **basecfg.SETTING)
-    dataconn.addDB(datacfg.R, datacfg.LIMIT, **datacfg.SETTING)
-    dataconn.addDB(datacfg.W, datacfg.LIMIT, **datacfg.SETTING)
+    baseconn.addDB(basecfg.R(), basecfg._LIMIT, **basecfg._SETTING)
+    baseconn.addDB(basecfg.W(), basecfg._LIMIT, **basecfg._SETTING)
+    dataconn.addDB(datacfg.R(), datacfg._LIMIT, **datacfg._SETTING)
+    dataconn.addDB(datacfg.W(), datacfg._LIMIT, **datacfg._SETTING)
     
 initDB()

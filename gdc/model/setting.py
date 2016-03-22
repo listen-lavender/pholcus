@@ -22,9 +22,10 @@ config.read('../pholcus.cfg')
 #     baseconn = mongo_dbpc
 #     baseorm = mongo_orm
 #     withBase = withMongo
-# basecfg.LIMIT = base['limit']
-# basecfg.BUFFER = base['buffer']
-# basecfg.SETTING = extract(base)
+# basecfg.R = basecfg.W = base['name']
+# basecfg._LIMIT = base['limit']
+# basecfg._BUFFER = base['buffer']
+# basecfg._SETTING = extract(base)
 
 data = parse(config.items("data"))
 if data['type'] == 'mysql':
@@ -41,9 +42,10 @@ else:
     withData = withMongo
     withDataQuery = withMongoQuery
     withDataCount = withMongoCount
-datacfg.LIMIT = data['limit']
-datacfg.BUFFER = data['buffer']
-datacfg.SETTING = extract(data)
+datacfg.R = datacfg.W = data['name']
+datacfg._LIMIT = data['limit']
+datacfg._BUFFER = data['buffer']
+datacfg._SETTING = extract(data)
 
 WORKNUM = config.getint("work", "worknum")
 WORKQUEUE = parse(config.items("work-queue"))
