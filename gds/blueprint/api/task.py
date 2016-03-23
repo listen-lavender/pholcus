@@ -30,12 +30,14 @@ def task(tid=None):
             Task.update(user, condition, data)
             tid = condition['_id']
         else:
+            data = Task(**data)
             tid = Task.insert(user, data)
         result = json.dumps({'stat':1, 'desc':'Task is set successfully.', 'tid':tid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         if limit == 'one':
             result = Task.queryOne(user, condition, projection=projection)
-            result = format_datetime(result)
+            if result:
+                result = format_datetime(result)
         else:
             result = []
             for one in Task.queryAll(user, condition, projection=projection):

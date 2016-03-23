@@ -30,12 +30,14 @@ def section(sid=None):
             Section.update(user, condition, data)
             sid = condition['_id']
         else:
+            data = Section(**data)
             sid = Section.insert(user, data)
         result = json.dumps({'stat':1, 'desc':'Section is set successfully.', 'sid':sid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         if limit == 'one':
             result = Section.queryOne(user, condition, projection=projection)
-            result = format_datetime(result)
+            if result:
+                result = format_datetime(result)
         else:
             result = []
             for one in Section.queryAll(user, condition, projection=projection):

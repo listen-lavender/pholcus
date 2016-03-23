@@ -30,12 +30,14 @@ def config(cid=None):
             Config.update(condition, {'$set':data})
             cid = condition['_id']
         else:
+            data = Config(**data)
             cid = Config.insert(data)
         result = json.dumps({'stat':1, 'desc':'Config is set successfully.', 'cid':cid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         if limit == 'one':
             result = Config.queryOne(condition, projection=projection)
-            result = format_datetime(result)
+            if result:
+                result = format_datetime(result)
         else:
             result = []
             for one in Config.queryAll(condition, projection=projection):

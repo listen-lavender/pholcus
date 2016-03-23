@@ -2,7 +2,8 @@
 # coding=utf-8
 import os
 from docopt import docopt
-from hawkeye import initScript, setModel, setUnit, setArticle
+# from hawkeye import initScript
+from hawkeye import setModel, setUnit, setArticle
 
 if __name__ == '__main__':
     helpdoc = """Tools to use gdc(grabbing datas client) conviently.
@@ -10,8 +11,8 @@ if __name__ == '__main__':
       gdc (-h|--help)
       gdc init
       gdc register model (-f|--filepath) <filepath>
-      gdc register unit (-f|--filepath) <filepath> (-c|--comment) <comment>
-      gdc register article (-f|--filepath) <filepath> (-p|--pinyin) <pinyin> (-s|--src) <src>
+      gdc register unit (-f|--filepath) <filepath>
+      gdc register article (-f|--filepath) <filepath>
 
     Options:
       -h,  --help        Show help document.
@@ -33,9 +34,9 @@ if __name__ == '__main__':
         if params.get('model'):
             setModel(os.path.abspath(params.get('<filepath>')))
         elif params.get('unit'):
-            setUnit(os.path.abspath(params.get('<filepath>')), params.get('<comment>'))
+            setUnit(os.path.abspath(params.get('<filepath>')))
         elif params.get('article'):
-            setArticle(os.path.abspath(params.get('<filepath>')), params.get('<pinyin>'), params.get('<src>'))
+            setArticle(os.path.abspath(params.get('<filepath>')))
         else:
             pass
     else:
