@@ -70,9 +70,9 @@ def sectiondetail(sid=None):
     aid = int(request.args.get('aid', 0))
     if request.method == 'GET':
         if sid is None:
-            section = {'_id':'', 'aid':'', 'next_id':'', 'next':'', 'name':'', 'flow':'', 'index':'', 'retry':'', 'timelimit':'', 'store':'', 'additions':'', 'datasource':[], 'dataextract':[], 'current':True}
+            section = {'_id':'', 'aid':'', 'next_id':'', 'next':'', 'name':'', 'desc':'', 'flow':'', 'index':'', 'retry':'', 'timelimit':'', 'store':'', 'additions':'', 'datasource':[], 'dataextract':[], 'current':True}
         else:
-            projection = {'_id':1 ,'aid':1 ,'next_id':1 ,'name':1 ,'flow':1 ,'index':1 ,'retry':1 ,'timelimit':1 ,'store':1, 'additions':1, 'creator':1}
+            projection = {'_id':1, 'aid':1, 'next_id':1, 'name':1, 'desc':1, 'flow':1, 'index':1, 'retry':1, 'timelimit':1, 'store':1, 'additions':1, 'creator':1}
             section = Section.queryOne(user, {'_id':sid}, projection=projection)
             next = Section.queryOne(user, {'_id':section['next_id']}, projection=projection)
             if next is None:
@@ -93,6 +93,7 @@ def sectiondetail(sid=None):
     elif request.method == 'POST':
         sid = request.form.get('_id')
         section_name = request.form.get('name')
+        desc = request.form.get('desc')
         next = request.form.get('next')
         flow = request.form.get('flow')
         index = request.form.get('index')
@@ -104,9 +105,9 @@ def sectiondetail(sid=None):
         delcid = request.form.get('delcid', '').split(',')
         if sid:
             sid = baseorm.IdField.verify(sid)
-            Section.update(user, {'_id':sid}, {'index':index, 'retry':retry, 'timelimit':timelimit, 'store':store, 'additions':additions})
+            Section.update(user, {'_id':sid}, {'desc':desc, 'index':index, 'retry':retry, 'timelimit':timelimit, 'store':store, 'additions':additions})
         else:
-            section = Section(aid=baseorm.IdField.verify(aid), next_id=next, name=section_name, flow=flow, step=0, index=index, retry=retry, timelimit=timelimit, store=store, additions=additions, create_time=datetime.datetime.now())
+            section = Section(aid=baseorm.IdField.verify(aid), next_id=next, name=section_name, desc=desc, flow=flow, step=0, index=index, retry=retry, timelimit=timelimit, store=store, additions=additions, create_time=datetime.datetime.now())
             sid = Section.insert(user, section)
         for cid in addcid:
             if cid == '':

@@ -12,7 +12,7 @@
                 data:{
                     // host:$("#host").val(),
                     // pinyin:$("#pinyin").val(),
-                    name:$("#name").val(),
+                    desc:$("#desc").val(),
                 },
                 async:false,
                 dataType:'json',
@@ -25,7 +25,7 @@
             });
         }
         function reset(){
-            $("#name").val("");
+            $("#desc").val("");
         }
     </script>
 {% endblock %}
@@ -39,10 +39,13 @@
         </div>
     {% endfor %}
     <div class="ui input" style="width:100%; margin:15px 20px;">
-        <span>name:&nbsp;&nbsp;</span><input id="name" type="text" style="width:60%;" value="{{article['name']|default('', true)}}">
+        <span>name:&nbsp;&nbsp;</span><span>{{article['name']}}</span>
     </div>
     <div class="ui input" style="width:100%; margin:15px 20px;">
-        <span>clsname:&nbsp;&nbsp;</span><span>{{article['clsname']}}&nbsp;&nbsp;*例如 如家(rujia)</span>
+        <span>clsname:&nbsp;&nbsp;</span><span>{{article['clsname']}}</span>
+    </div>
+    <div class="ui input" style="width:100%; margin:15px 20px;">
+        <span>desc:&nbsp;&nbsp;</span><input id="desc" type="text" style="width:60%;" value="{{article['desc']|default('', true)}}">
     </div>
     <div class="ui input" style="width:100%; margin:15px 20px;">
         <span>脚本文件路径:&nbsp;&nbsp;</span><span>{{article['filepath']}}</span>

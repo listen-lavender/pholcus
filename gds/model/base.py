@@ -101,7 +101,7 @@ class Article(AuthModel):
     __table__ = 'grab_article'
     uid = baseorm.IdField(unique='ga')
     name = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='ga')
-    desc = baseorm.StrField(ddl='char', max_length=4)
+    desc = baseorm.StrField(ddl='char', max_length=128)
     clsname = baseorm.StrField(ddl='varchar', max_length=50)
     filepath = baseorm.StrField(ddl='varchar', max_length=64)
     fileupdate = baseorm.StrField(ddl='int', max_length=1, default=1)
@@ -132,7 +132,7 @@ class Codetree(baseorm.Model):
 class Config(baseorm.Model):
     __table__ = 'grab_config'
     key = baseorm.StrField(ddl='varchar', max_length=50, nullable=0, updatable=False, unique='gc')
-    val = baseorm.StrField(ddl='varchar', max_length=200)
+    val = baseorm.StrField(ddl='varchar', max_length=128)
     status = baseorm.IntField(ddl='int', max_length=1)
     extra = baseorm.StrField(ddl='varchar', max_length=300, default=None)
     creator = baseorm.IdField(updatable=False)
@@ -178,7 +178,7 @@ class Dataitem(baseorm.Model):
     name = baseorm.StrField(ddl='varchar', max_length=64, nullable=0, updatable=False, unique='gdi')
     length = baseorm.IntField(ddl='int', max_length=5)
     default = baseorm.StrField(ddl='varchar', max_length=100)
-    comment = baseorm.StrField(ddl='varchar', max_length=200)
+    comment = baseorm.StrField(ddl='varchar', max_length=128)
     unique = baseorm.StrField(ddl='varchar', max_length=64)
 
 
@@ -186,7 +186,7 @@ class Datamodel(baseorm.Model):
     __table__ = 'grab_datamodel'
     name = baseorm.StrField(ddl='varchar', max_length=64, nullable=0, updatable=False, unique='gdm')
     table = baseorm.StrField(ddl='varchar', max_length=64)
-    comment = baseorm.StrField(ddl='varchar', max_length=200)
+    comment = baseorm.StrField(ddl='varchar', max_length=128)
     autocreate = baseorm.IntField(ddl='int', max_length=1)
     iscreated = baseorm.IntField(ddl='int', max_length=1)
     filepath = baseorm.StrField(ddl='varchar', max_length=64)
@@ -257,6 +257,7 @@ class Section(AuthModel):
     aid = baseorm.IdField(unique='gs')
     next_id = baseorm.IdField()
     name = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='gs')
+    desc = baseorm.StrField(ddl='char', max_length=128)
     step = baseorm.IntField(ddl='int', max_length=2)
     flow = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='gs')
     index = baseorm.StrField(ddl='varchar', max_length=20)
@@ -301,7 +302,7 @@ class Unit(baseorm.Model):
     __table__ = 'grab_unit'
     dmid = baseorm.IdField()
     name = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='gu')
-    desc = baseorm.StrField(ddl='char', max_length=4)
+    desc = baseorm.StrField(ddl='char', max_length=128)
     filepath = baseorm.StrField(ddl='varchar', max_length=64)
     fileupdate = baseorm.StrField(ddl='int', max_length=1, default=1)
     status = baseorm.IntField(ddl='int', max_length=1)
@@ -328,7 +329,7 @@ class Node(baseorm.Model):
 class Waycon(baseorm.Model):
     __table__ = 'grab_waycon'
     name = baseorm.StrField(ddl='varchar', max_length=50, nullable=0, updatable=False, unique='gw')
-    desc = baseorm.StrField(ddl='varchar', max_length=200)
+    desc = baseorm.StrField(ddl='varchar', max_length=128)
     status = baseorm.IntField(ddl='int', max_length=1)
     extra = baseorm.StrField(ddl='varchar', max_length=300, default=None)
     creator = baseorm.IdField(updatable=False)

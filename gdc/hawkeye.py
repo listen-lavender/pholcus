@@ -195,7 +195,7 @@ def setSection(flow, step, section_name, sections, article_id):
     next = data.get('next')
     if next is not None:
         data['next_id'] = setSection(flow, step+1, next, sections, article_id)
-    section = requPost('%sgds/api/section' % HOST, {'condition':json.dumps({'name':section_name, 'aid':str(article['_id']), 'flow':flow}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
+    section = requPost('%sgds/api/section' % HOST, {'condition':json.dumps({'name':section_name, 'aid':str(article_id), 'flow':flow}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
     section = section['section']
     if section:
         print 'Section %s %s has been set.' % (flow, section_name)

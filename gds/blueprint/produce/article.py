@@ -30,9 +30,9 @@ def articledetail(aid=None):
     uid = int(request.args.get('uid') or 0)
     if request.method == 'GET':
         if aid is None:
-            article = {'_id':'', 'name':'', 'clsname':'', 'filepath':'', 'fileupdate':0}
+            article = {'_id':'', 'name':'', 'clsname':'', 'desc':1, 'filepath':'', 'fileupdate':0}
         else:
-            article = Article.queryOne(user, {'_id':aid}, projection={'_id':1, 'name':1, 'clsname':1, 'filepath':1, 'fileupdate':1})
+            article = Article.queryOne(user, {'_id':aid}, projection={'_id':1, 'name':1, 'clsname':1, 'desc':1, 'filepath':1, 'fileupdate':1})
             sections = Section.queryAll(user, {'aid':aid}, projection={'flow':1})
             article['flows'] = list(set([section['flow'] for section in sections]))
         return render_template('article/detail.html', appname=g.appname, user=user, uid=uid, article=article)
@@ -40,6 +40,7 @@ def articledetail(aid=None):
         user = request.user
         name = request.form.get('name')
         clsname = request.form.get('clsname')
+        desc = request.form.get('desc')
         filepath = request.form.get('filepath')
         if aid is None:
             article = Article(
@@ -54,7 +55,7 @@ def articledetail(aid=None):
                 update_time=datetime.datetime.now())
             aid = Article.insert(user, article)
         else:
-            Article.update(user, {'_id':aid}, {'name':name})
+            Article.update(user, {'_id':aid}, {'desc':desc})
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         pass
