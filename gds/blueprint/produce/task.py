@@ -5,7 +5,7 @@ from model.setting import withBase, basecfg
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g, redirect
 from views import produce
-from model.base import Task, Section, Article, Unit, Config, Permit, Creator
+from model.base import Task, Section, Article, Unit, Permit, Creator
 from model.setting import baseorm
 
 QUEUETYPE = {'P':'本地队列', 'B':'beanstalk队列'}
@@ -61,9 +61,8 @@ def taskdetail(tid=None):
                 urlparas['alert'] = urllib.quote('你没有该任务的权限')
                 return redirect('%s?%s' % (request.referrer.split('?')[0], '&'.join('%s=%s' % (k, v) for k, v in urlparas.items())))
             projection = {'val':1}
-            config = Config.queryOne({'key':'task'}, projection=projection)
             task['section_name'] = section['name']
-            task['article_name'] = config['val'] + article['filepath']
+            task['article_name'] = article['filepath']
             task['current'] = str(task['creator']) == user['_id']
             task['pull_url'] = 'http://%s/gds/m/task/data/%s' % (request.host, str(task['_id']))
             del task['creator']
@@ -167,10 +166,9 @@ def taskdetail(tid=None):
 @withBase(basecfg.R, resutype='DICT')
 def taskarticles():
     user = request.user
-    config = Config.queryOne({'key':'task'}, projection={'val':1})
     articles = Article.queryAll(user, {}, projection={'uid':1, '_id':1, 'filepath':1})
     for article in articles:
-        article['article_name'] = config['val'] + article['filepath']
+        article['article_name'] = article['filepath']
     return json.dumps(articles, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
 

@@ -63,15 +63,6 @@ def stat(task, spider, create_time=None):
         if not name == 'total':
             record(gsid, spider.stat[name]['succ'], spider.stat[name]['fail'], spider.stat[name]['timeout'], sname=name, create_time=create_time)
 
-def config():
-    condition = {'key':'task'}
-    projection = {'val':1}
-    config = requPost('%sgds/api/config' % HOST, {'condition':json.dumps(condition), 'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
-    config = config['config']
-    return config
-
-CONFIG = config()
-
 def schedule():
     user_id = 0
     condition = {'status':{'$gt':0}}
@@ -83,13 +74,12 @@ def schedule():
         section = requPost('%sgds/api/section/%s' % (HOST, str(task['sid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
         section = section['section']
 
-        projection = {'uid':1, 'filepath':1, 'name':1, 'filepath':1, 'fileupdate':1}
+        projection = {'uid':1, 'filepath':1, 'name':1, 'clsname':1, 'filepath':1, 'fileupdate':1}
         article = requPost('%sgds/api/article/%s' % (HOST, str(task['aid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
         article = article['article']
         if article['fileupdate']:
-            print CONFIG, article['filepath']
-            result = requGet('%sgds/static/exe/%s%s' % (HOST, CONFIG['val'], article['filepath']), format='TEXT')
-            filepath = '%s%s' % (CONFIG['val'], article['filepath'])
+            result = requGet('%sgds/static/exe/%s' % (HOST, article['filepath']), format='TEXT')
+            filepath = article['filepath']
             fi = open(filepath, 'w')
             fi.write(result)
             fi.close()
@@ -99,8 +89,8 @@ def schedule():
         unit = requPost('%sgds/api/unit/%s' % (HOST, str(article['uid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
         unit = unit['unit']
         if unit['fileupdate']:
-            result = requGet('%sgds/static/exe/%s%s' % (HOST, CONFIG['val'], unit['filepath']), format='TEXT')
-            filepath = '%s%s' % (CONFIG['val'], unit['filepath'])
+            result = requGet('%sgds/static/exe/%s' % (HOST, unit['filepath']), format='TEXT')
+            filepath = '%s' % unit['filepath']
             fi = open(filepath, 'w')
             fi.write(result)
             fi.close()
@@ -113,7 +103,7 @@ def schedule():
         datamodel = requPost('%sgds/api/datamodel/%s' % (HOST, str(unit['dmid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
         datamodel = datamodel['datamodel']
         if datamodel['fileupdate']:
-            result = requGet('%sgds/static/exe/%s%s' % (HOST, CONFIG['val'], datamodel['filepath']), format='TEXT')
+            result = requGet('%sgds/static/exe/%s' % (HOST, datamodel['filepath']), format='TEXT')
             filepath = datamodel['filepath']
             fi = open(filepath, 'w')
             fi.write(result)
@@ -124,7 +114,7 @@ def schedule():
         task['index'] = section['index']
         task['additions'] = section.get('additions') or '{}'
         task['filepath'] = article['filepath']
-        task['article'] = article['name']
+        task['article'] = article['clsname']
         task['unit'] = unit['name']
     return tasks
 
@@ -138,9 +128,9 @@ def task():
     local_spider = {}
     while True:
         for task in schedule():
-            module_name = 'task.%s.%s' % (task['unit'], task['filepath'].split('/')[-1].replace('.py', ''))
+            module_name = task['filepath'].replace('.py', '').replace('/', '.')
             task['update_time'] = datetime.datetime.strptime(task['update_time'], '%Y-%m-%d %H:%M:%S')
-            cls_name = 'Spider%s' % task['article'].capitalize()
+            cls_name = task['article']
             module = __import__(module_name, fromlist=['task.%s' % task['unit']])
             cls = getattr(module, cls_name)
             if task.get('type', 'FOREVER') == 'FOREVER':
