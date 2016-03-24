@@ -19,10 +19,9 @@
         <thead>
             <tr>
                 <th>tid</th>
-                <th>sid</th>
                 <th>status_desc</th>
                 <th>priority</th>
-                <th>methodId</th>
+                <th>methodName</th>
                 <th>times</th>
                 <th>args</th>
                 <th>kwargs</th>
@@ -31,11 +30,10 @@
         <tbody>
             {% for one in tasks %}
                 <tr>
-                    <td style="padding-right:10px;">{{one['tid']}}</td>
-                    <td style="padding-right:10px;">{{one['sid']}}</td>
+                    <td style="padding-right:10px;"><a href="/gds/p/task/detail/{{one['tid']}}">{{one['tid']}}</a></td>
                     <td style="padding-right:10px;">{{one['status_desc']}}</td>
                     <td style="padding-right:10px;">{{one['priority']}}</td>
-                    <td style="padding-right:10px;">{{one['methodId']}}</td>
+                    <td style="padding-right:10px;">{{one['methodName']}}</td>
                     <td style="padding-right:10px;">{{one['times']}}</td>
                     <td style="padding-right:10px;">{{one['args']}}</td>
                     <td style="padding-right:10px;">{{one['kwargs']}}</td>
