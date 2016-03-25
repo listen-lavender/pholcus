@@ -19,3 +19,8 @@ def exepath(filename):
 def modelpath(filename):
     filepath = os.path.join(TOP, filename)
     return filepath
+
+def store(filepath, filedata):
+    fi = open(filepath, 'w')
+    fi.write(filedata)
+    fi.close()
