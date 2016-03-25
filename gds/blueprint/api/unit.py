@@ -9,7 +9,11 @@ from flask import Blueprint, request, Response, render_template, g
 from rest import api, format_datetime
 from model.base import Unit, Creator
 from model.log import Statistics
-from . import getpath, allowed
+from . import exepath, allowed
+
+INIT = """#!/usr/bin/env python
+# coding=utf-8
+"""
 
 @api.route('/unit', methods=['POST'])
 @api.route('/unit/<uid>', methods=['POST'])
@@ -34,7 +38,13 @@ def unit(uid=None):
         result = {'stat':0, 'desc':'请上传正确格式的python文件', 'datamodel':''}
         if pyfile and allowed(pyfile.filename):
             filename = pyfile.filename
-            pyfile.save(getpath(filename))
+            filepath = exepath(filename)
+            pyfile.save(filepath)
+            filepath = os.path.join(os.path.dirname(filepath), '__init__.py')
+            if not os.path.exists(filepath):
+                fi = open(filepath, 'w')
+                fi.write(INIT)
+                fi.close()
             result['stat'] = 1
             result['desc'] = '上传成功'
         result = json.dumps(result, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')

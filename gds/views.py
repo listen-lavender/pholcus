@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding=utf8
-import json, sys, os
+import json, sys, os, datetime
 
 from setting import useport, CACHE_TIMEOUT
 from flask import Flask, g, request, Response, session, redirect
@@ -47,7 +47,8 @@ app = Flask(__name__, static_folder='static', static_path='/gds/static', templat
 app.config.from_object(__name__)
 app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'redis'
-app.config['SESSION_PERMANENT'] = True
+app.config['SESSION_PERMANENT'] = False
+app.permanent_session_lifetime = datetime.timedelta(days=1)
 Session(app)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://hotel2:hotel0115@58.83.130.112:3306/hotel20'
 # db = SQLAlchemy(app)

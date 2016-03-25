@@ -9,7 +9,7 @@ from flask import Blueprint, request, Response, render_template, g
 from rest import api, format_datetime
 from model.base import Article, Creator
 from model.log import Statistics
-from . import getpath, allowed
+from . import exepath, allowed
 
 @api.route('/article', methods=['POST'])
 @api.route('/article/<aid>', methods=['POST'])
@@ -34,7 +34,7 @@ def article(aid=None):
         result = {'stat':0, 'desc':'请上传正确格式的python文件', 'datamodel':''}
         if pyfile and allowed(pyfile.filename):
             filename = pyfile.filename
-            pyfile.save(getpath(filename))
+            pyfile.save(exepath(filename))
             result['stat'] = 1
             result['desc'] = '上传成功'
         result = json.dumps(result, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')

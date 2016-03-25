@@ -20,6 +20,10 @@ DataQueue.update(**WORKQUEUE)
 
 LIMIT = 600
 
+INIT = """#!/usr/bin/env python
+# coding=utf-8
+"""
+
 @withData(datacfg.W, resutype='DICT', autocommit=True)
 def choose():
     limit = datetime.datetime.now() - datetime.timedelta(days=3)
@@ -90,7 +94,7 @@ def schedule():
         unit = unit['unit']
         if unit['fileupdate']:
             result = requGet('%sgds/static/exe/%s' % (HOST, unit['filepath']), format='TEXT')
-            filepath = '%s' % unit['filepath']
+            filepath = unit['filepath']
             fi = open(filepath, 'w')
             fi.write(result)
             fi.close()
@@ -98,6 +102,11 @@ def schedule():
             fi.write('#!/usr/bin/env python\n# coding=utf8')
             fi.close()
             requPost('%sgds/api/unit/%s' % (HOST, str(article['uid'])), {'data':json.dumps({'fileupdate':0})})
+            filepath = os.path.join(os.path.dirname(filepath), '__init__.py')
+            if not os.path.exists(filepath):
+                fi = open(filepath, 'w')
+                fi.write(INIT)
+                fi.close()
 
         projection = {'filepath':1, 'fileupdate':1}
         datamodel = requPost('%sgds/api/datamodel/%s' % (HOST, str(unit['dmid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')

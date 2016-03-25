@@ -13,6 +13,7 @@ q = RedisQueue(host=WORKQUEUE['host'], port=WORKQUEUE['port'], db=WORKQUEUE['db'
 
 @monitor.route('/task/activity', methods=['GET'])
 def taskactivity():
+    from model.data import *
     user = request.user
     pagetotal = int(request.args.get('pagetotal', 10))
     page = int(request.args.get('page', 1))
