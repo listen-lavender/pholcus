@@ -14,7 +14,7 @@ Server of pholcus
 - 管理脚本，包括脚本注册，脚本分发、脚本粒度参数控制，脚本在线热调整和脚本权限。
 - 管理任务，包括任务的执行控制，任务的日志跟踪，任务粒度参数调整，任务的报表。
 - 管理数据，包括数据查看，数据的push和pull。
-- 管理用户，支持管理员administrator，开发者和运营operator三类用户管理。
+- 管理用户，支持管理员administrator，开发者developer和运营operator三类用户管理。
 
 ## gdc
 
