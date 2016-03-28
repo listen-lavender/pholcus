@@ -16,6 +16,8 @@ from setting import USER, SECRET, HOST
 from log import Producer
 import task
 
+CURRPATH = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+
 DataQueue.update(**WORKQUEUE)
 
 LIMIT = 600
@@ -84,7 +86,7 @@ def schedule():
         if article['fileupdate']:
             result = requGet('%sgds/static/exe/%s' % (HOST, article['filepath']), format='TEXT')
             filepath = article['filepath']
-            fi = open(filepath, 'w')
+            fi = open(os.path.join(CURRPATH, filepath), 'w')
             fi.write(result)
             fi.close()
             requPost('%sgds/api/article/%s' % (HOST, str(task['aid'])), {'data':json.dumps({'fileupdate':0})})
@@ -95,16 +97,16 @@ def schedule():
         if unit['fileupdate']:
             result = requGet('%sgds/static/exe/%s' % (HOST, unit['filepath']), format='TEXT')
             filepath = unit['filepath']
-            fi = open(filepath, 'w')
+            fi = open(os.path.join(CURRPATH, filepath), 'w')
             fi.write(result)
             fi.close()
-            fi = open(os.path.join(os.path.dirname(os.path.abspath(filepath)), "__init__.py"), 'w')
+            fi = open(os.path.join(os.path.dirname(os.path.join(CURRPATH, filepath)), "__init__.py"), 'w')
             fi.write('#!/usr/bin/env python\n# coding=utf8')
             fi.close()
             requPost('%sgds/api/unit/%s' % (HOST, str(article['uid'])), {'data':json.dumps({'fileupdate':0})})
             filepath = os.path.join(os.path.dirname(filepath), '__init__.py')
             if not os.path.exists(filepath):
-                fi = open(filepath, 'w')
+                fi = open(os.path.join(CURRPATH, filepath), 'w')
                 fi.write(INIT)
                 fi.close()
 
@@ -114,7 +116,7 @@ def schedule():
         if datamodel['fileupdate']:
             result = requGet('%sgds/static/exe/%s' % (HOST, datamodel['filepath']), format='TEXT')
             filepath = datamodel['filepath']
-            fi = open(filepath, 'w')
+            fi = open(os.path.join(CURRPATH, filepath), 'w')
             fi.write(result)
             fi.close()
             requPost('%sgds/api/datamodel/%s' % (HOST, str(unit['dmid'])), {'data':json.dumps({'fileupdate':0})})
