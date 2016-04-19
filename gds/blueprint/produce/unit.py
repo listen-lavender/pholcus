@@ -7,8 +7,10 @@ from hawkeye import seeunit
 from flask import Blueprint, request, Response, render_template, g
 from views import produce
 from model.base import Unit, Datamodel
+from . import allow_cross_domain
 
 @produce.route('/unit/list', methods=['GET'])
+@allow_cross_domain
 @withBase(basecfg.R, resutype='DICT')
 def unitlist():
     pagetotal = int(request.args.get('pagetotal', 10))
@@ -23,10 +25,15 @@ def unitlist():
         unit['unit_name'] = unit['name']
         unit['datamodel_name'] = datamodel['name']
         units.append(unit)
-    return render_template('unit/list.html', appname=g.appname, user=user, units=units, pagetotal=pagetotal, page=page, total=total, count=count)
+    if request.headers.get('User-Agent') == 'test':
+        result = {"appname":g.appname, "user":user, "units":units, "pagetotal":pagetotal, "page":page, "total":total, "count":count}
+        return json.dumps({'stat':1, 'desc':'success', 'result':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+    else:
+        return render_template('unit/list.html', appname=g.appname, user=user, units=units, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @produce.route('/unit/detail', methods=['GET', 'POST'])
 @produce.route('/unit/detail/<uid>', methods=['GET', 'POST'])
+@allow_cross_domain
 @withBase(basecfg.W, resutype='DICT', autocommit=True)
 def unitdetail(uid=None):
     datamodels = Datamodel.queryAll({'status':1}, projection={'_id':1, 'name':1}, sort=[('_id', -1)])
@@ -39,7 +46,11 @@ def unitdetail(uid=None):
             unit['unit_name'] = unit['name']
             unit['datamodel_name'] = datamodel['name']
             unit['dmid'] = datamodel['_id']
-        return render_template('unit/detail.html', appname=g.appname, user=user, unit=unit, datamodels=datamodels)
+        if request.headers.get('User-Agent') == 'test':
+            result = {"appname":g.appname, "user":user, "unit":unit, "datamodels":datamodels}
+            return json.dumps({'stat':1, 'desc':'success', 'result':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+        else:
+            return render_template('unit/detail.html', appname=g.appname, user=user, unit=unit, datamodels=datamodels)
     elif request.method == 'POST':
         user = request.user
         unit_name = request.form.get('unit_name')

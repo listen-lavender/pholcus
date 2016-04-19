@@ -7,6 +7,7 @@ from flask import Blueprint, request, Response, render_template, g, redirect
 from views import produce
 from model.base import Task, Section, Article, Unit, Permit, Creator
 from model.setting import baseorm
+from . import allow_cross_domain
 
 QUEUETYPE = {'P':'本地队列', 'B':'beanstalk队列'}
 WORKTYPE = {'THREAD':'线程', 'COROUTINE':'协程'}
@@ -15,6 +16,7 @@ EXETYPE = {'ONCE':'临时任务', 'FOREVER':'周期任务'}
 
 
 @produce.route('/task/list', methods=['GET'])
+@allow_cross_domain
 @withBase(basecfg.R, resutype='DICT')
 def tasklist():
     user = request.user
@@ -25,11 +27,16 @@ def tasklist():
         total = Task.count(user, {})
     count = (total - 1)/pagetotal + 1
     tasks = Task.queryAll(user, {}, projection={'_id':1, 'name':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
-    return render_template('task/list.html', appname=g.appname, user=user, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
+    if request.headers.get('User-Agent') == 'test':
+        result = {"appname":g.appname, "user":user, "tasks":tasks, "pagetotal":pagetotal, "page":page, "total":total, "count":count}
+        return json.dumps({'stat':1, 'desc':'success', 'result':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+    else:
+        return render_template('task/list.html', appname=g.appname, user=user, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
 
 
 @produce.route('/task/detail', methods=['GET', 'POST'])
 @produce.route('/task/detail/<tid>', methods=['GET', 'POST'])
+@allow_cross_domain
 @withBase(basecfg.W, resutype='DICT', autocommit=True)
 def taskdetail(tid=None):
     if request.method == 'GET':
@@ -74,7 +81,11 @@ def taskdetail(tid=None):
         for one in Permit.queryAll({'otype':'Task', 'oid':tid}, projection={'cid':1, '_id':0}):
             author[str(one['cid'])] = ''
         task['author'] = urllib.quote(json.dumps(author).encode('utf8'))
-        return render_template('task/detail.html', appname=g.appname, user=user, task=task)
+        if request.headers.get('User-Agent') == 'test':
+            result = {"appname":g.appname, "user":user, "task":task}
+            return json.dumps({'stat':1, 'desc':'success', 'result':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+        else:
+            return render_template('task/detail.html', appname=g.appname, user=user, task=task)
     elif request.method == 'POST':
         user = request.user
         task_name = request.form.get('task_name')
@@ -163,6 +174,7 @@ def taskdetail(tid=None):
 
 
 @produce.route('/task/articles', methods=['GET'])
+@allow_cross_domain
 @withBase(basecfg.R, resutype='DICT')
 def taskarticles():
     user = request.user
@@ -173,6 +185,7 @@ def taskarticles():
 
 
 @produce.route('/task/flows', methods=['GET'])
+@allow_cross_domain
 @withBase(basecfg.R, resutype='DICT')
 def taskflows():
     user = request.user
@@ -187,6 +200,7 @@ def taskflows():
 
 
 @produce.route('/task/sections', methods=['GET'])
+@allow_cross_domain
 @withBase(basecfg.R, resutype='DICT')
 def tasksections():
     user = request.user

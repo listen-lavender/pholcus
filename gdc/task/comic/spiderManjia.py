@@ -4,8 +4,8 @@ import os, re, copy, json, time
 from pymongo import MongoClient
 from datetime import timedelta
 from datetime import datetime
-from webcrawl.request import requGet
-from webcrawl.request import requPost
+from webcrawl.request import get
+from webcrawl.request import post
 from webcrawl.request import getHtmlNodeContent
 from webcrawl.request import getXmlNodeContent
 from webcrawl.task import retry
@@ -54,7 +54,7 @@ class SpiderDmzj(SpiderComicOrigin):
         src = '漫画之家'
         host = 'www.dmzj.com'
 
-        wap_result = requGet(url, timeout=TIMEOUT, format='HTML')
+        wap_result = get(url, timeout=TIMEOUT, format='HTML')
         page_url = url
         url = ''
         format = 'h5'
@@ -88,7 +88,7 @@ class SpiderDmzj(SpiderComicOrigin):
     @timelimit(20)
     @index('url')
     def fetchList(self, url, additions={}, timeout=TIMEOUT, implementor=None):
-        result = requGet(url, timeout=timeout, format='JSON')
+        result = get(url, timeout=timeout, format='JSON')
         if len(result) < 15:
             nextpage = None
         else:
@@ -122,7 +122,7 @@ class SpiderDmzj(SpiderComicOrigin):
     @timelimit(20)
     @initflow('www')
     def fetchCat(self, url, additions={}, timeout=TIMEOUT, implementor=None):
-        result = requGet(url, timeout=timeout, format='HTML')
+        result = get(url, timeout=timeout, format='HTML')
         print len(result.findall('.//div[@id="classCon"]//ul'))
         result = result.find('.//div[@id="classCon"]//ul')
         for cat in result.findall('.//a'):

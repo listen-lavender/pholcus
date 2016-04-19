@@ -7,9 +7,11 @@ from hawkeye import seearticle
 from flask import Blueprint, request, Response, render_template, g
 from views import produce
 from model.base import Article, Section, Permit
+from . import allow_cross_domain
 
 @produce.route('/article/list', methods=['GET'])
 @produce.route('/article/list/<uid>', methods=['GET'])
+@allow_cross_domain
 @withBase(basecfg.R, resutype='DICT')
 def articlelist(uid=''):
     user = request.user
@@ -20,10 +22,15 @@ def articlelist(uid=''):
         total = Article.count(user, {})
     count = (total - 1)/pagetotal + 1
     articles = Article.queryAll(user, {}, projection={'_id':1, 'name':1, 'filepath':1, 'uid':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
-    return render_template('article/list.html', appname=g.appname, user=user, uid=uid, articles=articles, pagetotal=pagetotal, page=page, total=total, count=count)
+    if request.headers.get('User-Agent') == 'test':
+        result = {"appname":g.appname, "user":user, "uid":uid, "articles":articles, "pagetotal":pagetotal, "page":page, "total":total, "count":count}
+        return json.dumps({'stat':1, 'desc':'success', 'result':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+    else:
+        return render_template('article/list.html', appname=g.appname, user=user, uid=uid, articles=articles, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @produce.route('/article/detail', methods=['GET', 'POST'])
 @produce.route('/article/detail/<aid>', methods=['GET', 'POST'])
+@allow_cross_domain
 @withBase(basecfg.W, resutype='DICT', autocommit=True)
 def articledetail(aid=None):
     user = request.user
@@ -35,7 +42,11 @@ def articledetail(aid=None):
             article = Article.queryOne(user, {'_id':aid}, projection={'_id':1, 'name':1, 'clsname':1, 'desc':1, 'filepath':1, 'fileupdate':1})
             sections = Section.queryAll(user, {'aid':aid}, projection={'flow':1})
             article['flows'] = list(set([section['flow'] for section in sections]))
-        return render_template('article/detail.html', appname=g.appname, user=user, uid=uid, article=article)
+        if request.headers.get('User-Agent') == 'test':
+            result = {"appname":g.appname, "user":user, "uid":uid, "article":article}
+            return json.dumps({'stat':1, 'desc':'success', 'result':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+        else:
+            return render_template('article/detail.html', appname=g.appname, user=user, uid=uid, article=article)
     elif request.method == 'POST':
         user = request.user
         name = request.form.get('name')

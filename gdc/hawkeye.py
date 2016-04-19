@@ -2,7 +2,7 @@
 # coding=utf-8
 import time, datetime
 import os, sys, json
-from webcrawl.request import requPost
+from webcrawl.request import post
 from godhand import cook
 from setting import USER, SECRET, HOST
 import task
@@ -75,7 +75,7 @@ def setModel(filepath, fileupdate=False):
                     break
             if model is not None:
                 fileupdate = True
-                datamodel = requPost('%sgds/api/datamodel' % HOST, {'condition':json.dumps({'name':model}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
+                datamodel = post('%sgds/api/datamodel' % HOST, {'condition':json.dumps({'name':model}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
                 datamodel = datamodel['datamodel']
                 if datamodel:
                     continue
@@ -85,14 +85,14 @@ def setModel(filepath, fileupdate=False):
                     "filepath": filepath,
                     "comment": comment,
                 }
-                print requPost('%sgds/api/datamodel' % HOST, {'data':json.dumps(data)}, format='JSON')
+                print post('%sgds/api/datamodel' % HOST, {'data':json.dumps(data)}, format='JSON')
     if fileupdate:
-        print requPost('%sgds/api/datamodel' % HOST, files={'file':(filepath, open(filepath, 'rb'))}, format='JSON')
+        print post('%sgds/api/datamodel' % HOST, files={'file':(filepath, open(filepath, 'rb'))}, format='JSON')
 
 
 def setUnit(filepath):
     name = filepath[filepath.rindex('/')+1:].replace('spider.py', '')
-    unit = requPost('%sgds/api/unit' % HOST, {'condition':json.dumps({'name':name}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
+    unit = post('%sgds/api/unit' % HOST, {'condition':json.dumps({'name':name}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
     unit = unit['unit']
     if not unit:
         dmid = None
@@ -100,7 +100,7 @@ def setUnit(filepath):
         for one in fi.readlines():
             if 'as Data' in one:
                 model = one.replace('as Data', '').split('import')[-1].strip().lower()
-                datamodel = requPost('%sgds/api/datamodel' % HOST, {'condition':json.dumps({'name':model}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
+                datamodel = post('%sgds/api/datamodel' % HOST, {'condition':json.dumps({'name':model}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
                 datamodel = datamodel['datamodel']
                 dmid = datamodel['_id']
                 break
@@ -113,7 +113,7 @@ def setUnit(filepath):
             "filepath": short_filepath,
             "desc": '',
         }
-        print requPost('%sgds/api/unit' % HOST, {'data':json.dumps(data)}, files={'file':('task/%s' % short_filepath, open(filepath, 'rb'))}, format='JSON')
+        print post('%sgds/api/unit' % HOST, {'data':json.dumps(data)}, files={'file':('task/%s' % short_filepath, open(filepath, 'rb'))}, format='JSON')
     else:
         print 'Unit %s has been set.' % name
 
@@ -122,7 +122,7 @@ def setArticle(filepath, fileupdate=False):
     unit = None
     for one in os.listdir(os.path.dirname(filepath)):
         if one.endswith('spider.py'):
-            unit = requPost('%sgds/api/unit' % HOST, {'condition':json.dumps({'name':one.replace('spider.py', '')}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
+            unit = post('%sgds/api/unit' % HOST, {'condition':json.dumps({'name':one.replace('spider.py', '')}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
             unit = unit['unit']
             break
     if not unit:
@@ -130,7 +130,7 @@ def setArticle(filepath, fileupdate=False):
         return
     name = filepath[filepath.rindex('/')+1:filepath.rindex('.')]
     clsname = ''
-    article = requPost('%sgds/api/article' % HOST, {'condition':json.dumps({'name':name, 'uid':str(unit['_id'])}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
+    article = post('%sgds/api/article' % HOST, {'condition':json.dumps({'name':name, 'uid':str(unit['_id'])}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
     article = article['article']
     lines = []
     flows = []
@@ -171,7 +171,7 @@ def setArticle(filepath, fileupdate=False):
     if article:
         print 'Article %s has been set.' % name
         if fileupdate:
-            print requPost('%sgds/api/article' % HOST, files={'file': (filepath, open(filepath, 'rb'))}, format='JSON')
+            print post('%sgds/api/article' % HOST, files={'file': (filepath, open(filepath, 'rb'))}, format='JSON')
     else:
         short_filepath = filepath.split('/task/')[-1]
         data = {
@@ -180,7 +180,7 @@ def setArticle(filepath, fileupdate=False):
             "clsname": clsname,
             "filepath": short_filepath,
         }
-        print requPost('%sgds/api/article' % HOST, {'data':json.dumps(data)}, files={'file': ('task/%s' % short_filepath, open(filepath, 'rb'))}, format='JSON')
+        print post('%sgds/api/article' % HOST, {'data':json.dumps(data)}, files={'file': ('task/%s' % short_filepath, open(filepath, 'rb'))}, format='JSON')
 
     for section_name, section in sections.items():
         if section.get('flow') is None:
@@ -195,7 +195,7 @@ def setSection(flow, step, section_name, sections, article_id):
     next = data.get('next')
     if next is not None:
         data['next_id'] = setSection(flow, step+1, next, sections, article_id)
-    section = requPost('%sgds/api/section' % HOST, {'condition':json.dumps({'name':section_name, 'aid':str(article_id), 'flow':flow}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
+    section = post('%sgds/api/section' % HOST, {'condition':json.dumps({'name':section_name, 'aid':str(article_id), 'flow':flow}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
     section = section['section']
     if section:
         print 'Section %s %s has been set.' % (flow, section_name)
@@ -212,7 +212,7 @@ def setSection(flow, step, section_name, sections, article_id):
             "timelimit": data.get('timelimit', 30),
             "store": data.get('store', 0)
         }
-        section = requPost('%sgds/api/section' % HOST, {'data':json.dumps(data)}, format='JSON')
+        section = post('%sgds/api/section' % HOST, {'data':json.dumps(data)}, format='JSON')
         return section['sid']
 
 

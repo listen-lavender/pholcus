@@ -9,9 +9,11 @@ from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from views import monitor
 from model.log import RunLog
+from . import CJsonEncoder, allow_cross_domain
 
 
 @monitor.route('/task/runlog/<tid>', methods=['GET'])
+@allow_cross_domain
 @withData(datacfg.R, resutype='DICT')
 def taskrunlog(tid):
     user = request.user
@@ -47,10 +49,15 @@ def taskrunlog(tid):
     for one in logs:
         for c in oc:
             one[c] = str(c)
-        for c in dtc:
-            one[c] = one[c].strftime('%Y-%m-%d %H:%M:%S')
+        # for c in dtc:
+        #     one[c] = str(one[c])
+        #     one[c] = one[c].strftime('%Y-%m-%d %H:%M:%S')
         for c in lc:
             one[c] = ','.join([str(item) for item in one[c]])
         for c in dc:
             one[c] = json.dumps(one[c], ensure_ascii=False)
-    return render_template('task/runlog.html', appname=g.appname, user=user, title='RunLog', columns=columns, rows=logs, pagetotal=pagetotal, page=page, total=total, count=count)
+    if request.headers.get('User-Agent') == 'test':
+        result = {"appname":g.appname, "user":user, "title":'RunLog', "columns":columns, "rows":logs, "pagetotal":pagetotal, "page":page, "total":total, "count":count}
+        return json.dumps({'stat':1, 'desc':'success', 'result':result}, ensure_ascii=False, sort_keys=True, indent=4, cls=CJsonEncoder).encode('utf8')
+    else:
+        return render_template('task/runlog.html', appname=g.appname, user=user, title='RunLog', columns=columns, rows=logs, pagetotal=pagetotal, page=page, total=total, count=count)

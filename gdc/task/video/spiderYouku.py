@@ -4,8 +4,8 @@ import os, re, copy
 from pymongo import MongoClient
 from datetime import timedelta
 from datetime import datetime
-from webcrawl.request import requGet
-from webcrawl.request import requPost
+from webcrawl.request import get
+from webcrawl.request import post
 from webcrawl.request import getHtmlNodeContent
 from webcrawl.request import getXmlNodeContent
 from webcrawl.task import retry
@@ -57,7 +57,7 @@ class SpiderYouku(SpiderVideoOrigin):
                 outid = url[url.rindex('/')+1:url.rindex('.')]
                 url = 'http://www.youku.com/show_point/%s.html?dt=json&tab=0&divid=point_reload_1' % outid
                 
-            page_result = requGet(url, timeout=TIMEOUT, format='HTML')
+            page_result = get(url, timeout=TIMEOUT, format='HTML')
             pages = page_result.findall('.//div[@class="item"]')
             if len(pages) < 20:
                 nextpage = None
@@ -106,7 +106,7 @@ class SpiderYouku(SpiderVideoOrigin):
 
                 yield data
         except:
-            page_result = requGet(url, timeout=TIMEOUT, format='JSON')
+            page_result = get(url, timeout=TIMEOUT, format='JSON')
             pages = page_result['showlistnew']['items']
 
             yield None
@@ -147,7 +147,7 @@ class SpiderYouku(SpiderVideoOrigin):
     @timelimit(20)
     @index('url')
     def fetchList(self, url, additions={}, timeout=TIMEOUT, implementor=None):
-        result = requGet(url, timeout=timeout, format='HTML')
+        result = get(url, timeout=timeout, format='HTML')
         videos = result.findall('.//div[@class="yk-row yk-v-80"]//div[@class="yk-col3"]')
         if len(videos) < 42:
             nextpage = None

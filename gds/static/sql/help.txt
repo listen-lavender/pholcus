@@ -2,7 +2,7 @@
 
 ---datasource
 id name   method  url  data  headers cookies timeout format sid  session
-1  result requGet dpid dpid  dpid    dpid    dpid    HTML        NULL
+1  result get dpid dpid  dpid    dpid    dpid    HTML        NULL
 
 ---datapath
 id  name       default   index  method     xpath       content   type  refid  reftype   dsid   pid
@@ -17,4 +17,4 @@ id  name       default   index  method     xpath       content   type  refid  re
 9   hotel_id     null    ''     null      null         null      str    1                0     0
 10  additions    {}      ''     null      null         null      dict   1                0     0
 11  headers      null    ua     index     ua           null      str    0      article         0     10
-12  requGet      null    ''     init      webcrawl.handleRequest        null            str    1     0     10
+12  get      null    ''     init      webcrawl.handleRequest        null            str    1     0     10

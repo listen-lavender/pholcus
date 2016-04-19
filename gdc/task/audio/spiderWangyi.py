@@ -4,8 +4,8 @@ import copy, time, json
 from pymongo import MongoClient
 from datetime import timedelta
 from datetime import datetime
-from webcrawl.request import requGet
-from webcrawl.request import requPost
+from webcrawl.request import get
+from webcrawl.request import post
 from webcrawl.request import getHtmlNodeContent
 from webcrawl.request import getXmlNodeContent
 from webcrawl.task import retry
@@ -39,15 +39,15 @@ class Spider163(SpiderAudioOrigin):
     @store(withData(datacfg.W), Data.insert, update=True, method='MANY')
     @timelimit(3)
     def fetchDetail(self, url, additions={}, timeout=TIMEOUT, implementor=None):
-        result = requGet(url, timeout=timeout, format='HTML')
-        album_result = requGet(url, timeout=timeout, format='HTML')
+        result = get(url, timeout=timeout, format='HTML')
+        album_result = get(url, timeout=timeout, format='HTML')
         tag = [getHtmlNodeContent(one, 'TEXT') for one in album_result.findall('.//div[@class="tags f-cb"]//a')]
         pages = json.loads(getHtmlNodeContent(album_result.find('.//textarea[@style="display:none;"]'), 'TEXT') or '[]')
         cat = additions['cat']
         if pages:
             parent_page_id = hash('http://music.163.com/outchain/player?type=2&id=%s' % str(pages[0]['id']))
             for index, one in enumerate(pages):
-                url_result = requPost('http://music.163.com/weapi/song/detail/', encrypt_163('{"id":"%s","ids":"[%s]","csrf_token":""}' % (str(one['id']), str(one['id']))), format='JSON')
+                url_result = post('http://music.163.com/weapi/song/detail/', encrypt_163('{"id":"%s","ids":"[%s]","csrf_token":""}' % (str(one['id']), str(one['id']))), format='JSON')
                 url = url_result['songs'][0]['mp3Url']
                 format = 'mp3'
                 size = 0
@@ -76,7 +76,7 @@ class Spider163(SpiderAudioOrigin):
     @timelimit(20)
     @index('url')
     def fetchList(self, url, additions={}, timeout=TIMEOUT, implementor=None):
-        result = requGet(url, timeout=timeout, format='HTML')
+        result = get(url, timeout=timeout, format='HTML')
         audios = result.findall('.//ul[@id="m-pl-container"]//li')
         if len(audios) < additions['pagesize']:
             nextpage = None

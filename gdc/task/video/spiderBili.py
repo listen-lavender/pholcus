@@ -4,8 +4,8 @@ import os, re, copy
 from pymongo import MongoClient
 from datetime import timedelta
 from datetime import datetime
-from webcrawl.request import requGet
-from webcrawl.request import requPost
+from webcrawl.request import get
+from webcrawl.request import post
 from webcrawl.request import getHtmlNodeContent
 from webcrawl.request import getXmlNodeContent
 from webcrawl.task import retry
@@ -71,11 +71,11 @@ class SpiderBilibili(SpiderVideoOrigin):
             outid = url.strip('/').split('/')[-1].replace('av', '')
             url = 'http://www.bilibili.com/mobile/video/av%s.html' % outid
 
-        page_result = requGet('http://app.bilibili.com/bangumi/avseason/%s.ver' % outid, dirtys=[('seasonJsonCallback({', '{'), ('});', '}')], timeout=TIMEOUT, format='JSON')
+        page_result = get('http://app.bilibili.com/bangumi/avseason/%s.ver' % outid, dirtys=[('seasonJsonCallback({', '{'), ('});', '}')], timeout=TIMEOUT, format='JSON')
         # if not page_result['code'] == '0':
-        #     www_result = requGet(url[:url.rindex('.')].replace('/mobile', '') + '/', timeout=TIMEOUT, format='HTML')
+        #     www_result = get(url[:url.rindex('.')].replace('/mobile', '') + '/', timeout=TIMEOUT, format='HTML')
 
-        wap_result = requGet(url, timeout=TIMEOUT, format='HTML')
+        wap_result = get(url, timeout=TIMEOUT, format='HTML')
         headers = {"Accept":"application/json, text/javascript, */*; q=0.01",
             "Accept-Encoding":"gzip, deflate, sdch",
             "Accept-Language":"en-US,en;q=0.8",
@@ -85,7 +85,7 @@ class SpiderBilibili(SpiderVideoOrigin):
             "Referer":"http//www.bilibili.com/mobile/video/av%s.html?tg" % outid,
             "User-Agent":"Mozilla/5.0 (Linux; Android 5.1.1; Nexus 6 Build/LYZ28E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.20 Mobile Safari/537.36",
             "X-Requested-With":"XMLHttpRequest"}
-        data_result = requGet('http://www.bilibili.com/m/html5?aid=%s' % outid, headers=headers, timeout=TIMEOUT, format='JSON')
+        data_result = get('http://www.bilibili.com/m/html5?aid=%s' % outid, headers=headers, timeout=TIMEOUT, format='JSON')
         
         page_url = url
         url = data_result.get('src')
@@ -130,7 +130,7 @@ class SpiderBilibili(SpiderVideoOrigin):
             parent_page_id = hash('http://www.bilibili.com/mobile/video/av%s.html#page=%s' % (outid, first))
             for one in pages:
                 pagenum = getHtmlNodeContent(one, {'ATTR':'page'})
-                data_result = requGet('http://www.bilibili.com/m/html5?aid=%s&page=%s' % (outid, pagenum), headers=headers, timeout=TIMEOUT, format='JSON')
+                data_result = get('http://www.bilibili.com/m/html5?aid=%s&page=%s' % (outid, pagenum), headers=headers, timeout=TIMEOUT, format='JSON')
                 page_data = copy.deepcopy(data)
                 page_data['name'] = getHtmlNodeContent(one.find('.//a'), 'TEXT')
                 try:
@@ -149,7 +149,7 @@ class SpiderBilibili(SpiderVideoOrigin):
             parent_page_id = hash('http://www.bilibili.com/mobile/video/av%s.html' % first)
             for one in page_result['result']['episodes']:
                 aid = one['danmaku'] if one['av_id'] == outid else one['av_id']
-                data_result = requGet('http://www.bilibili.com/m/html5?aid=%s&page=%s' % (one['av_id'], one['page']), headers=headers, timeout=TIMEOUT, format='JSON')
+                data_result = get('http://www.bilibili.com/m/html5?aid=%s&page=%s' % (one['av_id'], one['page']), headers=headers, timeout=TIMEOUT, format='JSON')
                 page_data = copy.deepcopy(data)
                 try:
                     page_data['url'] = data_result['src']
@@ -177,7 +177,7 @@ class SpiderBilibili(SpiderVideoOrigin):
     @timelimit(20)
     @index('url')
     def fetchList(self, url, additions={}, timeout=TIMEOUT, implementor=None):
-        result = requGet(url, headers=self.headers, timeout=timeout, format='HTML')
+        result = get(url, headers=self.headers, timeout=timeout, format='HTML')
         videos = result.findall('.//a[@class="list-item"]')
         if len(videos) < 20:
             nextpage = None
@@ -199,7 +199,7 @@ class SpiderBilibili(SpiderVideoOrigin):
     @timelimit(20)
     @initflow('www')
     def fetchCat(self, url, additions={}, timeout=TIMEOUT, implementor=None):
-        result = requGet(url, headers=self.headers, timeout=timeout, format='JSON')
+        result = get(url, headers=self.headers, timeout=timeout, format='JSON')
         for upcat in result['0']:
             for downcat in result[str(upcat['tid'])]:
                 url = 'http://www.bilibili.com/mobile/list/default-%s-1-%s~%s.html' % (str(downcat['tid']), self.begin.strftime('%Y-%m-%d'), self.end.strftime('%Y-%m-%d'))
@@ -209,7 +209,7 @@ class SpiderBilibili(SpiderVideoOrigin):
 if __name__ == '__main__':
 
     print 'start'
-    spider = SpiderBilibili(worknum=6, queuetype='P', worktype='COROUTINE')
-    spider.fetchDatas('www', 'http://www.bilibili.com/html/js/types.json')
+    spider = SpiderBilibili(worknum=6, queuetype='P', worktype='THREAD')
+    spider.fetchDatas('www', 0, 'http://www.bilibili.com/html/js/types.json')
     spider.statistic()
     print 'end'

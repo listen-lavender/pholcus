@@ -3,8 +3,8 @@
 from pymongo import MongoClient
 from datetime import timedelta
 from datetime import datetime
-from webcrawl.request import requGet
-from webcrawl.request import requPost
+from webcrawl.request import get
+from webcrawl.request import post
 from webcrawl.request import getHtmlNodeContent
 from webcrawl.request import getXmlNodeContent
 from webcrawl.task import retry
@@ -46,7 +46,7 @@ class SpiderXicidaili(SpiderProxyOrigin):
     @index('url')
     @initflow('www')
     def fetchList(self, url, additions={}, timeout=TIMEOUT, implementor=None):
-        result = requGet(url, headers=self.headers, timeout=timeout, format='HTML')
+        result = get(url, headers=self.headers, timeout=timeout, format='HTML')
         proxys = result.findall('.//table[@id="ip_list"]//tr')
         if len(proxys) < 100:
             nextpage = None

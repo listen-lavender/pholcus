@@ -109,9 +109,10 @@ def encrypt_163(content, userid=PUB, passwd=PASSWD, key=KEY):
     return {'params':result['encText'], 'encSecKey':result['encSecKey']}
 
 if __name__ == '__main__':
-    import requests
-    content = '{"a":"hao","b":"kuan"}'
-    print encrypt_163(content)
+    # import requests
+    # content = '{"a":"hao","b":"kuan"}'
+    # print encrypt_163(content)
+    print ',', encrypt_crypto('{"a":1}', '4iLCZMe8op5jkcc9')
     
 
 

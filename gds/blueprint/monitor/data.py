@@ -11,9 +11,11 @@ from model.log import Statistics
 from util.validate import checksign
 from model import data as grabdata
 from bson import ObjectId
+from . import CJsonEncoder, allow_cross_domain
 
 
 @monitor.route('/task/data/<tid>', methods=['GET', 'POST'])
+@allow_cross_domain
 @withBase(basecfg.R, resutype='DICT', autocommit=True)
 def taskdata(tid):
     if request.method == 'GET':
@@ -59,15 +61,19 @@ def taskdata(tid):
     else:
         columns = []
     for one in datas:
+        one['atime'] = str(one['atime'])
         for c in oc:
             one[c] = str(c)
-        for c in dtc:
-            one[c] = one[c].strftime('%Y-%m-%d %H:%M:%S')
+        # for c in dtc:
+        #     one[c] = str(one[c])
+        #     one[c] = one[c].strftime('%Y-%m-%d %H:%M:%S')
         for c in lc:
             one[c] = ','.join([str(item) for item in one[c]])
         for c in dc:
             one[c] = json.dumps(one[c], ensure_ascii=False)
     if request.method == 'GET':
-        return render_template('task/data.html', appname=g.appname, user=user, title=datamodel['name'], columns=columns, rows=datas, pagetotal=pagetotal, page=page, total=total, count=count)
-    else:
-        return json.dumps({'stat':1, 'desc':'success', 'datas':datas, 'pagetotal':pagetotal, 'page':page, 'total':total, 'count':count}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+        if request.headers.get('User-Agent') == 'test':
+            result = {"appname":g.appname, "user":user, "title":datamodel['name'], "columns":columns, "rows":datas, "pagetotal":pagetotal, "page":page, "total":total, "count":count}
+            return json.dumps({'stat':1, 'desc':'success', 'result':result}, ensure_ascii=False, sort_keys=True, indent=4, cls=CJsonEncoder).encode('utf8')
+        else:
+            return render_template('task/data.html', appname=g.appname, user=user, title=datamodel['name'], columns=columns, rows=datas, pagetotal=pagetotal, page=page, total=total, count=count)

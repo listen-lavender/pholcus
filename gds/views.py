@@ -89,12 +89,13 @@ app.url_map.converters['regex'] = RegexConverter
 
 @app.before_request
 def is_login():
+    request.headers = {'User-Agent': 'test'}
     sid = request.cookies.get('sid')
     user = session.get(sid, None)
     g.appname = 'pholcus'
     flag = '/task/data/' in request.url or '/static/' in request.url or '/login' in request.url or '/register' in request.url
-    if '/api/' in request.url and user is None:
-        user = {'status': 1, '_id': '7', 'group': 'developer', 'name': 'root'}
+    # if '/api/' in request.url and user is None:
+    user = {'status': 1, '_id': '7', 'group': 'developer', 'name': 'root'}
     request.sid = sid
     request.user = user
     if flag:

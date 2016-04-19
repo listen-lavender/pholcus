@@ -8,8 +8,10 @@ from flask import Blueprint, request, Response, render_template, g
 from views import produce
 from model.base import Section, Dataextract, Datasource, Permit
 from model.setting import baseorm
+from . import allow_cross_domain
 
 @produce.route('/section/list/<aid>', methods=['GET', 'POST', 'DELETE'])
+@allow_cross_domain
 @withBase(basecfg.W, resutype='DICT', autocommit=True)
 def sectionlist(aid):
     """
@@ -46,7 +48,11 @@ def sectionlist(aid):
         # datasource = Datasource.queryAll({'sid':section['pid']})
         # sections.append({'_id':section['pid'], 'aid':section['paid'], 'name':section['pname'], 'flow':section['pflow'], 'index':section['pindex'], 'retry':section['pretry'], 'timelimit':section['ptimelimit'], 'store':section['pstore'], 'dataextract':dataextract, 'datasource':datasource})
         sections.sort(key=lambda one:weight[one['_id']])
-        return render_template('section/list.html', appname=g.appname, user=user, aid=aid, flow=flow, sections=sections)
+        if request.headers.get('User-Agent') == 'test':
+            result = {"appname":g.appname, "user":user, "aid":aid, "flow":flow, "sections":sections}
+            return json.dumps({'stat':1, 'desc':'success', 'result':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+        else:
+            return render_template('section/list.html', appname=g.appname, user=user, aid=aid, flow=flow, sections=sections)
     elif request.method == 'POST':
         flow = request.form.get('flow', '')
         sections = json.loads(request.form.get('sections', '[]'))
@@ -89,7 +95,11 @@ def sectiondetail(sid=None):
         for one in Permit.queryAll({'otype':'Section', 'oid':sid}, projection={'cid':1, '_id':0}):
             author[str(one['cid'])] = ''
         section['author'] = urllib.quote(json.dumps(author).encode('utf8'))
-        return render_template('section/detail.html', appname=g.appname, user=user, aid=aid, sid=sid, section=section)
+        if request.headers.get('User-Agent') == 'test':
+            result = {"appname":g.appname, "user":user, "aid":aid, "sid":sid, "section":section}
+            return json.dumps({'stat':1, 'desc':'success', 'result':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+        else:
+            return render_template('section/detail.html', appname=g.appname, user=user, aid=aid, sid=sid, section=section)
     elif request.method == 'POST':
         sid = request.form.get('_id')
         section_name = request.form.get('name')

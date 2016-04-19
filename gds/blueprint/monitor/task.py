@@ -8,11 +8,13 @@ from flask import Blueprint, request, Response, render_template, g
 from views import monitor
 from model.base import Task
 from model.log import Statistics
+from . import CJsonEncoder, allow_cross_domain
 
 STATDESC = {0:'stopped', 1:'started', 2:'running', 3:'error'}
 EXETYPE = {'ONCE':'临时任务', 'FOREVER':'周期任务'}
 
 @monitor.route('/task/list', methods=['GET'])
+@allow_cross_domain
 @withBase(basecfg.R, resutype='DICT')
 @withData(datacfg.R, resutype='DICT')
 def tasklist():
@@ -29,7 +31,11 @@ def tasklist():
         one['status_desc'] = STATDESC.get(one['status'], '')
         one['max'] = (Statistics.queryOne({'tid':one['_id']}, projection={'succ':1}, sort=[('succ', -1)]) or {'succ':0})['succ']
         one['type_name'] = EXETYPE.get(one['type'], '')
-    return render_template('task/list.html', appname=g.appname, user=user, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
+    if request.headers.get('User-Agent') == 'test':
+        result = {"appname":g.appname, "user":user, "tasks":tasks, "pagetotal":pagetotal, "page":page, "total":total, "count":count}
+        return json.dumps({'stat':1, 'desc':'success', 'result':result}, ensure_ascii=False, sort_keys=True, indent=4, cls=CJsonEncoder).encode('utf8')
+    else:
+        return render_template('task/list.html', appname=g.appname, user=user, tasks=tasks, pagetotal=pagetotal, page=page, total=total, count=count)
 
 @monitor.route('/task/time/detail/<tid>', methods=['GET'])
 @withBase(basecfg.R, resutype='DICT')
