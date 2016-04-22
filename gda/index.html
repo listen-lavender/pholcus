@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>vue-webpack-simple</title>
+    <link rel="stylesheet" type="text/css" href="vendor/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="dist/style.css" >
+  </head>
+  <body>
+    <div class="ui top attached large demo menu">
+      <a class="item">
+        <i class="home icon"></i>
+        Home
+      </a>
+       <div class="right menu">
+          <a class="item">Documentation</a>
+          <a class="item">Api</a>
+          <a class="item">Github</a>
+        </div>
+    </div>
+    <div class="ui bottom attached segment pushable">
+        <div class="ui visible left vertical sidebar menu m-siderbar">
+            <a class="item" v-link="{name: 'task'}"  >
+              <i class="tasks icon"></i>
+              任务
+            </a>
+            <a class="item" v-link="{name: 'code'}" >
+              <i class="code icon"></i>
+              脚本
+            </a>
+            <a class="item" v-link="{name: 'user'}" >
+              <i class="user icon"></i>
+              用户
+            </a>
+            <a class="item">
+              <i class="settings icon"></i>
+              设置
+            </a>
+        </div>
+        <div class="pusher">
+            <router-view></router-view>
+        </div>
+    </div>
+    <script src="dist/build.js"></script>
+  </body>
+</html>
