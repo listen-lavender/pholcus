@@ -47,11 +47,11 @@ def send_static_file(self, filename):
     return send_from_directory(self.static_folder, filename,
                                cache_timeout=1)
 
-admin = Blueprint('admin', __name__, template_folder='template')
-admin.send_static_file  = types.MethodType(send_static_file, admin)
+user = Blueprint('user', __name__, template_folder='template')
+user.send_static_file  = types.MethodType(send_static_file, user)
 
 
-@admin.route('/login', methods=['GET', 'POST'])
+@user.route('/login', methods=['GET', 'POST'])
 @withBase(basecfg.W, resutype='DICT', autocommit=True)
 def login():
     username = request.form.get('username')
@@ -77,7 +77,7 @@ def login():
         return render_template('login.html', appname=g.appname, status=0, user=None)
 
 
-@admin.route('/logout', methods=['GET'])
+@user.route('/logout', methods=['GET'])
 def logout():
     sid = request.sid
     if sid is not None:
@@ -85,7 +85,7 @@ def logout():
     return redirect('/gds/a/login')
 
 
-@admin.route('/register', methods=['GET', 'POST'])
+@user.route('/register', methods=['GET', 'POST'])
 @withBase(basecfg.W, resutype='DICT', autocommit=True)
 def register():
     if request.method == 'GET':
@@ -118,7 +118,7 @@ def register():
         return response
 
 
-@admin.route('/user/verify', methods=['GET', 'POST'])
+@user.route('/user/verify', methods=['GET', 'POST'])
 @withBase(basecfg.W, resutype='DICT', autocommit=True)
 def verify():
     user = request.user
@@ -140,9 +140,9 @@ def verify():
         return json.dumps({'stat':1, 'desc':'success', 'data':{}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
 
-@admin.route('/user/list', methods=['GET', 'POST'])
+@user.route('/user/list', methods=['GET', 'POST'])
 @withBase(basecfg.W, resutype='DICT', autocommit=True)
-def userlist():
+def user_list():
     user = request.user
     pagetotal = int(request.args.get('pagetotal', 10))
     page = int(request.args.get('page', 1))
@@ -160,7 +160,7 @@ def userlist():
         return json.dumps({'stat':1, 'desc':'success', 'data':creators}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
 
-@admin.route('/user/detail/<cid>', methods=['GET'])
+@user.route('/user/detail/<cid>', methods=['GET'])
 @withBase(basecfg.W, resutype='DICT', autocommit=True)
 def userdetail(cid=None):
     user = request.user
@@ -172,7 +172,7 @@ def userdetail(cid=None):
     return render_template('user/detail.html', appname=g.appname, user=user, creator=creator)
 
 
-@admin.route('/user/avatar', methods=['POST'])
+@user.route('/user/avatar', methods=['POST'])
 @withBase(basecfg.W, resutype='DICT', autocommit=True)
 def useravatar():
     user = request.user
@@ -184,7 +184,7 @@ def useravatar():
     return json.dumps({'stat':1, 'desc':'success', 'data':'/gds/static/img/user/%s' % name}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
 
-@admin.route('/user/password', methods=['GET', 'POST'])
+@user.route('/user/password', methods=['GET', 'POST'])
 @withBase(basecfg.W, resutype='DICT', autocommit=True)
 def userpassword():
     user = request.user

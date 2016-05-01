@@ -3,7 +3,7 @@
 import json, sys, os, datetime
 
 from setting import useport, CACHE_TIMEOUT
-from flask import Flask, g, request, Response, session, redirect
+from flask import Flask, g, request, Response, session, redirect, render_template
 from flask.templating import DispatchingJinjaLoader
 from flask.globals import _request_ctx_stack
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -11,10 +11,9 @@ from werkzeug.contrib.cache import SimpleCache
 from werkzeug.routing import BaseConverter
 from util.session import Session
 
-from blueprint.admin.views import admin
-from blueprint.monitor.views import monitor
-from blueprint.produce.views import produce
-from blueprint.api.rest import api
+from blueprint.task.views import task
+from blueprint.script.views import script
+from blueprint.user.views import user
 
 cache = SimpleCache()
 def cached(func):
@@ -43,7 +42,7 @@ class LeafinlineLoader(DispatchingJinjaLoader):
             yield loader, template
 
 
-app = Flask(__name__, static_folder='static', static_path='/gds/static', template_folder='template')
+app = Flask(__name__, static_folder='static', static_path='/static', template_folder='template')
 app.config.from_object(__name__)
 app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'redis'
@@ -57,10 +56,14 @@ Session(app)
 app.jinja_options = Flask.jinja_options.copy() 
 app.jinja_options['loader'] = LeafinlineLoader(app)
 
-app.register_blueprint(admin, url_prefix='/gds/a')
-app.register_blueprint(monitor, url_prefix='/gds/m')
-app.register_blueprint(produce, url_prefix='/gds/p')
-app.register_blueprint(api, url_prefix='/gds/api')
+app.register_blueprint(admin, url_prefix='/api/task')
+app.register_blueprint(script, url_prefix='/api/script')
+app.register_blueprint(user, url_prefix='/api/user')
+
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html', appname=g.appname)
+
 
 # @app.context_processor
 # def override_url_for():
@@ -89,22 +92,23 @@ app.url_map.converters['regex'] = RegexConverter
 
 @app.before_request
 def is_login():
-    sid = request.cookies.get('sid')
-    user = session.get(sid, None)
+    # sid = request.cookies.get('sid')
+    # user = session.get(sid, None)
     g.appname = 'pholcus'
-    flag = '/task/data/' in request.url or '/static/' in request.url or '/login' in request.url or '/register' in request.url
-    if '/api/' in request.url and user is None:
-        user = {'status': 1, '_id': '7', 'group': 'developer', 'name': 'root'}
-    request.sid = sid
-    request.user = user
-    if flag:
-        pass
-    elif user is None:
-        return redirect('/gds/a/login')
-    elif not user.get('status') == 1:
-        return redirect('/gds/a/info')
-    else:
-        pass
+    # flag = request.url == request.url_root or '/task/data/' in request.url or '/static/' in request.url or '/login' in request.url or '/register' in request.url
+    # if '/api/' in request.url and user is None:
+    #     user = {'status': 1, '_id': '7', 'group': 'developer', 'name': 'root'}
+    # request.sid = sid
+    # request.user = user
+    # if flag:
+    #     pass
+    # elif user is None:
+    #     return redirect('/api/a/login')
+    # elif not user.get('status') == 1:
+    #     return redirect('/api/a/info')
+    # else:
+    #     pass
+    request.user = {'status': 1, '_id': '7', 'group': 'developer', 'name': 'root'}
 
 
 # @app.after_request

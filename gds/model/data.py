@@ -28,22 +28,24 @@ class MarkModel(dataorm.Model):
 
 
 '''
-@comment('代理数据')
+@comment('公众号数据')
 '''
-class Proxy(MarkModel):
-    __table__ = 'grab_proxy'
-    ip = dataorm.StrField(ddl='varchar', max_length=20, unique='data', updatable=False)
-    port = dataorm.IntField(ddl='int', max_length=10, unique='data', updatable=False)
-    location = dataorm.StrField(ddl='varchar', max_length=30)
-    safetype = dataorm.StrField(ddl='varchar', max_length=30)
-    protocol = dataorm.StrField(ddl='varchar', max_length=30)
-    refspeed = dataorm.FloatField(ddl='float')
-    usespeed = dataorm.FloatField(ddl='float')
-    usenum = dataorm.IntField(ddl='int', max_length=10)
-    status = dataorm.IntField(ddl='int', max_length=1)
-    extra = dataorm.StrField(ddl='varchar', max_length=300)
-    creator = dataorm.IdField()
-    updator = dataorm.IdField()
+class Media(MarkModel):
+    __table__ = 'media'
+    wxid = dataorm.StrField(ddl='varchar', max_length=60, comment='微信公众号')
+    url = dataorm.StrField(ddl='varchar', max_length=50, comment='二维码地址')
+    icon = dataorm.StrField(ddl='varchar', max_length=50, comment='图标地址')
+    name = dataorm.StrField(ddl='varchar', max_length=128, comment='名称')
+    desc = dataorm.StrField(ddl='varchar', max_length=640, comment='描述')
+    pay = dataorm.StrField(ddl='char', default='0', max_length=1, comment='是否支持打赏')
+    follower = dataorm.IntField(ddl='int', default=0, comment='关注人数')
+    category = dataorm.StrField(ddl='varchar', max_length=256, comment='分类')
+    tag = dataorm.StrField(ddl='varchar', max_length=640, comment='标签')
+    region = dataorm.StrField(ddl='varchar', max_length=640, comment='地区')
+    user = dataorm.StrField(ddl='varchar', max_length=640, comment='用户信息')
+    status = dataorm.StrField(ddl='char', default='0', max_length=1, comment='状态')
+    create_time = dataorm.DatetimeField(ddl='datetime', comment='创建时间')
+    update_time = dataorm.DatetimeField(ddl='timestamp', comment='更新时间')
 
 
 if __name__ == '__main__':

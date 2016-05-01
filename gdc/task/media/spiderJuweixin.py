@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding=utf-8
 import os, re, copy
-from pymongo import MongoClient
+
 from datetime import timedelta
 from datetime import datetime
 from webcrawl.request import requGet
@@ -18,29 +18,12 @@ from webcrawl.task import next
 from webcrawl.request import ensureurl
 from webcrawl.request import parturl
 from model.setting import withData, datacfg
-from videospider import Data
-from videospider import TIMEOUT
-from videospider import SpiderVideoOrigin
+from mediaspider import Data
+from mediaspider import TIMEOUT
+from mediaspider import SpiderMediaOrigin
 
-try:
-    # from adesk.db import mongo_v2
-    # conn = mongo_v2.conn
-    # conn = MongoClient(host='localhost', port=27019)
-    conn = MongoClient('localhost')
-except:
-    conn = MongoClient('localhost')
-#_print, logger = logprint(modulename(__file__), modulepath(__file__))
 
-bili_re = re.compile('duration: *\'.*\'')
-
-def seconds(tl):
-    assert len(tl) < 3
-    num = 0
-    for index, one in enumerate(tl[::-1]):
-        num += pow(60, index) * int(one)
-    return num
-
-class SpiderBilibili(SpiderVideoOrigin):
+class SpiderJuweixin(SpiderMediaOrigin):
 
     """
        哔哩官网 数据爬虫
@@ -49,16 +32,6 @@ class SpiderBilibili(SpiderVideoOrigin):
     def __init__(self, worknum=6, queuetype='P', worktype='COROUTINE', timeout=-1, tid=0):
         super(SpiderBilibili, self).__init__(worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout, tid=tid)
         self.clsname = self.__class__.__name__
-        self.headers = {"Accept":"application/json, text/javascript, */*; q=0.01",
-            "Accept-Encoding":"gzip, deflate, sdch",
-            "Accept-Language":"en-US,en;q=0.8",
-            "Cache-Control":"max-age=0",
-            "Connection":"keep-alive",
-            "Host":"www.bilibili.com",
-            "User-Agent":"Mozilla/5.0 (Linux; Android 5.1.1; Nexus 6 Build/LYZ28E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.20 Mobile Safari/537.36",
-            "X-Requested-With":"XMLHttpRequest"}
-        self.end = datetime.now()
-        self.begin = self.end - timedelta(days=7)
 
     @store(withData(datacfg.W), Data.insert, update=True, method='MANY')
     @timelimit(3)
@@ -69,7 +42,7 @@ class SpiderBilibili(SpiderVideoOrigin):
             outid = url[url.rindex('/')+1:url.rindex('.')].replace('av', '')
         else:
             outid = url.strip('/').split('/')[-1].replace('av', '')
-            url = 'http://www.bilibili.com/mobile/video/av%s.html' % outid
+            url = 'http://www.bilibili.com/mobile/media/av%s.html' % outid
 
         page_result = requGet('http://app.bilibili.com/bangumi/avseason/%s.ver' % outid, dirtys=[('seasonJsonCallback({', '{'), ('});', '}')], timeout=TIMEOUT, format='JSON')
         # if not page_result['code'] == '0':
@@ -82,7 +55,7 @@ class SpiderBilibili(SpiderVideoOrigin):
             "Cache-Control":"max-age=0",
             "Connection":"keep-alive",
             "Host":"www.bilibili.com",
-            "Referer":"http//www.bilibili.com/mobile/video/av%s.html?tg" % outid,
+            "Referer":"http//www.bilibili.com/mobile/media/av%s.html?tg" % outid,
             "User-Agent":"Mozilla/5.0 (Linux; Android 5.1.1; Nexus 6 Build/LYZ28E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.20 Mobile Safari/537.36",
             "X-Requested-With":"XMLHttpRequest"}
         data_result = requGet('http://www.bilibili.com/m/html5?aid=%s' % outid, headers=headers, timeout=TIMEOUT, format='JSON')
@@ -127,7 +100,7 @@ class SpiderBilibili(SpiderVideoOrigin):
         pages = wap_result.findall('.//div[@id="part_list"]//li')
         if pages:
             first = getHtmlNodeContent(pages[0], {'ATTR':'page'})
-            parent_page_id = hash('http://www.bilibili.com/mobile/video/av%s.html#page=%s' % (outid, first))
+            parent_page_id = hash('http://www.bilibili.com/mobile/media/av%s.html#page=%s' % (outid, first))
             for one in pages:
                 pagenum = getHtmlNodeContent(one, {'ATTR':'page'})
                 data_result = requGet('http://www.bilibili.com/m/html5?aid=%s&page=%s' % (outid, pagenum), headers=headers, timeout=TIMEOUT, format='JSON')
@@ -137,7 +110,7 @@ class SpiderBilibili(SpiderVideoOrigin):
                     page_data['url'] = data_result['src']
                 except:
                     page_data['url'] = ''
-                page_data['page_url'] = 'http://www.bilibili.com/mobile/video/av%s.html#page=%s' % (outid, pagenum)
+                page_data['page_url'] = 'http://www.bilibili.com/mobile/media/av%s.html#page=%s' % (outid, pagenum)
                 page_data['page_id'] = hash(page_data['page_url'])
                 page_data['parent_page_id'] = parent_page_id
                 page_data['snum'] = int(pagenum)
@@ -146,7 +119,7 @@ class SpiderBilibili(SpiderVideoOrigin):
         elif page_result['code'] == 0:
             first = page_result['result']['episodes'][-1]['av_id']
             first = page_result['result']['episodes'][-1]['danmaku'] if first == outid else first
-            parent_page_id = hash('http://www.bilibili.com/mobile/video/av%s.html' % first)
+            parent_page_id = hash('http://www.bilibili.com/mobile/media/av%s.html' % first)
             for one in page_result['result']['episodes']:
                 aid = one['danmaku'] if one['av_id'] == outid else one['av_id']
                 data_result = requGet('http://www.bilibili.com/m/html5?aid=%s&page=%s' % (one['av_id'], one['page']), headers=headers, timeout=TIMEOUT, format='JSON')
@@ -155,8 +128,8 @@ class SpiderBilibili(SpiderVideoOrigin):
                     page_data['url'] = data_result['src']
                 except:
                     page_data['url'] = ''
-                page_data['page_url'] = 'http://www.bilibili.com/mobile/video/av%s.html#page=%s' % (one['av_id'], one['page'])
-                page_data['page_id'] = hash('http://www.bilibili.com/mobile/video/av%s.html' % aid)
+                page_data['page_url'] = 'http://www.bilibili.com/mobile/media/av%s.html#page=%s' % (one['av_id'], one['page'])
+                page_data['page_id'] = hash('http://www.bilibili.com/mobile/media/av%s.html' % aid)
                 page_data['parent_page_id'] = parent_page_id
                 if page_data['page_id'] == page_data['parent_page_id']:
                     page_data['desc'] = page_result['result']['evaluate']
@@ -178,8 +151,8 @@ class SpiderBilibili(SpiderVideoOrigin):
     @index('url')
     def fetchList(self, url, additions={}, timeout=TIMEOUT, implementor=None):
         result = requGet(url, headers=self.headers, timeout=timeout, format='HTML')
-        videos = result.findall('.//a[@class="list-item"]')
-        if len(videos) < 20:
+        medias = result.findall('.//a[@class="list-item"]')
+        if len(medias) < 20:
             nextpage = None
         else:
             index = url.split('-')
@@ -190,7 +163,7 @@ class SpiderBilibili(SpiderVideoOrigin):
                 index[2] = str(index[2])
                 nextpage = '-'.join(index)
         yield nextpage
-        for one in videos:
+        for one in medias:
             url = 'http://www.bilibili.com%s' % getHtmlNodeContent(one, {'ATTR':'href'})
             name = getHtmlNodeContent(one.find('.//div[@class="title"]'), 'TEXT')
             yield {'url': url, 'additions': {'cat':additions['cat'], 'name':name}}

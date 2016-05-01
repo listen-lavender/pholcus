@@ -13,9 +13,10 @@
         Home
       </a>
        <div class="right menu">
-          <a class="item">Documentation</a>
-          <a class="item">Api</a>
-          <a class="item">Github</a>
+          <div class="ui mini icon input">
+            <input type="text" placeholder="Search...">
+            <i class="search icon"></i>
+          </div>
         </div>
     </div>
     <div class="ui bottom attached segment pushable">
@@ -24,7 +25,7 @@
               <i class="tasks icon"></i>
               任务
             </a>
-            <a class="item" v-link="{name: 'code'}" >
+            <a class="item" v-link="{name: 'script'}" >
               <i class="code icon"></i>
               脚本
             </a>
@@ -32,7 +33,7 @@
               <i class="user icon"></i>
               用户
             </a>
-            <a class="item">
+            <a class="item" v-link="{name: 'setting', params: {_id: 1}}">
               <i class="settings icon"></i>
               设置
             </a>

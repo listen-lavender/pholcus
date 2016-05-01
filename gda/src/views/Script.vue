@@ -7,7 +7,7 @@
         </tr>
     </thead>
     <tbody >
-        <tr v-for="item in result.tasks">
+        <tr v-for="item in result.script"  >
             <td>{{item._id}}</td>
             <td>
                 <a v-link="{name: 'detail', params: {_id: item._id}}">{{item.name}}</a>
@@ -24,7 +24,7 @@
             }
         },
         ready(){
-            this.$http.get('p/task/list').then((response)=>{
+            this.$http.get('script/list').then((response)=>{
                 this.$set('result', response.data.result);
             })
         },

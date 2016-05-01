@@ -1,18 +1,27 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import VueResource from 'vue-resource'
+
+
 import App from './App.vue'
-import NavView from './views/Nav.vue'
-import CodeView from './views/Code.vue'
+
+import LoginView from './views/Login.vue'
+
 import TaskView from './views/Task.vue'
-import UserView from './views/User.vue'
 import TaskActiveView from './views/TaskActive.vue'
 import TaskMonitorView from './views/TaskMonitor.vue'
+import TaskMonitorDataView from './views/TaskMonitorData.vue'
+import TaskMonitorTimeView from './views/TaskMonitorTime.vue'
+import TaskMonitorTotalView from './views/TaskMonitorTotal.vue'
+import TaskMonitorLogView from './views/TaskMonitorLog.vue'
 import TaskManageView from './views/TaskManage.vue'
 import TaskForm from './components/TaskForm.vue'
-import CodeNewView from './views/CodeNew.vue'
 
+import ScriptView from './views/Script.vue'
+import ScriptForm from './components/ScriptForm.vue'
 
+import UserView from './views/User.vue'
+import UserForm from './components/UserForm.vue'
 
 var app = Vue.extend({})
 
@@ -20,7 +29,7 @@ var app = Vue.extend({})
 Vue.use(VueRouter)
 Vue.use(VueResource)
 
-Vue.http.options.root = 'http://192.168.0.33:7001/gds'
+Vue.http.options.root = 'http://localhost:7001/api'
 
 // Vue.http.interceptors.push({
 //     response(response){
@@ -41,6 +50,10 @@ router.map({
         name: 'home',
         component: app
     },
+    '/login': {
+        name: 'login',
+        component: LoginView
+    },
     '/task': {
         name: 'task',
         component: TaskView,
@@ -52,30 +65,60 @@ router.map({
             '/monitor': {
                 name: 'monitor',
                 component: TaskMonitorView,
+                subRoutes: {
+                    '/data/:_id':{
+                        name: 'data',
+                        component: TaskMonitorDataView,
+                    },
+                    '/time/:_id':{
+                        name: 'time',
+                        component: TaskMonitorTimeView,
+                    },
+                    '/total/:_id':{
+                        name: 'total',
+                        component: TaskMonitorTotalView,
+                    },
+                    '/log/:_id':{
+                        name: 'log',
+                        component: TaskMonitorLogView,
+                    }
+                }
             },
             '/manage': {
                 name: 'manage',
-                component: TaskManageView
-            },
-            '/:_id': {
-                name: 'detail',
-                component: TaskForm
+                component: TaskManageView,
+                subRoutes: {
+                    '/:_id':{
+                        name: 'detail',
+                        component: TaskForm,
+                    }
+                }
             }
         }
     },
-    '/code': {
-        name: 'code',
-        component: CodeView,
+    '/script': {
+        name: 'script',
+        component: ScriptView,
         subRoutes: {
-            '/new': {
-                name: 'new',
-                component: CodeNewView
+            '/:_id':{
+                name: 'detail',
+                component: ScriptForm,
             }
         }
     },
     '/user': {
         name: 'user',
-        component: UserView
+        component: UserView,
+        subRoutes: {
+            '/:_id':{
+                name: 'detail',
+                component: UserForm,
+            }
+        }
+    },
+    '/setting/:_id': {
+        name: 'setting',
+        component: UserForm
     }
 })
 
