@@ -2,16 +2,16 @@
   <table class="ui fixed celled table">
     <thead>
         <tr>
-          <th class="sorted descending">id</th>
           <th>名称</th>
+          <th>描述</th>
         </tr>
     </thead>
     <tbody >
-        <tr v-for="item in result.script"  >
-            <td>{{item._id}}</td>
+        <tr v-for="item in result.script">
             <td>
-                <a v-link="{name: 'detail', params: {_id: item._id}}">{{item.name}}</a>
+                <a v-link="{name: 'script_detail', params: {_id: item._id}}">{{item.name}}</a>
             </td>
+            <td>{{item.desc}}</td>
         </tr>
     </tbody>
   </table>
@@ -25,7 +25,7 @@
         },
         ready(){
             this.$http.get('script/list').then((response)=>{
-                this.$set('result', response.data.result);
+                this.$set('result', response.data.res);
             })
         },
     }

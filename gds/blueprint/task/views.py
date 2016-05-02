@@ -7,6 +7,9 @@ from flask import Blueprint, request, Response, render_template, g
 
 task = Blueprint('task', __name__, template_folder='template')
 
-@produce.route('/list', methods=['GET'])
-def task_list():
-    return 
+from activity import *
+
+@task.route('/<_id>', methods=['GET'])
+def task_detail(_id):
+    result = json.dumps({'code':1, 'msg':'', 'res':{'task':[]}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+    return result

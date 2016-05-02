@@ -73,15 +73,15 @@ def schedule():
     user_id = 0
     condition = {'status':{'$gt':0}}
     projection = {'_id':1, 'type':1, 'period':1, 'aid':1, 'sid':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'timeout':1, 'category':1, 'tag':1, 'name':1, 'extra':1, 'update_time':1, 'push_url':1}
-    tasks = requPost('%sgds/api/task' % HOST, {'condition':json.dumps(condition), 'projection':json.dumps(projection), 'limit':'all'}, format='JSON')
+    tasks = requPost('%sgdc/api/task' % HOST, {'condition':json.dumps(condition), 'projection':json.dumps(projection), 'limit':'all'}, format='JSON')
     tasks = tasks['task']
     for task in tasks:
         projection = {'step':1, 'index':1, 'additions':1}
-        section = requPost('%sgds/api/section/%s' % (HOST, str(task['sid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+        section = requPost('%sgdc/api/section/%s' % (HOST, str(task['sid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
         section = section['section']
 
         projection = {'uid':1, 'filepath':1, 'name':1, 'clsname':1, 'filepath':1, 'fileupdate':1}
-        article = requPost('%sgds/api/article/%s' % (HOST, str(task['aid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+        article = requPost('%sgdc/api/article/%s' % (HOST, str(task['aid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
         article = article['article']
         if article['fileupdate']:
             result = requGet('%sgds/static/exe/%s' % (HOST, article['filepath']), format='TEXT')
@@ -89,10 +89,10 @@ def schedule():
             fi = open(os.path.join(CURRPATH, filepath), 'w')
             fi.write(result)
             fi.close()
-            requPost('%sgds/api/article/%s' % (HOST, str(task['aid'])), {'data':json.dumps({'fileupdate':0})})
+            requPost('%sgdc/api/article/%s' % (HOST, str(task['aid'])), {'data':json.dumps({'fileupdate':0})})
 
         projection = {'name':1, 'filepath':1, 'fileupdate':1, 'dmid':1}
-        unit = requPost('%sgds/api/unit/%s' % (HOST, str(article['uid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+        unit = requPost('%sgdc/api/unit/%s' % (HOST, str(article['uid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
         unit = unit['unit']
         if unit['fileupdate']:
             result = requGet('%sgds/static/exe/%s' % (HOST, unit['filepath']), format='TEXT')
@@ -103,7 +103,7 @@ def schedule():
             fi = open(os.path.join(os.path.dirname(os.path.join(CURRPATH, filepath)), "__init__.py"), 'w')
             fi.write('#!/usr/bin/env python\n# coding=utf8')
             fi.close()
-            requPost('%sgds/api/unit/%s' % (HOST, str(article['uid'])), {'data':json.dumps({'fileupdate':0})})
+            requPost('%sgdc/api/unit/%s' % (HOST, str(article['uid'])), {'data':json.dumps({'fileupdate':0})})
             filepath = os.path.join(os.path.dirname(filepath), '__init__.py')
             if not os.path.exists(filepath):
                 fi = open(os.path.join(CURRPATH, filepath), 'w')
@@ -111,7 +111,7 @@ def schedule():
                 fi.close()
 
         projection = {'filepath':1, 'fileupdate':1}
-        datamodel = requPost('%sgds/api/datamodel/%s' % (HOST, str(unit['dmid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+        datamodel = requPost('%sgdc/api/datamodel/%s' % (HOST, str(unit['dmid'])), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
         datamodel = datamodel['datamodel']
         if datamodel['fileupdate']:
             result = requGet('%sgds/static/exe/%s' % (HOST, datamodel['filepath']), format='TEXT')
@@ -119,7 +119,7 @@ def schedule():
             fi = open(os.path.join(CURRPATH, filepath), 'w')
             fi.write(result)
             fi.close()
-            requPost('%sgds/api/datamodel/%s' % (HOST, str(unit['dmid'])), {'data':json.dumps({'fileupdate':0})})
+            requPost('%sgdc/api/datamodel/%s' % (HOST, str(unit['dmid'])), {'data':json.dumps({'fileupdate':0})})
 
         task['step'] = section['step']
         task['index'] = section['index']
@@ -130,7 +130,7 @@ def schedule():
     return tasks
 
 def changestate(tid, status, extra=None):
-    requPost('%sgds/api/task/%s' % (HOST, str(tid)), {'data':json.dumps({'status':status})})
+    requPost('%sgdc/api/task/%s' % (HOST, str(tid)), {'data':json.dumps({'status':status})})
 
 def task():
     workflow = Workflows(WORKNUM, 'R', 'THREAD')

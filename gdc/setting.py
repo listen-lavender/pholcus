@@ -4,4 +4,4 @@
 
 USER = 'root'
 SECRET = '900150983cd24fb0d6963f7d28e17f72'
-HOST = 'http://grab.dandanjiang.tv/'
+HOST = 'http://localhost:7001/'

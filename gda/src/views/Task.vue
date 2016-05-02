@@ -10,21 +10,15 @@
     export default {
         data () {
             return {
-              // note: changing this line won't causes changes
-              // with hot-reload because the reloaded component
-              // preserves its current state and we are modifying
-              // its initial state.
-                msg: 'Hello Vue!',
+               msg: 'Hello Vue!',
                 'nav': [
                     {name: 'active', label: '活动任务', path: '/active',}, 
                     {name: 'monitor', label: '任务监控', path: '/monitor'},
-                    {name: 'manage', label: '任务管理', path: '/manage'}
                 ]
             }
         },
         route: {
           data: function(){
-            
           }
         }
     }

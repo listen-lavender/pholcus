@@ -13,7 +13,8 @@ from util.session import Session
 
 from blueprint.task.views import task
 from blueprint.script.views import script
-from blueprint.user.views import user
+from blueprint.creator.views import creator
+from blueprint.api.rest import api
 
 cache = SimpleCache()
 def cached(func):
@@ -56,33 +57,15 @@ Session(app)
 app.jinja_options = Flask.jinja_options.copy() 
 app.jinja_options['loader'] = LeafinlineLoader(app)
 
-app.register_blueprint(admin, url_prefix='/api/task')
-app.register_blueprint(script, url_prefix='/api/script')
-app.register_blueprint(user, url_prefix='/api/user')
+app.register_blueprint(task, url_prefix='/gds/api/task')
+app.register_blueprint(script, url_prefix='/gds/api/script')
+app.register_blueprint(creator, url_prefix='/gds/api/creator')
+app.register_blueprint(api, url_prefix='/gdc/api')
 
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html', appname=g.appname)
 
-
-def allow_cross_domain(fun):
-    @wraps(fun)
-    def wrapper_fun(*args, **kwargs):
-        rst = fun(*args, **kwargs)
-        if type(rst) == str:
-            rst = make_response(fun(*args, **kwargs))
-        rst.headers['Access-Control-Allow-Origin'] = '*'
-        return rst
-    return wrapper_fun
-
-class CJsonEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, datetime):
-            return obj.strftime('%Y-%m-%d %H:%M:%S')
-        elif isinstance(obj, date):
-            return obj.strftime('%Y-%m-%d')
-        else:
-            return json.JSONEncoder.default(self, obj)
 # @app.context_processor
 # def override_url_for():
 #     return dict(url_for=static_url_for)
@@ -132,6 +115,11 @@ def is_login():
 # @app.after_request
 # def call_after_request_callbacks(response):
 #     pass
+
+@app.after_request
+def allow_cross_domain(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 if __name__ == "__main__":
     from werkzeug.serving import run_simple

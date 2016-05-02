@@ -2,9 +2,6 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import VueResource from 'vue-resource'
 
-
-import App from './App.vue'
-
 import LoginView from './views/Login.vue'
 
 import TaskView from './views/Task.vue'
@@ -14,13 +11,13 @@ import TaskMonitorDataView from './views/TaskMonitorData.vue'
 import TaskMonitorTimeView from './views/TaskMonitorTime.vue'
 import TaskMonitorTotalView from './views/TaskMonitorTotal.vue'
 import TaskMonitorLogView from './views/TaskMonitorLog.vue'
-import TaskManageView from './views/TaskManage.vue'
 import TaskForm from './components/TaskForm.vue'
 
 import ScriptView from './views/Script.vue'
 import ScriptForm from './components/ScriptForm.vue'
 
-import UserView from './views/User.vue'
+import CreatorView from './views/Creator.vue'
+import CreatorForm from './components/CreatorForm.vue'
 import UserForm from './components/UserForm.vue'
 
 var app = Vue.extend({})
@@ -29,7 +26,7 @@ var app = Vue.extend({})
 Vue.use(VueRouter)
 Vue.use(VueResource)
 
-Vue.http.options.root = 'http://localhost:7001/api'
+Vue.http.options.root = 'http://localhost:7001/gds/api'
 
 // Vue.http.interceptors.push({
 //     response(response){
@@ -58,6 +55,9 @@ router.map({
         name: 'task',
         component: TaskView,
         subRoutes: {
+            '/': {
+                component: TaskActiveView
+            },
             '/active': {
                 name: 'active',
                 component: TaskActiveView
@@ -84,15 +84,9 @@ router.map({
                     }
                 }
             },
-            '/manage': {
-                name: 'manage',
-                component: TaskManageView,
-                subRoutes: {
-                    '/:_id':{
-                        name: 'detail',
-                        component: TaskForm,
-                    }
-                }
+            '/:_id':{
+                name: 'task_detail',
+                component: TaskForm,
             }
         }
     },
@@ -101,18 +95,18 @@ router.map({
         component: ScriptView,
         subRoutes: {
             '/:_id':{
-                name: 'detail',
+                name: 'script_detail',
                 component: ScriptForm,
             }
         }
     },
-    '/user': {
-        name: 'user',
-        component: UserView,
+    '/creator': {
+        name: 'creator',
+        component: CreatorView,
         subRoutes: {
             '/:_id':{
-                name: 'detail',
-                component: UserForm,
+                name: 'creator_detail',
+                component: CreatorForm,
             }
         }
     },
