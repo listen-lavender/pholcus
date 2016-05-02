@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    {% block meta %}{% endblock %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+    <meta name="format-detection" content="teleusername=no"/>
+    <meta name="format-detection" content="address=no"/>
+    {% if appname %}
+        <title>{{appname}}</title>
+    {% else %}
+        <title>pholcus</title>
+    {% endif %}
+    <link rel="icon" href="/static/img/spider.ico">
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/semantic.min.css">
+    {% block precss %}{% endblock %}
+    {% block prejs %}{% endblock %}
+</head>
+<body>
+    <div class="ui top attached large demo menu">
+      <a class="item">
+        <i class="home icon"></i>
+        Home
+      </a>
+       <div class="right menu">
+          <div class="ui mini icon input">
+            <input type="text" placeholder="Search...">
+            <i class="search icon"></i>
+          </div>
+        </div>
+    </div>
+    <div class="ui bottom attached segment pushable">
+        <div class="ui visible left vertical sidebar menu m-siderbar">
+            <a class="item" v-link="{name: 'task'}"  >
+              <i class="tasks icon"></i>
+              任务
+            </a>
+            <a class="item" v-link="{name: 'script'}" >
+              <i class="code icon"></i>
+              脚本
+            </a>
+            <a class="item" v-link="{name: 'creator'}" >
+              <i class="user icon"></i>
+              用户
+            </a>
+            <a class="item" v-link="{name: 'setting', params: {_id: 1}}">
+              <i class="settings icon"></i>
+              设置
+            </a>
+        </div>
+        <div class="pusher">
+            <router-view></router-view>
+        </div>
+    </div>
+    <script type="text/javascript" src="/static/js/build.js"></script>
+</body>
+</html>
