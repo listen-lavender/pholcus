@@ -22,7 +22,6 @@ def script_list(uid=''):
     articles = Article.queryAll(user, {}, projection={'_id':1, 'name':1, 'filepath':1, 'uid':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     result = {"appname":g.appname, "user":user, "uid":uid, "script":articles, "pagetotal":pagetotal, "page":page, "total":total, "count":count}
     result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
-    print result
     return result
 
 @script.route('/article', methods=['POST'])
