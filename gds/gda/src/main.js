@@ -20,7 +20,13 @@ import CreatorView from './views/Creator.vue'
 import CreatorForm from './components/CreatorForm.vue'
 import UserForm from './components/UserForm.vue'
 
-var app = Vue.extend({})
+import NavMenuView from './components/NavMenu.vue'
+import TopView from './components/Top.vue'
+
+Vue.component('top', TopView);
+Vue.component('nav-menu', NavMenuView);
+
+var app = Vue.extend({'template':'<top></top><nav-menu></nav-menu>'})
 
 
 Vue.use(VueRouter)
@@ -117,4 +123,4 @@ router.map({
 })
 
 
-router.start(app, 'body')
+router.start(app, '#app')
