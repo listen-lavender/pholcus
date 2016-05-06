@@ -2,7 +2,8 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import VueResource from 'vue-resource'
 
-import LoginView from './views/Login.vue'
+import LoginForm from './components/LoginForm.vue'
+import RegisterForm from './components/RegisterForm.vue'
 
 import TaskView from './views/Task.vue'
 import TaskActiveView from './views/TaskActive.vue'
@@ -25,8 +26,9 @@ import TopView from './components/Top.vue'
 
 Vue.component('top', TopView);
 Vue.component('nav-menu', NavMenuView);
+Vue.component('login', LoginForm);
 
-var app = Vue.extend({'template':'<top></top><nav-menu></nav-menu>'})
+var app = Vue.extend({'template':'<top></top><nav-menu></nav-menu><login></login>'})
 
 
 Vue.use(VueRouter)
@@ -55,7 +57,11 @@ router.map({
     },
     '/login': {
         name: 'login',
-        component: LoginView
+        component: LoginForm,
+    },
+    '/register': {
+        name: 'register',
+        component: RegisterForm,
     },
     '/task': {
         name: 'task',
