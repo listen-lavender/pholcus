@@ -1,5 +1,5 @@
 <template>
-  <div class="ui bottom attached segment pushable" v-if="loggined">
+  <div class="ui bottom attached segment pushable" v-if="!loggined">
     <div class="ui raised segment signup inactive">
       <h3 class="ui inverted blue block header"> SIGN UP </h3>
       <div class="ui blue stacked segment">
@@ -82,7 +82,7 @@
         props: {
             loggined: {
                 type: Boolean,
-                default: true,
+                default: false,
             },
         },
     }

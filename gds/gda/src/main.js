@@ -2,6 +2,8 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import VueResource from 'vue-resource'
 
+import HomeView from './components/Home.vue'
+
 import LoginForm from './components/LoginForm.vue'
 import RegisterForm from './components/RegisterForm.vue'
 
@@ -24,12 +26,12 @@ import UserForm from './components/UserForm.vue'
 import NavMenuView from './components/NavMenu.vue'
 import TopView from './components/Top.vue'
 
-Vue.component('top', TopView);
-Vue.component('nav-menu', NavMenuView);
-Vue.component('login', LoginForm);
+Vue.component('home', HomeView)
+Vue.component('top', TopView)
+Vue.component('nav-menu', NavMenuView)
+Vue.component('login', LoginForm)
 
-var app = Vue.extend({'template':'<top></top><nav-menu></nav-menu><login></login>'})
-
+var App = Vue.extend({'template':'<home :loggined="true"></home>'})
 
 Vue.use(VueRouter)
 Vue.use(VueResource)
@@ -47,13 +49,14 @@ Vue.http.options.root = 'http://localhost:7001/gds/api'
 // })
 
 var router = new VueRouter({
+    // history: true,
     linkActiveClass: 'active'
 })
 
 router.map({
     '/': {
         name: 'home',
-        component: app
+        component: App
     },
     '/login': {
         name: 'login',
@@ -129,4 +132,5 @@ router.map({
 })
 
 
-router.start(app, '#app')
+router.start(App, '#app')
+// router.go({name: 'login'})
