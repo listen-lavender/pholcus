@@ -1,4 +1,4 @@
-<template v-if="loggined">
+<template>
   <div class="ui top attached large menu">
     <a class="item">
       <i class="home icon"></i>
@@ -13,13 +13,9 @@
   </div>
 </template>
 <script>
+    import LoginState from '../mixin/login';
     export default {
-        props: {
-            loggined: {
-                type: Boolean,
-                default: false,
-            },
-        },
+        mixins: [LoginState],
     }
 </script>
 <style lang='less'>

@@ -15,10 +15,6 @@
         </tr>
     </tbody>
   </table>
-  <a class="item" v-link="{name: 'setting', params: {_id: 1}}">
-      <i class="settings icon"></i>
-      设置
-    </a>
 </template>
 <script>
     export default {
@@ -29,6 +25,7 @@
         },
         ready(){
             this.$http.get('script/list').then((response)=>{
+                console.log(response);
                 this.$set('result', response.data.res);
             })
         },

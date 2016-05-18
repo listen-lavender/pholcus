@@ -6,7 +6,7 @@
           <th>级别</th>
         </tr>
     </thead>
-    <tbody >
+    <tbody>
         <tr v-for="item in result.creator">
             <td>
                 <a v-link="{name: 'creator_detail', params: {_id: item._id}}">{{item.username}}</a>

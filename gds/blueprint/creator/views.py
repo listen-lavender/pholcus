@@ -50,9 +50,9 @@ def send_static_file(self, filename):
 
 creator = Blueprint('creator', __name__, template_folder='template')
 creator.send_static_file  = types.MethodType(send_static_file, creator)
-
+    
 @creator.route('/list', methods=['GET'])
-@withBase(basecfg.W, resutype='DICT', autocommit=True)
+@withBase(basecfg.R, resutype='DICT', autocommit=True)
 def user_list():
     user = request.user
     pagetotal = int(request.args.get('pagetotal', 10))
@@ -64,4 +64,32 @@ def user_list():
     creators = Creator.queryAll(user, {}, projection={'username':1, 'group':1, 'create_time':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     result = {"appname":g.appname, "user":user, "creator":creators, "pagetotal":pagetotal, "page":page, "total":total, "count":count}
     return json.dumps({'code':1, 'desc':'success', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4, cls=CJsonEncoder).encode('utf8')
+
+
+@creator.route('/login', methods=['GET', 'POST'])
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
+def login():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    user = request.user
+    m = hashlib.md5()
+    m.update(password)
+    password = m.hexdigest()
+    
+    result = {"appname":g.appname, "user":user, "msg":""}
+    sid = None
+    if user is None:
+        user = Creator.queryOne({}, {'username':username, 'password':password, 'status':{'$ne':0}})
+        if user is None:
+            result['msg'] = '未找到用户，是否未注册？'
+        else:
+            user = {'name':user['username'], '_id':str(user['_id']), 'status':user['status'], 'group':user['group']}
+            sid = str(uuid.uuid4())
+            session[sid] = user
+    result['user'] = user
+    
+    response = Response(json.dumps({'code':1, 'res':result, 'msg':''}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8'), mimetype='application/json')
+    if sid is not None:
+        response.set_cookie('sid', sid)
+    return response
 

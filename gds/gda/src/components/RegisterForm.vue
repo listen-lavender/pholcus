@@ -1,5 +1,6 @@
 <template>
-  <div class="ui bottom attached segment pushable" v-if="!loggined">
+  <top></top>
+  <div class="ui bottom attached segment pushable">
     <div class="ui raised segment signup inactive">
       <h3 class="ui inverted blue block header"> SIGN UP </h3>
       <div class="ui blue stacked segment">
@@ -67,25 +68,19 @@
       <div class="ui divider"></div>
       <div class="footer">
         <div class="text"> Already a member? </div>
-        <div class="ui vertical animated blue mini button signin">
-          <div class="visible content"> Log In </div>
-          <div class="hidden content">
-            <i class="sign in icon"></i>
+        <a class="item" v-link="{name: 'login'}">
+          <div class="ui vertical animated blue mini button signin">
+            <div class="visible content"> Log In </div>
+            <div class="hidden content">
+              <i class="sign in icon"></i>
+            </div>
           </div>
-        </div>
+        </a>
       </div>
     </div>
   </div>
 </template>
 <script>
-    export default {
-        props: {
-            loggined: {
-                type: Boolean,
-                default: false,
-            },
-        },
-    }
 </script>
 <style lang='less'>
 </style>

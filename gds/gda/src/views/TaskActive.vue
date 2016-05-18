@@ -10,7 +10,7 @@
           <th>参数</th>
         </tr>
     </thead>
-    <tbody >
+    <tbody>
         <tr v-for="item in result.work">
             <td>{{item.status}}</td>
             <td>{{item.methodName}}</td>

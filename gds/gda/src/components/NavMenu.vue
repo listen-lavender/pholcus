@@ -1,5 +1,6 @@
 <template>
-  <div class="ui bottom attached segment pushable" v-if="loggined">
+  <top></top>
+  <div class="ui bottom attached segment pushable">
     <div class="ui visible left vertical sidebar menu m-siderbar">
         <a class="item" v-link="{name: 'task'}">
           <i class="tasks icon"></i>
@@ -24,14 +25,6 @@
   </div>
 </template>
 <script>
-    export default {
-        props: {
-            loggined: {
-                type: Boolean,
-                default: false,
-            },
-        },
-    }
 </script>
 <style lang='less'>
 </style>

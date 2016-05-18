@@ -2,7 +2,7 @@
 # coding=utf8
 import json, sys, os, datetime
 
-from setting import useport, CACHE_TIMEOUT
+from setting import USEPORT, CACHE_TIMEOUT, APPNAME
 from flask import Flask, g, request, Response, session, redirect, render_template
 from flask.templating import DispatchingJinjaLoader
 from flask.globals import _request_ctx_stack
@@ -93,24 +93,19 @@ app.url_map.converters['regex'] = RegexConverter
 
 @app.before_request
 def is_login():
-    # sid = request.cookies.get('sid')
-    # user = session.get(sid, None)
-    g.appname = 'pholcus'
-    # flag = request.url == request.url_root or '/task/data/' in request.url or '/static/' in request.url or '/login' in request.url or '/register' in request.url
-    # if '/api/' in request.url and user is None:
-    #     user = {'status': 1, '_id': '7', 'group': 'developer', 'name': 'root'}
-    # request.sid = sid
-    # request.user = user
-    # if flag:
-    #     pass
-    # elif user is None:
-    #     return redirect('/api/a/login')
-    # elif not user.get('status') == 1:
-    #     return redirect('/api/a/info')
-    # else:
-    #     pass
-    request.user = {'status': 1, '_id': '7', 'group': 'developer', 'name': 'root'}
-
+    g.appname = APPNAME
+    sid = request.cookies.get('sid')
+    user = session.get(sid, None)
+    print request.url
+    
+    flag = request.url == request.url_root or '/task/data/' in request.url or '/static/' in request.url or '/login' in request.url or '/register' in request.url
+    request.sid = sid
+    request.user = user
+    if flag or user:
+        pass
+    else:
+        response = Response(json.dumps({'code':1, 'res':{'user':None}, 'msg':''}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8'), mimetype='application/json')
+        return response
 
 # @app.after_request
 # def call_after_request_callbacks(response):
@@ -121,11 +116,16 @@ def allow_cross_domain(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
+@app.errorhandler(Exception)
+def exception_handler(error):
+    response = Response(json.dumps({'code':0, 'res':{'user':None}, 'msg':'系统错误'}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8'), mimetype='application/json')
+    return response
+
 if __name__ == "__main__":
     from werkzeug.serving import run_simple
-    print("Launching server at port %d" % useport)
+    print("Launching server at port %d" % USEPORT)
 
-    run_simple('0.0.0.0', useport, app, use_reloader=True,
+    run_simple('0.0.0.0', USEPORT, app, use_reloader=True,
         passthrough_errors=True, threaded=True)
 
     print("Server sucessfully terminated")

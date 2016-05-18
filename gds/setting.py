@@ -8,8 +8,11 @@ CACHE_TIMEOUT = 60 * 30
 PERMANENT_SESSION_LIFETIME = 60 * 60 * 15
 
 # port
-useport = 7001
+USEPORT = 7001
 
 # static files saving path
 STATIC = "static/"
 GITPKG = {}
+
+# app name
+APPNAME = 'pholcus'

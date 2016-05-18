@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import VueResource from 'vue-resource'
 
-import HomeView from './components/Home.vue'
+import HomeView from './views/Home.vue'
 
 import LoginForm from './components/LoginForm.vue'
 import RegisterForm from './components/RegisterForm.vue'
@@ -26,27 +26,17 @@ import UserForm from './components/UserForm.vue'
 import NavMenuView from './components/NavMenu.vue'
 import TopView from './components/Top.vue'
 
-Vue.component('home', HomeView)
-Vue.component('top', TopView)
-Vue.component('nav-menu', NavMenuView)
-Vue.component('login', LoginForm)
+import UnknowView from './views/Unknow.vue'
 
-var App = Vue.extend({'template':'<home :loggined="true"></home>'})
+import {isLogined, getCookie} from './util'
+
+// Vue.component('home', HomeView)
+Vue.component('top', TopView)
+
+// var App = Vue.extend({'template':'<home></home>'})
 
 Vue.use(VueRouter)
 Vue.use(VueResource)
-
-Vue.http.options.root = 'http://localhost:7001/gds/api'
-
-// Vue.http.interceptors.push({
-//     response(response){
-//         if(response.data.stat===1){
-//             return response.data.result;
-//         }else {
-//             throw {'name': 'Response Error', 'msg': `stat error ${response.data.stat}`}
-//         }
-//     }
-// })
 
 var router = new VueRouter({
     // history: true,
@@ -56,7 +46,7 @@ var router = new VueRouter({
 router.map({
     '/': {
         name: 'home',
-        component: App
+        component: HomeView
     },
     '/login': {
         name: 'login',
@@ -66,71 +56,126 @@ router.map({
         name: 'register',
         component: RegisterForm,
     },
-    '/task': {
-        name: 'task',
-        component: TaskView,
+    '/manage':{
+        name: 'manage',
+        component: NavMenuView,
         subRoutes: {
-            '/': {
-                component: TaskActiveView
-            },
-            '/active': {
-                name: 'active',
-                component: TaskActiveView
-            },
-            '/monitor': {
-                name: 'monitor',
-                component: TaskMonitorView,
+            '/task': {
+                name: 'task',
+                component: TaskView,
                 subRoutes: {
-                    '/data/:_id':{
-                        name: 'data',
-                        component: TaskMonitorDataView,
+                    '/active': {
+                        name: 'active',
+                        component: TaskActiveView
                     },
-                    '/time/:_id':{
-                        name: 'time',
-                        component: TaskMonitorTimeView,
+                    '/monitor': {
+                        name: 'monitor',
+                        component: TaskMonitorView,
+                        subRoutes: {
+                            '/data/:_id':{
+                                name: 'data',
+                                component: TaskMonitorDataView,
+                            },
+                            '/time/:_id':{
+                                name: 'time',
+                                component: TaskMonitorTimeView,
+                            },
+                            '/total/:_id':{
+                                name: 'total',
+                                component: TaskMonitorTotalView,
+                            },
+                            '/log/:_id':{
+                                name: 'log',
+                                component: TaskMonitorLogView,
+                            }
+                        }
                     },
-                    '/total/:_id':{
-                        name: 'total',
-                        component: TaskMonitorTotalView,
-                    },
-                    '/log/:_id':{
-                        name: 'log',
-                        component: TaskMonitorLogView,
+                    '/:_id':{
+                        name: 'task_detail',
+                        component: TaskForm,
                     }
                 }
             },
-            '/:_id':{
-                name: 'task_detail',
-                component: TaskForm,
-            }
+            '/script': {
+                name: 'script',
+                component: ScriptView,
+                subRoutes: {
+                    '/:_id':{
+                        name: 'script_detail',
+                        component: ScriptForm,
+                    }
+                }
+            },
+            '/creator': {
+                name: 'creator',
+                component: CreatorView,
+                subRoutes: {
+                    '/:_id':{
+                        name: 'creator_detail',
+                        component: CreatorForm,
+                    }
+                }
+            },
+            '/setting/:_id': {
+                name: 'setting',
+                component: UserForm
+            },
         }
     },
-    '/script': {
-        name: 'script',
-        component: ScriptView,
-        subRoutes: {
-            '/:_id':{
-                name: 'script_detail',
-                component: ScriptForm,
-            }
-        }
-    },
-    '/creator': {
-        name: 'creator',
-        component: CreatorView,
-        subRoutes: {
-            '/:_id':{
-                name: 'creator_detail',
-                component: CreatorForm,
-            }
-        }
-    },
-    '/setting/:_id': {
-        name: 'setting',
-        component: UserForm
+    '/unknow': {
+        name: 'unknow',
+        component: UnknowView
     }
 })
 
+Vue.http.options.emulateJSON = true;
+Vue.http.options.root = 'http://localhost:7001/gds/api'
+Vue.http.options.error = function(response) {
+}
 
-router.start(App, '#app')
-// router.go({name: 'login'})
+Vue.http.interceptors.push({
+
+    request: function (request) {
+        return request;
+    },
+
+    response: function (response) {
+        if(response.data.code == 1){
+            if(response.data.res.user == null){
+                isLogined(false)
+                return response
+            }
+            else{
+                isLogined(true)
+                return response
+            }
+        }
+        else{
+            isLogined(false)
+            router.go({name:'unknow', params:{code:response.data.code, msg:response.data.msg}})
+            return response
+        }
+    }
+
+});
+
+router.alias({
+    '/': '/manage/task/active',
+    '/manage': '/manage/task/active',
+    '/manage/task': '/manage/task/active',
+})
+
+router.beforeEach(function(transition) {
+    if((transition.to.path == '/login' || transition.to.path == '/register') && isLogined()){
+        router.go({name:'active'})
+    }
+    else if(transition.to.path == '/unknow' || transition.to.path == '/login' || transition.to.path == '/register' || isLogined()){
+        transition.next()
+    }
+    else{
+        router.go({name:'login'})
+    }
+})
+
+router.start(HomeView, '#app')
+
