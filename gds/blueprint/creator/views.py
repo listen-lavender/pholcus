@@ -52,7 +52,7 @@ creator = Blueprint('creator', __name__, template_folder='template')
 creator.send_static_file  = types.MethodType(send_static_file, creator)
     
 @creator.route('/list', methods=['GET'])
-@withBase(basecfg.R, resutype='DICT', autocommit=True)
+@withBase(basecfg.R, resutype='DICT')
 def user_list():
     user = request.user
     pagetotal = int(request.args.get('pagetotal', 10))
@@ -66,16 +66,24 @@ def user_list():
     return json.dumps({'code':1, 'desc':'success', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
 
-@creator.route('/login', methods=['POST', 'GET'])
+@creator.route('/<_id>', methods=['GET'])
+@withBase(basecfg.R, resutype='DICT')
+def user_detail(_id):
+    user = request.user
+    creator = Creator.queryOne(user, {'_id':user['_id']})
+    creator['avatar'] = creator['avatar'].replace('/gds', '')
+    result = {"appname":g.appname, "user":user, "creator":creator}
+    return json.dumps({'code':1, 'desc':'success', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+
+
+@creator.route('/login', methods=['POST'])
 @withBase(basecfg.W, resutype='DICT', autocommit=True)
 def login():
-    # username = request.form.get('username')
-    # password = request.form.get('password')
-    username = 'root'
-    password = '123456'
+    username = request.form.get('username')
+    password = request.form.get('password')
     user = request.user
     m = hashlib.md5()
-    m.update(password)
+    m.update(password or '')
     password = m.hexdigest()
     
     result = {"appname":g.appname, "user":user, "msg":""}
@@ -88,8 +96,6 @@ def login():
             user = {'name':user['username'], '_id':str(user['_id']), 'status':user['status'], 'group':user['group']}
             sid = str(uuid.uuid4())
             session[sid] = user
-    else:
-        user = Creator.queryOne({}, {'_id':user['_id']})
     result['user'] = user
     
     response = Response(json.dumps({'code':1, 'res':result, 'msg':''}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8'), mimetype='application/json')

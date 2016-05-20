@@ -8,7 +8,8 @@ from setuptools import setup, find_packages
 
 requires = [
     'dbskit',
-    'webcrawl'
+    'webcrawl',
+    'kokolog'
     ]
 
 setup(packages=find_packages(),

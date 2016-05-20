@@ -29,7 +29,7 @@ import TopView from './components/Top.vue'
 
 import UnknowView from './views/Unknow.vue'
 
-import {isLogined} from './util'
+import {isLogined, setLocal} from './util'
 
 // Vue.component('home', HomeView)
 Vue.component('top', TopView)
@@ -114,12 +114,10 @@ router.map({
             '/creator': {
                 name: 'creator',
                 component: CreatorView,
-                subRoutes: {
-                    '/:_id':{
-                        name: 'creator_detail',
-                        component: CreatorForm,
-                    }
-                }
+            },
+            '/creator/:_id': {
+                name: 'creator_detail',
+                component: CreatorForm,
             },
             '/setting/:_id': {
                 name: 'setting',
@@ -163,7 +161,9 @@ Vue.http.interceptors.push({
         }
         else{
             isLogined(false)
-            router.go({name:'unknow', params:{code:response.data.code, msg:response.data.msg}})
+            setLocal('code', response.data.code)
+            setLocal('msg', response.data.msg)
+            router.go({name:'unknow'})
             return response
         }
     }

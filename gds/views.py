@@ -135,8 +135,7 @@ def allow_cross_domain(response):
 
 @app.errorhandler(Exception)
 def exception_handler(error):
-    print error
-    response = Response(json.dumps({'code':0, 'res':{'user':None}, 'msg':'系统错误'}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8'), mimetype='application/json')
+    response = Response(json.dumps({'code':0, 'res':{'user':None}, 'msg':str(error)}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8'), mimetype='application/json')
     return response
 
 if __name__ == "__main__":

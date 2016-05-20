@@ -37,18 +37,39 @@ export const setCookie = function(key, val, expire){
     document.cookie = txtCookie.join(';').replace(' ', '');
 }
 
+export const getLocal = function(key){
+    if(window.localStorage)
+        return (window.localStorage.getItem(key)||'')
+    return getCookie(key)
+}
+
+export const setLocal = function(key, val, expire){
+    if(window.localStorage)
+        window.localStorage.setItem(key, val)
+    else
+        setCookie(key, val, expire)
+}
+
+export const getSession = function(key){
+    if(window.sessionStorage)
+        return (window.sessionStorage.getItem(key)||'')
+    return getCookie(key)
+}
+
+export const setSession = function(key, val, expire){
+    if(window.sessionStorage)
+        window.sessionStorage.setItem(key, val)
+    else
+        setCookie(key, val, expire)
+}
+
 export const isLogined = function(val, expire){
     if(val == null||val == undefined){
-        if(window.localStorage)
-            return (window.localStorage.getItem("logined")||'').toLowerCase() === 'true'
-        return getCookie('logined').toLowerCase() === 'true'
+        return getLocal('logined').toLowerCase() === 'true'
     }
     else{
         val = val + ''
-        if(window.localStorage)
-            window.localStorage.setItem('logined', val)
-        else
-            setCookie('logined', val, expire)
+        setLocal('logined', val, expire)
         return val.toLowerCase() === 'true'
     }
 }

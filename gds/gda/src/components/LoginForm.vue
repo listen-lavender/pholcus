@@ -35,10 +35,10 @@
         <div class="ui vertical divider"> OR </div>
         <div class="center aligned column">
           <h4 class="ui header"> Sign in with: </h4>
-          <a class="item" href='https://github.com/'>Github</a>
+          <!-- <a class="item" href='https://github.com/'>Github</a>
           <a class="item" href='https://github.com/'>微信</a>
           <a class="item" href='https://github.com/'>微博</a>
-          <a class="item" href='https://github.com/'>QQ</a>
+          <a class="item" href='https://github.com/'>QQ</a> -->
           <!-- <div class="ui button">
             <i class="icon"></i>
             Github
@@ -93,8 +93,7 @@
                   }
                   else{
                     this.$route.router.go({name: 'home'});
-                    this.$dispatch('receiveUid', user._id);
-                    // sendUid(user._id)
+                    this.sendUid(user._id)
                   }
               })
             }

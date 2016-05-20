@@ -20,14 +20,14 @@
     export default {
         data () {
             return {
-              result: null,
+                result: null,
             }
         },
         ready(){
             this.$http.get('creator/list').then((response)=>{
                 this.$set('result', response.data.res);
             })
-        },
+        }
     }
 </script>
 <style lang='less'>
