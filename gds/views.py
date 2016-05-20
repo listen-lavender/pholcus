@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # coding=utf8
-import json, sys, os, datetime
+import json, sys, os, functools
 
+from datetime import datetime, date, timedelta
 from setting import USEPORT, CACHE_TIMEOUT, APPNAME
 from flask import Flask, g, request, Response, session, redirect, render_template
 from flask.templating import DispatchingJinjaLoader
@@ -15,6 +16,17 @@ from blueprint.task.views import task
 from blueprint.script.views import script
 from blueprint.creator.views import creator
 from blueprint.api.rest import api
+
+class DatetimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.strftime('%Y-%m-%d %H:%M:%S')
+        elif isinstance(obj, date):
+            return obj.strftime('%Y-%m-%d')
+        else:
+            return json.JSONEncoder.default(self, obj)
+
+json.dumps = functools.partial(json.dumps, cls=DatetimeEncoder)
 
 cache = SimpleCache()
 def cached(func):
@@ -48,7 +60,8 @@ app.config.from_object(__name__)
 app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'redis'
 app.config['SESSION_PERMANENT'] = False
-app.permanent_session_lifetime = datetime.timedelta(days=1)
+# app.config['SESSION_COOKIE_HTTPONLY'] = False
+app.permanent_session_lifetime = timedelta(days=1)
 Session(app)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://hotel2:hotel0115@58.83.130.112:3306/hotel20'
 # db = SQLAlchemy(app)
@@ -101,7 +114,11 @@ def is_login():
     flag = request.url == request.url_root or '/task/data/' in request.url or '/static/' in request.url or '/login' in request.url or '/register' in request.url
     request.sid = sid
     request.user = user
-    if flag or user:
+    if '/logout' in request.url:
+        session[sid] = None
+        response = Response(json.dumps({'code':0, 'res':{'user':None}, 'msg':''}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8'), mimetype='application/json')
+        return response
+    elif flag or user:
         pass
     else:
         response = Response(json.dumps({'code':1, 'res':{'user':None}, 'msg':''}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8'), mimetype='application/json')
@@ -118,6 +135,7 @@ def allow_cross_domain(response):
 
 @app.errorhandler(Exception)
 def exception_handler(error):
+    print error
     response = Response(json.dumps({'code':0, 'res':{'user':None}, 'msg':'系统错误'}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8'), mimetype='application/json')
     return response
 

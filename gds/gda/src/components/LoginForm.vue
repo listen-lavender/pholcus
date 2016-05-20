@@ -18,7 +18,7 @@
                 <div class="field">
                   <label> Password </label>
                   <div class="ui left labeled icon input">
-                    <input type="password" v-model="password">
+                    <input type="password" v-on:keyup.enter="login" v-model="password">
                     <i class="lock icon"></i>
                   </div>
                 </div>
@@ -74,18 +74,27 @@
   </div>
 </template>
 <script>
-    import {isLogined} from '../util'
     export default {
         methods: {
+            sendUid(_id){
+              this.$dispatch('receiveUid', _id)
+            },
             login(){
+              if(this.username == ''){
+                  return
+              }
+              if(this.password == ''){
+                  return
+              }
               this.$http.post('creator/login', {'username':this.username, 'password':this.password}).then((response)=>{
                   let user = response.data.res.user;
                   if(user == null){
                     console.log(response.data.res.msg);
                   }
                   else{
-                    isLogined(true);
                     this.$route.router.go({name: 'home'});
+                    this.$dispatch('receiveUid', user._id);
+                    // sendUid(user._id)
                   }
               })
             }

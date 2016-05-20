@@ -25,7 +25,6 @@
         },
         ready(){
             this.$http.get('script/list').then((response)=>{
-                console.log(response);
                 this.$set('result', response.data.res);
             })
         },

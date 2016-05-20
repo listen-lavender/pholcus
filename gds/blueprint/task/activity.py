@@ -8,7 +8,6 @@ from flask import Blueprint, request, Response, render_template, g
 from webcrawl.queue.mongo import Queue
 from model.setting import WORKQUEUE
 from views import task
-from . import CJsonEncoder
 
 DESCRIBE = {0:'ERROR', 1:'COMPLETED', 2:'WAIT', 3:'RUNNING', 4:'RETRY', 5:'ABANDONED'}
 q = Queue(host=WORKQUEUE['host'], port=WORKQUEUE['port'], db=WORKQUEUE['db'], tube=WORKQUEUE['tube'], init=False)
@@ -32,4 +31,4 @@ def taskactivity():
         one['times'] = one['times'] + 1
         tasks.append(one)
     result = {"appname":g.appname, "user":user, "work":tasks, "pagetotal":pagetotal, "page":page, "total":total, "count":count}
-    return json.dumps({'code':1, 'desc':'success', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4, cls=CJsonEncoder).encode('utf8')
+    return json.dumps({'code':1, 'desc':'success', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')

@@ -6,6 +6,7 @@ import HomeView from './views/Home.vue'
 
 import LoginForm from './components/LoginForm.vue'
 import RegisterForm from './components/RegisterForm.vue'
+import LogoutForm from './components/LogoutForm.vue'
 
 import TaskView from './views/Task.vue'
 import TaskActiveView from './views/TaskActive.vue'
@@ -28,7 +29,7 @@ import TopView from './components/Top.vue'
 
 import UnknowView from './views/Unknow.vue'
 
-import {isLogined, getCookie} from './util'
+import {isLogined} from './util'
 
 // Vue.component('home', HomeView)
 Vue.component('top', TopView)
@@ -55,6 +56,10 @@ router.map({
     '/register': {
         name: 'register',
         component: RegisterForm,
+    },
+    '/logout': {
+        name: 'logout',
+        component: LogoutForm,
     },
     '/manage':{
         name: 'manage',
@@ -133,6 +138,12 @@ Vue.http.options.root = 'http://localhost:7001/gds/api'
 Vue.http.options.error = function(response) {
 }
 
+Vue.http.options.beforeSend = function(request){
+    // request.headers['Authorization'] = 'abc';
+    // Vue.http.headers.common['Authorization'] = 'abc';
+    // request.headers['Cookie'] = document.cookie;
+}
+
 Vue.http.interceptors.push({
 
     request: function (request) {
@@ -178,4 +189,5 @@ router.beforeEach(function(transition) {
 })
 
 router.start(HomeView, '#app')
+window.Vue = Vue
 

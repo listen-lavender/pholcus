@@ -1,33 +1,54 @@
 'use strict'
 
-export const getCookie = function(key, val, expire){
-    let name = `${key}=`;
+export const parseCookie = function(){
     let pair = document.cookie.split(';');
+    let jsonCookie = {};
     
-    for (let i = 0; i < pair.length; i++) {
-        let item = pair[i];
-        while(item.charAt(0) == ' ') item = item.substring(1);
-        if (item.indexOf(name) === 0) return item.substring(name.length, item.length);
+    for (let index = 0; index < pair.length; index++) {
+        let item = pair[index].split('=');
+        item[0] = item[0].replace(/ /g, '');
+        item[1] = item[1].replace(/"/g, '');
+        jsonCookie[item[0]] = item[1]
     }
-    
+    return jsonCookie;
+}
+
+export const getCookie = function(key){
+    let jsonCookie = parseCookie()
+    if (key in jsonCookie)
+        return jsonCookie[key]
     return '';
 }
 
 export const setCookie = function(key, val, expire){
     var exdate=new Date();
     exdate.setDate(exdate.getDate() + expire);
-    document.cookie=key + "=" + escape(val) + ((expire == null||expire == undefined) ? "" : ";expires="+exdate.toGMTString());
+
+    let jsonCookie = {};
+    jsonCookie[key] = val
+    if (expire == null||expire == undefined)
+        ;
+    else
+        jsonCookie['expires'] = exdate.toGMTString()
+    
+    let txtCookie = []
+    for(key in jsonCookie)
+        txtCookie.push(' ' + key + '=' + jsonCookie[key])
+    document.cookie = txtCookie.join(';').replace(' ', '');
 }
 
 export const isLogined = function(val, expire){
     if(val == null||val == undefined){
+        if(window.localStorage)
+            return (window.localStorage.getItem("logined")||'').toLowerCase() === 'true'
         return getCookie('logined').toLowerCase() === 'true'
     }
     else{
         val = val + ''
-        console.log('---q')
-        setCookie('logined', val, expire)
-        console.log('---p')
+        if(window.localStorage)
+            window.localStorage.setItem('logined', val)
+        else
+            setCookie('logined', val, expire)
         return val.toLowerCase() === 'true'
     }
 }

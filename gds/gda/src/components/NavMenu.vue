@@ -14,7 +14,7 @@
           <i class="user icon"></i>
           用户
         </a>
-        <a class="item" v-link="{name: 'setting', params: {_id: 1}}">
+        <a class="item" v-link="{name: 'setting', 'params':{'_id':_id}}">
           <i class="settings icon"></i>
           设置
         </a>
@@ -25,6 +25,13 @@
   </div>
 </template>
 <script>
+    export default {
+        props: {
+          _id: {
+            type: String
+          }
+        },
+    }
 </script>
 <style lang='less'>
 </style>

@@ -28,4 +28,4 @@ def tasklist():
         one['type_name'] = EXETYPE.get(one['type'], '')
 
     result = {"appname":g.appname, "user":user, "task":tasks, "pagetotal":pagetotal, "page":page, "total":total, "count":count}
-    return json.dumps({'stat':1, 'desc':'success', 'result':result}, ensure_ascii=False, sort_keys=True, indent=4, cls=CJsonEncoder).encode('utf8')
+    return json.dumps({'stat':1, 'desc':'success', 'result':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')

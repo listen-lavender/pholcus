@@ -7,7 +7,7 @@ from flask.helpers import send_from_directory
 from bson import ObjectId
 from model.base import Creator, Permit
 from setting import STATIC
-from . import CJsonEncoder
+
 
 LENGTH = [5, 7, 13]
 UL = [True, True, False, True, False, False]
@@ -63,14 +63,16 @@ def user_list():
     count = (total - 1)/pagetotal + 1
     creators = Creator.queryAll(user, {}, projection={'username':1, 'group':1, 'create_time':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     result = {"appname":g.appname, "user":user, "creator":creators, "pagetotal":pagetotal, "page":page, "total":total, "count":count}
-    return json.dumps({'code':1, 'desc':'success', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4, cls=CJsonEncoder).encode('utf8')
+    return json.dumps({'code':1, 'desc':'success', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
 
-@creator.route('/login', methods=['GET', 'POST'])
+@creator.route('/login', methods=['POST', 'GET'])
 @withBase(basecfg.W, resutype='DICT', autocommit=True)
 def login():
-    username = request.form.get('username')
-    password = request.form.get('password')
+    # username = request.form.get('username')
+    # password = request.form.get('password')
+    username = 'root'
+    password = '123456'
     user = request.user
     m = hashlib.md5()
     m.update(password)
@@ -86,10 +88,16 @@ def login():
             user = {'name':user['username'], '_id':str(user['_id']), 'status':user['status'], 'group':user['group']}
             sid = str(uuid.uuid4())
             session[sid] = user
+    else:
+        user = Creator.queryOne({}, {'_id':user['_id']})
     result['user'] = user
     
     response = Response(json.dumps({'code':1, 'res':result, 'msg':''}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8'), mimetype='application/json')
     if sid is not None:
         response.set_cookie('sid', sid)
     return response
+
+@creator.route('/logout', methods=['GET'])
+def logout():
+    pass
 
