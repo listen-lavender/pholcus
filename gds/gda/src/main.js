@@ -20,6 +20,9 @@ import TaskForm from './components/TaskForm.vue'
 import ScriptView from './views/Script.vue'
 import ScriptForm from './components/ScriptForm.vue'
 
+import StepView from './views/Step.vue'
+import StepForm from './components/StepForm.vue'
+
 import CreatorView from './views/Creator.vue'
 import CreatorForm from './components/CreatorForm.vue'
 import UserForm from './components/UserForm.vue'
@@ -103,13 +106,19 @@ router.map({
             },
             '/script': {
                 name: 'script',
-                component: ScriptView,
-                subRoutes: {
-                    '/:_id':{
-                        name: 'script_detail',
-                        component: ScriptForm,
-                    }
-                }
+                component: ScriptView
+            },
+            '/script/:_id': {
+                name: 'script_detail',
+                component: ScriptForm,
+            },
+            '/step': {
+                name: 'step',
+                component: StepView,
+            },
+            '/step/:_id': {
+                name: 'step_detail',
+                component: StepForm,
             },
             '/creator': {
                 name: 'creator',
@@ -121,7 +130,7 @@ router.map({
             },
             '/setting/:_id': {
                 name: 'setting',
-                component: UserForm
+                component: UserForm,
             },
         }
     },
