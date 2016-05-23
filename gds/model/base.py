@@ -113,6 +113,18 @@ class Article(AuthModel):
     update_time = baseorm.DatetimeField(ddl='timestamp')
 
 
+class Flow(baseorm.Model):
+    __table__ = 'grab_flow'
+    aid = baseorm.IdField()
+    name = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='gf')
+    desc = baseorm.StrField(ddl='varchar', max_length=128)
+    status = baseorm.IntField(ddl='int', max_length=1)
+    creator = baseorm.IdField(updatable=False)
+    updator = baseorm.IdField()
+    create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
+    update_time = baseorm.DatetimeField(ddl='timestamp')
+
+
 class Creator(AuthModel):
     __table__ = 'grab_creator'
     username = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='gc')
@@ -166,6 +178,7 @@ class Permit(baseorm.Model):
 class Section(AuthModel):
     __table__ = 'grab_section'
     aid = baseorm.IdField(unique='gs')
+    fid = baseorm.IdField(unique='gs')
     next_id = baseorm.IdField()
     name = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='gs')
     desc = baseorm.StrField(ddl='char', max_length=128)
@@ -175,7 +188,6 @@ class Section(AuthModel):
     retry = baseorm.IntField(ddl='int', max_length=1)
     timelimit = baseorm.IntField(ddl='int', max_length=4)
     store = baseorm.IntField(ddl='int', max_length=1)
-    status = baseorm.IntField(ddl='int', max_length=1)
     additions = baseorm.StrField(ddl='varchar', max_length=1024, default=None)
     extra = baseorm.StrField(ddl='varchar', max_length=300, default=None)
     creator = baseorm.IdField(updatable=False)
