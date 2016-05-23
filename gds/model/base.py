@@ -113,34 +113,6 @@ class Article(AuthModel):
     update_time = baseorm.DatetimeField(ddl='timestamp')
 
 
-class Codetree(baseorm.Model):
-    __table__ = 'grab_codetree'
-    bid = baseorm.IdField(unique='gct')
-    btype = baseorm.StrField(ddl='varchar', max_length=30, nullable=0, updatable=False, unique='gct')
-    sid = baseorm.IdField(unique='gct')
-    stype = baseorm.StrField(ddl='varchar', max_length=30, nullable=0, updatable=False, unique='gct')
-    pid = baseorm.StrField(ddl='varchar', max_length=50, nullable=0, updatable=False, unique='gct')
-    name = baseorm.StrField(ddl='varchar', max_length=100, nullable=0, updatable=False, unique='gct')
-    index = baseorm.StrField(ddl='varchar', max_length=100, nullable=0, updatable=False, unique='gct')
-    method = baseorm.StrField(ddl='varchar', max_length=30, nullable=0, updatable=False, unique='gct')
-    xpath = baseorm.StrField(ddl='varchar', max_length=500)
-    default = baseorm.StrField(ddl='varchar', max_length=100)
-    content = baseorm.StrField(ddl='varchar', max_length=50)
-    datatype = baseorm.StrField(ddl='varchar', max_length=20)
-
-
-class Config(baseorm.Model):
-    __table__ = 'grab_config'
-    key = baseorm.StrField(ddl='varchar', max_length=50, nullable=0, updatable=False, unique='gc')
-    val = baseorm.StrField(ddl='varchar', max_length=128)
-    status = baseorm.IntField(ddl='int', max_length=1)
-    extra = baseorm.StrField(ddl='varchar', max_length=300, default=None)
-    creator = baseorm.IdField(updatable=False)
-    updator = baseorm.IdField()
-    create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
-    update_time = baseorm.DatetimeField(ddl='timestamp')
-
-
 class Creator(AuthModel):
     __table__ = 'grab_creator'
     username = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='gc')
@@ -159,29 +131,6 @@ class Creator(AuthModel):
     update_time = baseorm.DatetimeField(ddl='timestamp')
 
 
-class Dataextract(baseorm.Model):
-    __table__ = 'grab_dataextract'
-    name = baseorm.StrField(ddl='varchar', max_length=100, nullable=0, updatable=False, unique='gde')
-    method = baseorm.StrField(ddl='varchar', max_length=30)
-    path = baseorm.StrField(ddl='varchar', max_length=500)
-    content = baseorm.StrField(ddl='varchar', max_length=50)
-    parameter = baseorm.IntField(ddl='int', max_length=1)
-    store = baseorm.IntField(ddl='int', max_length=1)
-    sid = baseorm.IdField()
-    dsid = baseorm.IdField(unique='gde')
-    pdeid = baseorm.IdField()
-
-
-class Dataitem(baseorm.Model):
-    __table__ = 'grab_dataitem'
-    dmid = baseorm.IdField(unique='gdi')
-    name = baseorm.StrField(ddl='varchar', max_length=64, nullable=0, updatable=False, unique='gdi')
-    length = baseorm.IntField(ddl='int', max_length=5)
-    default = baseorm.StrField(ddl='varchar', max_length=100)
-    comment = baseorm.StrField(ddl='varchar', max_length=128)
-    unique = baseorm.StrField(ddl='varchar', max_length=64)
-
-
 class Datamodel(baseorm.Model):
     __table__ = 'grab_datamodel'
     name = baseorm.StrField(ddl='varchar', max_length=64, nullable=0, updatable=False, unique='gdm')
@@ -195,44 +144,6 @@ class Datamodel(baseorm.Model):
     extra = baseorm.StrField(ddl='varchar', max_length=300, default=None)
     creator = baseorm.IdField(updatable=False)
     updator = baseorm.IdField()
-    create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
-    update_time = baseorm.DatetimeField(ddl='timestamp')
-
-
-class Datapath(baseorm.Model):
-    __table__ = 'grab_datapath'
-    bid = baseorm.IdField(unique='gdp')
-    btype = baseorm.StrField(ddl='varchar', max_length=30, nullable=0, updatable=False, unique='gdp')
-    sid = baseorm.IdField(unique='gdp')
-    stype = baseorm.StrField(ddl='varchar', max_length=30, nullable=0, updatable=False, unique='gdp')
-    pid = baseorm.StrField(ddl='varchar', max_length=50, nullable=0, updatable=False, unique='gdp')
-    name = baseorm.StrField(ddl='varchar', max_length=100, nullable=0, updatable=False, unique='gdp')
-    index = baseorm.StrField(ddl='varchar', max_length=100, nullable=0, updatable=False, unique='gdp')
-    method = baseorm.StrField(ddl='varchar', max_length=30, nullable=0, updatable=False, unique='gdp')
-    xpath = baseorm.StrField(ddl='varchar', max_length=500)
-    default = baseorm.StrField(ddl='varchar', max_length=100)
-    content = baseorm.StrField(ddl='varchar', max_length=50)
-    datatype = baseorm.StrField(ddl='varchar', max_length=20)
-
-
-class Datasource(baseorm.Model):
-    __table__ = 'grab_datasource'
-    name = baseorm.StrField(ddl='varchar', max_length=100, nullable=0, updatable=False, unique='gds')
-    method = baseorm.StrField(ddl='varchar', max_length=30)
-    url = baseorm.StrField(ddl='varchar', max_length=100)
-    data = baseorm.StrField(ddl='varchar', max_length=100)
-    headers = baseorm.StrField(ddl='varchar', max_length=100)
-    cookies = baseorm.StrField(ddl='varchar', max_length=100)
-    timeout = baseorm.IntField(ddl='int', max_length=10)
-    format = baseorm.StrField(ddl='varchar', max_length=30)
-    sid = baseorm.IdField(unique='gds')
-    ssid = baseorm.IdField()
-
-
-class Hash(baseorm.Model):
-    __table__ = 'grab_hash'
-    sid = baseorm.IdField(unique='gh')
-    hashweb = baseorm.IntField(ddl='int', max_length=30, nullable=0, updatable=False, unique='gh')
     create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
     update_time = baseorm.DatetimeField(ddl='timestamp')
 
@@ -265,7 +176,7 @@ class Section(AuthModel):
     timelimit = baseorm.IntField(ddl='int', max_length=4)
     store = baseorm.IntField(ddl='int', max_length=1)
     status = baseorm.IntField(ddl='int', max_length=1)
-    additions = baseorm.IntField(ddl='varchar', max_length=1024, default=None)
+    additions = baseorm.StrField(ddl='varchar', max_length=1024, default=None)
     extra = baseorm.StrField(ddl='varchar', max_length=300, default=None)
     creator = baseorm.IdField(updatable=False)
     updator = baseorm.IdField()
@@ -305,31 +216,6 @@ class Unit(baseorm.Model):
     desc = baseorm.StrField(ddl='char', max_length=128)
     filepath = baseorm.StrField(ddl='varchar', max_length=64)
     fileupdate = baseorm.StrField(ddl='int', max_length=1, default=1)
-    status = baseorm.IntField(ddl='int', max_length=1)
-    extra = baseorm.StrField(ddl='varchar', max_length=300, default=None)
-    creator = baseorm.IdField(updatable=False)
-    updator = baseorm.IdField()
-    create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
-    update_time = baseorm.DatetimeField(ddl='timestamp')
-
-
-class Node(baseorm.Model):
-    __table__ = 'grab_node'
-    dmid = baseorm.IdField()
-    ip = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='gn')
-    port = baseorm.IntField(ddl='int', max_length=6)
-    status = baseorm.IntField(ddl='int', max_length=1)
-    extra = baseorm.StrField(ddl='varchar', max_length=300, default=None)
-    creator = baseorm.IdField(updatable=False)
-    updator = baseorm.IdField()
-    create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
-    update_time = baseorm.DatetimeField(ddl='timestamp')
-
-
-class Waycon(baseorm.Model):
-    __table__ = 'grab_waycon'
-    name = baseorm.StrField(ddl='varchar', max_length=50, nullable=0, updatable=False, unique='gw')
-    desc = baseorm.StrField(ddl='varchar', max_length=128)
     status = baseorm.IntField(ddl='int', max_length=1)
     extra = baseorm.StrField(ddl='varchar', max_length=300, default=None)
     creator = baseorm.IdField(updatable=False)
