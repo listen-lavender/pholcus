@@ -14,6 +14,7 @@ class ProxyStatistics(dataorm.Model):
     create_time = dataorm.DatetimeField(ddl='datetime', updatable=False)
     update_time = dataorm.DatetimeField(ddl='timestamp')
 
+
 class ProxyLog(dataorm.Model):
     __table__ = 'grab_proxy_log'
     pid = dataorm.IdField()
@@ -39,8 +40,9 @@ class Log(dataorm.Model):
     elapse = dataorm.IntField(ddl='float')
     priority = dataorm.IntField(ddl='int', max_length=5)
     times = dataorm.IntField(ddl='int', max_length=2)
-    args = dataorm.StrField(ddl='varchar', max_length=640)
-    kwargs = dataorm.StrField(ddl='varchar', max_length=1280)
+    args = dataorm.StrField(ddl='varchar', default=None, max_length=640)
+    kwargs = dataorm.StrField(ddl='varchar', default=None, max_length=896)
+    txt = dataorm.StrField(ddl='varchar', default=None, max_length=1280)
     create_time = dataorm.DatetimeField(ddl='datetime', updatable=False)
 
 
