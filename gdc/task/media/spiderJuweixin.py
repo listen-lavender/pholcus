@@ -1,26 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # coding=utf-8
 import os, re, copy
 
-from datetime import timedelta
-from datetime import datetime
-from webcrawl.request import requGet
-from webcrawl.request import requPost
-from webcrawl.request import getHtmlNodeContent
-from webcrawl.request import getXmlNodeContent
-from webcrawl.task import retry
-from webcrawl.task import index
-from webcrawl.task import initflow
-from webcrawl.request import getJsonNodeContent
-from webcrawl.task import store
-from webcrawl.task import timelimit
-from webcrawl.task import next
-from webcrawl.request import ensureurl
-from webcrawl.request import parturl
-from model.setting import withData, datacfg
-from mediaspider import Data
-from mediaspider import TIMEOUT
-from mediaspider import SpiderMediaOrigin
+from datetime import *
+from webcrawl.request import *
+from webcrawl.task import *
+from model.setting import *
+from mediaspider import *
 
 
 class SpiderJuweixin(SpiderMediaOrigin):
