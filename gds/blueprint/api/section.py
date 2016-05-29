@@ -7,7 +7,7 @@ from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from rest import api, format_datetime
 from model.base import Section, Creator
-from model.log import Statistics
+from model.log import Logsummary
 
 @api.route('/section', methods=['POST'])
 @api.route('/section/<sid>', methods=['POST'])

@@ -6,7 +6,7 @@ from model.setting import withBase, basecfg, baseorm
 from model.base import Article, Creator, Section
 from flask import Blueprint, request, Response, render_template, g
 from views import script
-from model.base import Section, Dataextract, Datasource, Permit
+from model.base import Section, Permit
 from model.setting import baseorm
 
 @script.route('/step/list', methods=['GET', 'POST', 'DELETE'])
@@ -42,12 +42,9 @@ def sectionlist():
                 section['pretry'] = next['retry']
                 section['ptimelimit'] = next['timelimit']
                 section['pstore'] = next['store']
-            dataextract = Dataextract.queryAll({'sid':section['_id']})
-            datasource = Datasource.queryAll({'sid':section['_id']})
+            dataextract = []
+            datasource = []
             sections.append({'_id':section['_id'], 'aid':section['aid'], 'name':section['name'], 'flow':section['flow'], 'index':section['index'], 'retry':section['retry'], 'timelimit':section['timelimit'], 'store':section['store'], 'dataextract':dataextract, 'datasource':datasource})
-        # dataextract = Dataextract.queryAll({'sid':section['pid']})
-        # datasource = Datasource.queryAll({'sid':section['pid']})
-        # sections.append({'_id':section['pid'], 'aid':section['paid'], 'name':section['pname'], 'flow':section['pflow'], 'index':section['pindex'], 'retry':section['pretry'], 'timelimit':section['ptimelimit'], 'store':section['pstore'], 'dataextract':dataextract, 'datasource':datasource})
         sections.sort(key=lambda one:weight[one['_id']])
         result = {"appname":g.appname, "user":user, "step":sections}
         result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
@@ -84,8 +81,8 @@ def sectiondetail(sid=None):
                 section['next'] = ''
             else:
                 section['next'] = next['name']
-            dataextract = Dataextract.queryAll({'sid':sid})
-            datasource = Datasource.queryAll({'sid':sid})
+            dataextract = []
+            datasource = []
             section['datasource'] = datasource
             section['dataextract'] = dataextract
             section['current'] = str(section['creator']) == user['_id']

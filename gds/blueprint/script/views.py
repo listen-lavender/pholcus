@@ -3,7 +3,7 @@
 import json
 from webcrawl.character import unicode2utf8
 from model.setting import withBase, basecfg
-from model.base import Article, Creator, Section
+from model.base import Article, Flow, Section, Creator
 from flask import Blueprint, request, Response, render_template, g
 
 script = Blueprint('script', __name__, template_folder='template')
@@ -36,8 +36,7 @@ def script_detail(aid=None):
             article = {'_id':'', 'name':'', 'clsname':'', 'desc':1, 'filepath':'', 'fileupdate':0, 'flows':[]}
         else:
             article = Article.queryOne(user, {'_id':aid}, projection={'_id':1, 'name':1, 'clsname':1, 'desc':1, 'filepath':1, 'fileupdate':1})
-            sections = Section.queryAll(user, {'aid':aid}, projection={'flow':1})
-            article['flows'] = list(set([section['flow'] for section in sections]))
+            article['flows'] = list(Flow.queryAll({'aid':aid}, projection={'name':1, '_id':1}))
         result = {"appname":g.appname, "user":user, "script":article}
         result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
         return result

@@ -8,7 +8,7 @@ from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from rest import api, format_datetime
 from model.base import Datamodel, Creator
-from model.log import Statistics
+from model.log import Logsummary
 from . import exepath, modelpath, allowed, store
 
 @api.route('/datamodel', methods=['POST'])

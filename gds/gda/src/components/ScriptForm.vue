@@ -19,7 +19,7 @@
         <label>script update: </label><span>{{result.script.fileupdate}}</span>
     </div>
     <div class="field" v-for="flow in result.script.flows">
-        <a v-link="{name: 'step', query: {script_id: result.script._id, flow:flow}}">{{flow}} flow</a>
+        <a v-link="{name: 'step', query: {script_id: result.script._id, flow_id:flow['_id']}}">{{flow}} flow</a>
     </div>
     <button class="ui primary button" type="submit">保存</button>
     <button class="ui button" v-on:click="reset">取消</button>
