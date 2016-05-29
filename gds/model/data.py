@@ -64,6 +64,8 @@ class Proxy(MarkModel):
     extra = dataorm.StrField(ddl='varchar', max_length=300)
     creator = dataorm.IdField()
     updator = dataorm.IdField()
+    create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
+    update_time = baseorm.DatetimeField(ddl='timestamp')
 
 
 '''
