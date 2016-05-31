@@ -22,12 +22,12 @@ def sectionlist():
     if request.method == 'GET':
         weight = {}
         aid = request.args.get('script_id')
-        print aid
         aid = baseorm.IdField.verify(aid)
-        flow = request.args.get('flow', 'www')
+        fid = request.args.get('flow_id')
+        fid = baseorm.IdField.verify(fid)
         sections = []
         projection = {'_id':1, 'aid':1, 'name':1, 'flow':1, 'index':1, 'retry':1, 'timelimit':1, 'store':1, 'next_id':1}
-        for section in Section.queryAll(user, {'aid':aid, 'flow':flow}, projection=projection):
+        for section in Section.queryAll(user, {'aid':aid, 'fid':fid}, projection=projection):
             section['_id'] = str(section['_id'])
             section['aid'] = str(section['aid'])
             weight[section['_id']] = weight.get(section['_id'], 0) + 1
@@ -91,7 +91,9 @@ def sectiondetail(sid=None):
         for one in Permit.queryAll({'otype':'Section', 'oid':sid}, projection={'cid':1, '_id':0}):
             author[str(one['cid'])] = ''
         section['author'] = urllib.quote(json.dumps(author).encode('utf8'))
-        return render_template('section/detail.html', appname=g.appname, user=user, aid=aid, sid=sid, section=section)
+        result = {"appname":g.appname, "user":user, "step":section, "aid":aid, "sid":sid}
+        result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+        return result
     elif request.method == 'POST':
         sid = request.form.get('_id')
         section_name = request.form.get('name')

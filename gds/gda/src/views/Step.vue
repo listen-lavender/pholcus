@@ -16,7 +16,7 @@
         },
         route: {
             data(transition){
-                this.$http.get('script/step/list?script_id='+this.$route.query.script_id+'&flow='+this.$route.query.flow).then((response)=>{
+                this.$http.get('script/step/list?script_id='+this.$route.query.script_id+'&flow_id='+this.$route.query.flow_id).then((response)=>{
                     this.$set('result', response.data.res);
                 })
             }

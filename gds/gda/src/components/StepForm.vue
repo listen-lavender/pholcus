@@ -8,7 +8,7 @@
     <div class="ui styled accordion">
         <div id="section_title" class="title active">{{result.step.name}}</div>
         <div class="content active">
-            <input id="sid" type="hidden" value="{{sid|default('', true)}}"/>
+            <input id="sid" type="hidden" :value="result.sid"/>
             <div class="ui input">
                 <span>section_name:</span><span>{{result.step.name}}</span>
             </div>
@@ -16,11 +16,9 @@
                 <span>desc:</span><input id="desc" type="text" value="{{result.step.desc}}">
             </div>
             <div class="ui input">
-                <span>next:</span>
+                <span v-if="result.step.next_id">next:</span>
                 <span>
-                    {% if section['next_id'] %}
-                        <a href="http://www.mypholcus.com/gds/p/section/detail/{{result.step.next_id}}?aid={{result.step.aid}}">{{result.step.next}}</a>
-                    {% endif %}
+                    <a v-if="result.step.next_id" v-link="{name: 'step_detail', params: {_id: result.step.next_id}}">{{result.step.next}}</a>
                 </span>
             </div>
             <div class="ui input">
@@ -40,13 +38,11 @@
             </div>
         </div>
     </div>
-    {% if section['current'] %}
-        <div class="ui">
-            <span>授权:</span>
-            <select class="ui search selection dropdown" multiple id="multi-select">
-            </select>
-        </div>
-    {% endif %}
+    <div v-if="result.step.current" class="ui">
+        <span>授权:</span>
+        <select class="ui search selection dropdown" multiple id="multi-select">
+        </select>
+    </div>
 </template>
 <script>
     export default {
@@ -57,14 +53,14 @@
         },
         route: {
             data(transition){
-                this.$http.get('script/'+this.$route.params._id).then((response)=>{
+                this.$http.get('script/step/detail/'+this.$route.params._id).then((response)=>{
                     this.$set('result', response.data.res);
                 })
             }
         },
         methods: {
             save(){
-                this.$http.post('script/'+this.$route.params._id, {'desc':this.desc}).then((response)=>{
+                this.$http.post('script/step/detail/'+this.$route.params._id, {'desc':this.desc}).then((response)=>{
                     console.log(response.data.msg);
                 })
             },
