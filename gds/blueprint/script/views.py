@@ -26,6 +26,7 @@ def script_list(uid=''):
     result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result
 
+
 @script.route('/', methods=['POST'])
 @script.route('/<aid>', methods=['POST', 'GET'])
 @withBase(basecfg.R, resutype='DICT', autocommit=True)

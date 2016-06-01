@@ -206,7 +206,6 @@ class Task(AuthModel):
     worknum = baseorm.IntField(ddl='int', max_length=3)
     queuetype = baseorm.StrField(ddl='char', max_length=1)
     worktype = baseorm.StrField(ddl='varchar', max_length=30)
-    trace = baseorm.IntField(ddl='int', max_length=1)
     timeout = baseorm.IntField(ddl='int', max_length=4)
     category = baseorm.StrField(ddl='varchar', max_length=50)
     tag = baseorm.StrField(ddl='varchar', default=None, max_length=500)
