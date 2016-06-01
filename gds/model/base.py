@@ -199,9 +199,9 @@ class Section(AuthModel):
 class Task(AuthModel):
     __table__ = 'grab_task'
     aid = baseorm.IdField()
+    fid = baseorm.IdField()
     sid = baseorm.IdField()
     name = baseorm.StrField(ddl='varchar', max_length=50)
-    flow = baseorm.StrField(ddl='varchar', max_length=20)
     params = baseorm.StrField(ddl='varchar', default=None, max_length=3000)
     worknum = baseorm.IntField(ddl='int', max_length=3)
     queuetype = baseorm.StrField(ddl='char', max_length=1)

@@ -6,6 +6,7 @@
           <th>步骤执行器</th>
           <th>优先级</th>
           <th>执行次数</th>
+          <th>版本</th>
           <th>相关任务</th>
           <th>参数</th>
         </tr>
@@ -16,11 +17,12 @@
             <td>{{item.methodName}}</td>
             <td>{{item.priority}}</td>
             <td>{{item.times}}</td>
+            <td>{{item.version}}</td>
             <td>
-                <a v-link="{name: 'task_detail', params: {_id: item._id}}">查看任务</a>
+                <a v-link="{name: 'task_detail', params: {_id: item.tid}}">查看任务</a>
             </td>
             <td>
-                <a v-link="{name: 'task_detail', params: {_id: item._id}}">查看参数</a>
+                <a v-link="{name: 'task_detail', params: {_id: item.tid}}">查看参数</a>
             </td>
         </tr>
     </tbody>

@@ -21,13 +21,43 @@
     <div class="two fields">
         <div class="field">
           <label>任务类型</label>
-          <select>
+          <select v-model="type">
+            <option v-for="option in model.type_select" v-bind:value="option.value">{{option.text}}
+            </option>
           </select>
         </div>
         <div class="field">
           <label>执行间隔</label>
           <input type="text" v-model="model.period">
         </div>
+    </div>
+    <div class="field">
+      <label>article</label>
+      <select v-model="aid">
+        <option v-for="option in model.article_select" :value="option.value">
+          {{option.text}}
+        </option>
+      </select>
+    </div>
+    <div class="field">
+      <label>flow</label>
+      <select v-model="fid">
+        <option v-for="option in model.flow_select" :value="option.value">
+          {{option.text}}
+        </option>
+      </select>
+    </div>
+    <div class="field">
+      <label>section</label>
+      <select v-model="sid">
+        <option v-for="option in model.section_select" :value="option.value">
+          {{option.text}}
+        </option>
+      </select>
+    </div>
+    <div class="field">
+      <label>params</label>
+      <input type="text" v-model="model.params">
     </div>
     <div class="field">
       <label>推送接口</label>
@@ -37,27 +67,8 @@
       <label>拉取接口</label>
       <span>{{model.pull_url}}</span>
     </div>
-    <div class="field">
-      <label>article</label>
-      <select>
-      </select>
-    </div>
-    <div class="field">
-      <label>flow</label>
-      <select>
-      </select>
-    </div>
-    <div class="field">
-      <label>section</label>
-      <select>
-      </select>
-    </div>
-    <div class="field">
-      <label>params</label>
-      <input type="text" v-model="model.params">
-    </div>
     <button class="ui green button" alt="save" v-on:click="update">保存</button>
-    <button class="ui button" v-on:click="cancel" >取消</button>
+    <button class="ui button" v-on:click="cancel">取消</button>
   </form>
 </template>
 <script>
@@ -95,7 +106,7 @@
         },
         methods: {
             update(){
-              this.$http.post('task/detail/'+this.$route.params._id, {'desc':this.model.desc, 'retry':this.model.retry, 'timelimit':this.model.timelimit, 'store':this.model.store, 'additions':this.model.additions}).then((response)=>{
+              this.$http.post('task/detail/'+this.$route.params._id, {'name':this.model.name, 'desc':this.model.desc, 'category':this.model.category, 'tag':this.model.tag, 'period':this.model.period, 'push_url':this.model.push_url, 'params':this.model.params}).then((response)=>{
               })
             }
         }

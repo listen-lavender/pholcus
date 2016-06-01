@@ -4,7 +4,7 @@
         <tr>
           <th>名称</th>
           <th>描述</th>
-          <th colspan="5"></th>
+          <th colspan="5">详情统计</th>
         </tr>
     </thead>
     <tbody >
