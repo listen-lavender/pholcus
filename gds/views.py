@@ -3,6 +3,7 @@
 import json, sys, os, functools
 
 from datetime import datetime, date, timedelta
+from bson import ObjectId
 from setting import USEPORT, CACHE_TIMEOUT, APPNAME
 from flask import Flask, g, request, Response, session, redirect, render_template
 from flask.templating import DispatchingJinjaLoader
@@ -17,16 +18,22 @@ from blueprint.script.views import script
 from blueprint.creator.views import creator
 from blueprint.api.rest import api
 
-class DatetimeEncoder(json.JSONEncoder):
+class SpecialEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, datetime):
+        if isinstance(obj, ObjectId):
+            return str(obj)
+        elif isinstance(obj, datetime):
             return obj.strftime('%Y-%m-%d %H:%M:%S')
         elif isinstance(obj, date):
             return obj.strftime('%Y-%m-%d')
+        elif type(obj) == list:
+            return ','.join(obj)
+        elif type(obj) == dict:
+            return ','.join(obj.keys())
         else:
             return json.JSONEncoder.default(self, obj)
 
-json.dumps = functools.partial(json.dumps, cls=DatetimeEncoder)
+json.dumps = functools.partial(json.dumps, cls=SpecialEncoder)
 
 cache = SimpleCache()
 def cached(func):

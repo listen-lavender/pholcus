@@ -10,7 +10,7 @@ from flask import Blueprint, request, Response, render_template, g
 task = Blueprint('task', __name__, template_folder='template')
 
 from activity import *
-
+from monitor import *
 
 @task.route('/list', methods=['GET'])
 @withBase(basecfg.R, resutype='DICT', autocommit=True)
@@ -92,11 +92,11 @@ def taskdetail(tid=None):
         addcid = request.form.get('addcid', '').split(',')
         delcid = request.form.get('delcid', '').split(',')
 
-        aid = baseorm.IdField.verify(aid)
-        fid = baseorm.IdField.verify(fid)
-        sid = baseorm.IdField.verify(sid)
+        aid = baseorm.IdField.verify(aid) if aid is not None else aid
+        fid = baseorm.IdField.verify(fid) if fid is not None else fid
+        sid = baseorm.IdField.verify(sid) if sid is not None else sid
 
-        if tasktype == 'ONCE':
+        if request.form.get('type') == 'ONCE':
             period = 0
             queuetype = 'P'
         else:
@@ -124,17 +124,13 @@ def taskdetail(tid=None):
                 create_time=datetime.datetime.now())
             task['_id'] = Task.insert(user, task)
         else:
-            task = {'_id':tid,
-                'name':name,
+            task = {'name':name,
                 'extra':extra,
                 'category':category,
                 'tag':tag,
                 'type':request.form.get('type'),
                 'period':period,
                 'push_url':push_url,
-                'aid':aid,
-                'fid':fid,
-                'sid':sid,
                 'params':params,
                 'timeout':timeout,
                 'worknum':worknum,
@@ -143,7 +139,14 @@ def taskdetail(tid=None):
                 'updator':user['_id'],
                 'update_time':datetime.datetime.now()
             }
+            if aid is not None:
+                task['aid'] = aid
+            if fid is not None:
+                task['fid'] = fid
+            if sid is not None:
+                task['sid'] = sid
             Task.update(user, {'_id':tid}, task)
+            task['_id'] = tid
         for cid in addcid:
             if cid == '':
                 continue

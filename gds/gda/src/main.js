@@ -79,24 +79,22 @@ router.map({
                     '/monitor': {
                         name: 'monitor',
                         component: TaskMonitorView,
-                        subRoutes: {
-                            '/data/:_id':{
-                                name: 'data',
-                                component: TaskMonitorDataView,
-                            },
-                            '/time/:_id':{
-                                name: 'time',
-                                component: TaskMonitorTimeView,
-                            },
-                            '/total/:_id':{
-                                name: 'total',
-                                component: TaskMonitorTotalView,
-                            },
-                            '/log/:_id':{
-                                name: 'log',
-                                component: TaskMonitorLogView,
-                            }
-                        }
+                    },
+                    '/monitor/data/:_id': {
+                        name: 'data',
+                        component: TaskMonitorDataView,
+                    },
+                    '/monitor/time/:_id': {
+                        name: 'time',
+                        component: TaskMonitorTimeView,
+                    },
+                    '/monitor/total/:_id': {
+                        name: 'total',
+                        component: TaskMonitorTotalView,
+                    },
+                    '/monitor/log/:_id': {
+                        name: 'log',
+                        component: TaskMonitorLogView,
                     },
                     '/:_id':{
                         name: 'task_detail',
@@ -141,7 +139,7 @@ router.map({
 })
 
 Vue.http.options.emulateJSON = true;
-Vue.http.options.root = 'http://localhost:7001/gds/api'
+Vue.http.options.root = '/gds/api'
 Vue.http.options.error = function(response) {
 }
 
