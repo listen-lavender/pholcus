@@ -1,5 +1,5 @@
 <template>
-  <form class="ui form" v-on:submit.prevent="update">
+  <div class="ui form">
     <div class="four fields">
         <div class="field">
           <label>名称</label>
@@ -7,7 +7,7 @@
         </div>
         <div class="field">
           <label>描述</label>
-          <input type="text" v-model="model.desc">
+          <input type="text" v-model="model.extra">
         </div>
         <div class="field">
           <label>分类</label>
@@ -21,8 +21,8 @@
     <div class="two fields">
         <div class="field">
           <label>任务类型</label>
-          <select v-model="type">
-            <option v-for="option in model.type_select" v-bind:value="option.value">{{option.text}}
+          <select v-model="model.type">
+            <option v-for="option in model.type_options" v-bind:value="option.value">{{option.text}}
             </option>
           </select>
         </div>
@@ -31,10 +31,11 @@
           <input type="text" v-model="model.period">
         </div>
     </div>
-    <div class="field">
+    <cascad :items="items"></cascad>
+    <!-- <div class="field">
       <label>article</label>
       <select v-model="aid">
-        <option v-for="option in model.article_select" :value="option.value">
+        <option v-for="option in model.article_options" :value="option.value">
           {{option.text}}
         </option>
       </select>
@@ -42,7 +43,7 @@
     <div class="field">
       <label>flow</label>
       <select v-model="fid">
-        <option v-for="option in model.flow_select" :value="option.value">
+        <option v-for="option in model.flow_options" :value="option.value">
           {{option.text}}
         </option>
       </select>
@@ -50,11 +51,11 @@
     <div class="field">
       <label>section</label>
       <select v-model="sid">
-        <option v-for="option in model.section_select" :value="option.value">
+        <option v-for="option in model.section_options" :value="option.value">
           {{option.text}}
         </option>
       </select>
-    </div>
+    </div> -->
     <div class="field">
       <label>params</label>
       <input type="text" v-model="model.params">
@@ -69,22 +70,29 @@
     </div>
     <button class="ui green button" alt="save" v-on:click="update">保存</button>
     <button class="ui button" v-on:click="cancel">取消</button>
-  </form>
+  </div>
 </template>
 <script>
     export default {
         data () {
             return {
               model: null,
-              articles:[],
-              flows:[],
-              sections:[],
+              items:[]
             }
         },
         route: {
             data(transition){
                 this.$http.get('task/detail/'+this.$route.params._id).then((response)=>{
-                    this.$set('model', response.data.res.task);
+                    let model = response.data.res.task;
+                    let items = [];
+                    items.push(model.article);
+                    delete model['article'];
+                    items.push(model.flow);
+                    delete model['flow'];
+                    items.push(model.section);
+                    delete model['section'];
+                    this.$set('model', model);
+                    this.$set('items', items);
                 })
             }
             // data(transition){
@@ -106,8 +114,20 @@
         },
         methods: {
             update(){
-              this.$http.post('task/detail/'+this.$route.params._id, {'name':this.model.name, 'desc':this.model.desc, 'category':this.model.category, 'tag':this.model.tag, 'period':this.model.period, 'push_url':this.model.push_url, 'params':this.model.params}).then((response)=>{
+              this.$http.post('task/detail/'+this.$route.params._id, {'name':this.model.name, 'extra':this.model.extra, 'category':this.model.category, 'tag':this.model.tag, 'type':this.model.type, 'period':this.model.period, 'aid':this.model.aid, 'fid':this.model.fid, 'sid':this.model.sid, 'params':this.model.params, 'push_url':this.model.push_url}).then((response)=>{
+                  let user = response.data.res.user;
+                  if(user == null){
+                    console.log(response.data.res.msg);
+                  }
+                  else{
+                    this.$route.router.go({name: 'monitor'});
+                  }
               })
+            }
+        },
+        events: {
+            modify:function(key, val) {
+                this.$set('model.' + key, val);
             }
         }
     }

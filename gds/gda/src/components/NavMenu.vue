@@ -31,6 +31,14 @@
             type: String
           }
         },
+        events: {
+            getModel:function(model) {
+              this.$broadcast('getModel', model);
+            },
+            setFilter:function(model, keyword) {
+              this.$broadcast('setFilter', model, keyword);
+            },
+        },
     }
 </script>
 <style lang='less'>

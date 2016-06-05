@@ -17,12 +17,11 @@ q = q.mc[q.tube]
 def taskactivity():
     from model.data import *
     user = request.user
-    pagetotal = int(request.args.get('pagetotal', 10))
-    page = int(request.args.get('page', 1))
-    total = q.find().count()
-    count = (total - 1)/pagetotal + 1
+    skip = int(request.args.get('skip', 0))
+    limit = int(request.args.get('limit', 10))
+
     tasks = []
-    for one in q.find({}, sort=[('priority', 1)], skip=(page-1)*pagetotal, limit=pagetotal):
+    for one in q.find({}, sort=[('priority', 1)], skip=skip, limit=limit):
         txt = one.pop('txt')
         txt = pickle.loads(txt.encode('utf-8'))
         one['args'] = str(txt['args'])
@@ -30,5 +29,11 @@ def taskactivity():
         one['status'] = DESCRIBE.get(one['status'], '')
         one['times'] = one['times'] + 1
         tasks.append(one)
-    result = {"appname":g.appname, "user":user, "work":tasks, "pagetotal":pagetotal, "page":page, "total":total, "count":count}
+
+    if tasks:
+        total = q.find().count()
+    else:
+        total = 0
+
+    result = {"appname":g.appname, "user":user, "work":tasks, "total":total}
     return json.dumps({'code':1, 'desc':'success', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')

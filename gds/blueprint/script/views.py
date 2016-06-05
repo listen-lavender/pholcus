@@ -21,7 +21,7 @@ def script_list(uid=''):
     if total == 0:
         total = Article.count(user, {})
     count = (total - 1)/pagetotal + 1
-    articles = Article.queryAll(user, {}, projection={'_id':1, 'name':1, 'filepath':1, 'uid':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
+    articles = Article.queryAll(user, {}, projection={'name':1, 'desc':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     result = {"appname":g.appname, "user":user, "uid":uid, "script":articles, "pagetotal":pagetotal, "page":page, "total":total, "count":count}
     result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result
@@ -36,7 +36,7 @@ def script_detail(aid=None):
         if aid is None:
             article = {'_id':'', 'name':'', 'clsname':'', 'desc':1, 'filepath':'', 'fileupdate':0, 'flows':[]}
         else:
-            article = Article.queryOne(user, {'_id':aid}, projection={'_id':1, 'name':1, 'clsname':1, 'desc':1, 'filepath':1, 'fileupdate':1})
+            article = Article.queryOne(user, {'_id':aid}, projection={'name':1, 'clsname':1, 'desc':1, 'filepath':1, 'fileupdate':1})
             article['flows'] = list(Flow.queryAll({'aid':aid}, projection={'name':1, '_id':1}))
         result = {"appname":g.appname, "user":user, "script":article}
         result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')

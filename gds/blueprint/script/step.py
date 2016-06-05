@@ -24,7 +24,7 @@ def sectionlist():
         fid = request.args.get('flow_id')
         fid = baseorm.IdField.verify(fid)
         sections = []
-        projection = {'_id':1, 'aid':1, 'name':1, 'flow':1, 'index':1, 'retry':1, 'timelimit':1, 'store':1, 'next_id':1}
+        projection = {'aid':1, 'name':1, 'flow':1, 'index':1, 'retry':1, 'timelimit':1, 'store':1, 'next_id':1}
         for section in Section.queryAll(user, {'fid':fid}, projection=projection):
             section['_id'] = str(section['_id'])
             weight[section['_id']] = weight.get(section['_id'], 0) + 1
@@ -50,7 +50,7 @@ def sectiondetail(sid=None):
     user = request.user
     sid = baseorm.IdField.verify(sid)
     if request.method == 'GET':
-        projection = {'_id':1, 'aid':1, 'next_id':1, 'name':1, 'desc':1, 'flow':1, 'index':1, 'retry':1, 'timelimit':1, 'store':1, 'additions':1, 'creator':1}
+        projection = {'aid':1, 'next_id':1, 'name':1, 'desc':1, 'flow':1, 'index':1, 'retry':1, 'timelimit':1, 'store':1, 'additions':1, 'creator':1}
         section = Section.queryOne(user, {'_id':sid}, projection=projection)
         next = Section.queryOne(user, {'_id':section['next_id']}, projection=projection)
         if next is None:

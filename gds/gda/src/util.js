@@ -73,3 +73,12 @@ export const isLogined = function(val, expire){
         return val.toLowerCase() === 'true'
     }
 }
+
+export const near = function(index, last, horizon) {
+    let pages = [];
+    let start = index + 1;
+    let end = last - 1;
+    for(let k=start; k<last && k<start+horizon; k++)
+        pages.push({'number':k});
+    return pages;
+}

@@ -15,19 +15,27 @@
         </tr>
     </tbody>
   </table>
+  <paginator :index="index" :size="size" :total="result.total"></paginator>
 </template>
 <script>
+    import Paginator from '../mixin/load';
+    import Filter from '../mixin/search';
     export default {
-        data () {
-            return {
-              result: null,
+        mixins: [Paginator, Filter],
+        props: {
+            model: {
+                type: String,
+                default: 'script'
             }
         },
-        ready(){
-            this.$http.get('script/list').then((response)=>{
-                this.$set('result', response.data.res);
-            })
-        },
+        computed: {
+            url: function () {
+                let link = 'script/list?skip='+((this.index-1) * this.size)+'&limit='+this.size;
+                if(this.keyword)
+                    link = link + '&keyword=' + this.keyword;
+                return link;
+            }
+        }
     }
 </script>
 <style lang='less'>

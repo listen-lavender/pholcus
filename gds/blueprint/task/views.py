@@ -13,7 +13,7 @@ from activity import *
 from monitor import *
 
 @task.route('/list', methods=['GET'])
-@withBase(basecfg.R, resutype='DICT', autocommit=True)
+@withBase(basecfg.R, resutype='DICT')
 def tasklist():
     user = request.user
     pagetotal = int(request.args.get('pagetotal', 10))
@@ -22,7 +22,7 @@ def tasklist():
     if total == 0:
         total = Task.count(user, {})
     count = (total - 1)/pagetotal + 1
-    tasks = Task.queryAll(user, {}, projection={'_id':1, 'name':1, 'extra':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
+    tasks = Task.queryAll(user, {}, projection={'name':1, 'extra':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
     result = {"appname":g.appname, "user":user, "task":tasks}
     result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result
@@ -41,30 +41,48 @@ def taskdetail(tid=None):
         if tid is None:
             task = {'_id':'', 'aid':'', 'sid':'', 'name':'', 'extra':'', 'type':'ONCE', 'period':0, 'fid':'', 'params':'', 'worknum':6, 'queuetype':'M', 'worktype':'THREAD', 'timeout':30, 'category':'', 'push_url':'', 'pull_url':'', 'tag':'', 'current':True}
         else:
-            projection = {'_id':1, 'aid':1, 'sid':1, 'name':1, 'extra':1, 'type':1, 'period':1, 'fid':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'timeout':1, 'category':1, 'push_url':1, 'tag':1, 'creator':1}
+            projection = {'aid':1, 'sid':1, 'name':1, 'extra':1, 'type':1, 'period':1, 'fid':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'timeout':1, 'category':1, 'push_url':1, 'tag':1, 'creator':1}
             task = Task.queryOne(user, {'_id':tid}, projection=projection)
 
             projection = {'name':1}
-            task['article_select'] = [{'text':one['name'], 'value':one['_id']} for one in Article.queryAll(user, {}, projection=projection)]
+            task['article'] = {
+                'label':'article',
+                'key':'aid',
+                'val':task['aid'],
+                'url':'task/article',
+                'options':[{'text':one['name'], 'value':one['_id']} for one in Article.queryAll(user, {}, projection=projection)]
+            }
 
             projection = {'name':1}
-            task['flow_select'] = [{'text':one['name'], 'value':one['_id']} for one in Flow.queryAll({'aid':task['aid']}, projection=projection)]
+            task['flow'] = {
+                'label':'flow',
+                'key':'fid',
+                'val':task['fid'],
+                'url':'task/flow',
+                'options':[{'text':one['name'], 'value':one['_id']} for one in Flow.queryAll({'aid':task['aid']}, projection=projection)]
+            }
 
             projection = {'name':1}
-            task['section_select'] = [{'text':one['name'], 'value':one['_id']} for one in Section.queryAll(user, {'fid':task['fid']}, projection=projection)]
+            task['section'] = {
+                'label':'section',
+                'key':'sid',
+                'val':task['sid'],
+                'url':'task/section',
+                'options':[{'text':one['name'], 'value':one['_id']} for one in Section.queryAll(user, {'fid':task['fid']}, projection=projection)]
+            }
 
             task['current'] = str(task['creator']) == user['_id']
             task['pull_url'] = 'http://%s/gdc/api/data/%s' % (request.host, str(task['_id']))
             del task['creator']
         task['queuetype'] = 'M' # QUEUETYPE.get(task['queuetype'], '')
-        task['queuetype_select'] = [{'text':'local', 'value':'P'},
+        task['queuetype_options'] = [{'text':'local', 'value':'P'},
                                     {'text':'beanstalkd', 'value':'B'},
                                     {'text':'redis', 'value':'R'},
                                     {'text':'mongo', 'value':'M'}]
         task['worktype'] = 'THREAD' # WORKTYPE.get(task['worktype'], '')
-        task['worktype_select'] = [{'text':'多线程', 'value':'THREAD'},
+        task['worktype_options'] = [{'text':'多线程', 'value':'THREAD'},
                                     {'text':'协程', 'value':'GEVENT'}]
-        task['type_select'] = [{'text':'临时任务', 'value':'ONCE'},
+        task['type_options'] = [{'text':'临时任务', 'value':'ONCE'},
                                 {'text':'周期任务', 'value':'FOREVER'}]
         author = {}
         # for one in Permit.queryAll({'otype':'Task', 'oid':tid}, projection={'cid':1, '_id':0}):
@@ -164,3 +182,47 @@ def taskdetail(tid=None):
     else:
         pass
 
+
+@task.route('/article', methods=['GET'])
+@withBase(basecfg.R, resutype='DICT')
+def taskarticle():
+    user = request.user
+    uid = request.args.get('uid')
+    if uid is None:
+        articles = Article.queryAll(user, {}, projection={'name':1})
+    else:
+        uid = baseorm.IdField.verify(uid)
+        articles = Article.queryAll(user, {'uid':uid}, projection={'name':1})
+    result = {"appname":g.appname, "user":user, "options":[{'text':one['name'], 'value':one['_id']} for one in articles]}
+    result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+    return result
+
+
+@task.route('/flow', methods=['GET'])
+@withBase(basecfg.R, resutype='DICT')
+def taskflow():
+    user = request.user
+    aid = request.args.get('aid')
+    if aid is None:
+        flows = Flow.queryAll(user, {}, projection={'name':1})
+    else:
+        aid = baseorm.IdField.verify(aid)
+        flows = Flow.queryAll({'aid':aid}, projection={'name':1})
+    result = {"appname":g.appname, "user":user, "options":[{'text':one['name'], 'value':one['_id']} for one in flows]}
+    result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+    return result
+
+
+@task.route('/section', methods=['GET'])
+@withBase(basecfg.R, resutype='DICT')
+def tasksection():
+    user = request.user
+    fid = request.args.get('fid')
+    if fid is None:
+        sections = Section.queryAll(user, {}, projection={'name':1})
+    else:
+        fid = baseorm.IdField.verify(fid)
+        sections = Section.queryAll(user, {'fid':fid}, projection={'name':1})
+    result = {"appname":g.appname, "user":user, "options":[{'text':one['name'], 'value':one['_id']} for one in sections]}
+    result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+    return result
