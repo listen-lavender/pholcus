@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf8
-import ConfigParser 
-from dbskit import parse, extract
+import ConfigParser
+from dbskit import parse, extract, pack
 from dbskit.mysql import CFG as mysql_cfg, orm as mysql_orm
 from dbskit.mongo import CFG as mongo_cfg, orm as mongo_orm
 from dbskit.mysql.suit import withMysql, withMysqlQuery, withMysqlCount, dbpc as mysql_dbpc

@@ -2,7 +2,7 @@
 # coding=utf8
 import json
 from webcrawl.character import unicode2utf8
-from model.setting import withBase, basecfg
+from model.setting import withBase, basecfg, pack
 from model.base import Article, Flow, Section, Creator
 from flask import Blueprint, request, Response, render_template, g
 
@@ -15,14 +15,16 @@ from step import *
 @withBase(basecfg.R, resutype='DICT')
 def script_list(uid=''):
     user = request.user
-    pagetotal = int(request.args.get('pagetotal', 10))
-    page = int(request.args.get('page', 1))
-    total = int(request.args.get('total', 0))
-    if total == 0:
-        total = Article.count(user, {})
-    count = (total - 1)/pagetotal + 1
-    articles = Article.queryAll(user, {}, projection={'name':1, 'desc':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
-    result = {"appname":g.appname, "user":user, "uid":uid, "script":articles, "pagetotal":pagetotal, "page":page, "total":total, "count":count}
+    skip = int(request.args.get('skip', 0))
+    limit = int(request.args.get('limit', 10))
+    keyword = request.args.get('keyword')
+
+    condition = {}
+    if keyword:
+        pack(Article, keyword, condition)
+    total = Article.count(user, condition)
+    articles = Article.queryAll(user, condition, projection={'name':1, 'desc':1}, sort=[('update_time', -1)], skip=skip, limit=limit)
+    result = {"appname":g.appname, "user":user, "uid":uid, "script":articles, "total":total}
     result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result
 

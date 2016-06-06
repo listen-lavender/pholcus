@@ -100,9 +100,9 @@ class AuthModel(baseorm.Model):
 class Article(AuthModel):
     __table__ = 'grab_article'
     uid = baseorm.IdField(unique='ga')
-    name = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='ga')
-    desc = baseorm.StrField(ddl='char', max_length=128)
-    clsname = baseorm.StrField(ddl='varchar', max_length=50)
+    name = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='ga', searchable='end')
+    desc = baseorm.StrField(ddl='char', max_length=128, searchable='in')
+    clsname = baseorm.StrField(ddl='varchar', max_length=50, searchable='end')
     filepath = baseorm.StrField(ddl='varchar', max_length=64)
     fileupdate = baseorm.StrField(ddl='int', max_length=1, default=1)
     status = baseorm.IntField(ddl='int', max_length=1)
