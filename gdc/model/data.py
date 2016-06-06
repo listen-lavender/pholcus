@@ -67,6 +67,57 @@ class Media(MarkModel):
     update_time = dataorm.DatetimeField(ddl='timestamp', comment='更新时间')
 
 
+'''
+@comment('商店数据')
+'''
+class Shop(dataorm.Model):
+    __table__ = 'shop'
+    food_id = dataorm.ListField(ddl='list', comment='食物id')
+    name = dataorm.StrField(ddl='varchar', max_length=50, comment='食物名称')
+    desc = dataorm.StrField(ddl='varchar', max_length=640, comment='描述')
+    tel = dataorm.StrField(ddl='varchar', max_length=50, comment='电话')
+    pic = dataorm.ListField(ddl='list', comment='店面图片')
+    province_id = dataorm.StrField(ddl='varchar', max_length=50, comment='省份id')
+    city_id = dataorm.StrField(ddl='varchar', max_length=50, comment='城市id')
+    tag = dataorm.ListField(ddl='list', comment='标签')
+    area_id = dataorm.StrField(ddl='varchar', max_length=50, comment='区域id')
+    town_id = dataorm.StrField(ddl='varchar', max_length=50, comment='镇id')
+    country_id = dataorm.StrField(ddl='varchar', max_length=50, comment='国家id')
+    address = dataorm.StrField(ddl='varchar', max_length=250, comment='地址')
+    longitude = dataorm.StrField(ddl='float', comment='经度')
+    latitude = dataorm.StrField(ddl='float', comment='纬度')
+    dianping = dataorm.DictField(ddl='dict', comment='点评数据')
+    src = dataorm.StrField(ddl='varchar', unique='data', max_length=20, comment='来源')
+    link_url = dataorm.StrField(ddl='varchar', unique='data', max_length=20, comment='来源页面地址')
+    # {
+    # 'url': '',
+    # 'star': 0,
+    # 'average': 0,
+    # 'taste': 0,
+    # 'env': 0,
+    # 'service': 0,
+    # }
+    atime = dataorm.DatetimeField(ddl='datetime', comment='店面创建时间')
+    time = dataorm.DatetimeField(ddl='datetime', updatable=False, comment='时间')
+    uptime = dataorm.DatetimeField(ddl='timestamp', comment='更新时间')
+    tid = baseorm.IdField(unique='data', updatable=False)
+
+'''
+@comment('资讯数据')
+'''
+class News(MarkModel):
+    __table__ = 'news'
+    name = dataorm.StrField(ddl='varchar', max_length=60, comment='名称')
+    icon = dataorm.StrField(ddl='varchar', max_length=50, comment='图标地址')
+    detail_link = dataorm.StrField(ddl='varchar', unique='data', max_length=50, comment='详情地址')
+    desc = dataorm.StrField(ddl='varchar', max_length=640, comment='描述')
+    src = dataorm.StrField(ddl='varchar', unique='data', max_length=20, comment='来源')
+    category = dataorm.StrField(ddl='varchar', max_length=640, comment='类别')
+    atime = dataorm.DatetimeField(ddl='datetime', comment='来源时间')
+    create_time = dataorm.DatetimeField(ddl='datetime', comment='创建时间')
+    update_time = dataorm.DatetimeField(ddl='timestamp', comment='更新时间')
+
+
 if __name__ == '__main__':
     pass
 

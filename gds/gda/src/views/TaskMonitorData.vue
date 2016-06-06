@@ -21,17 +21,9 @@
     import Filter from '../mixin/search';
     export default {
         mixins: [Paginator, Filter],
-        props: {
-            model: {
-                type: String,
-                default: 'data'
-            }
-        },
         computed: {
             url: function () {
                 let link = 'task/'+this.$route.params._id+'/data?skip='+((this.index-1) * this.size)+'&limit='+this.size;
-                if(this.result && this.result.model)
-                    link = link + '&model=' + this.result.model;
                 if(this.keyword)
                     link = link + '&keyword=' + this.keyword;
                 return link;

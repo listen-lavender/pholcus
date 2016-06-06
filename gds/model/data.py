@@ -28,6 +28,25 @@ class MarkModel(dataorm.Model):
 
 
 '''
+@comment('代理数据')
+'''
+class Proxy(MarkModel):
+    __table__ = 'grab_proxy'
+    ip = dataorm.StrField(ddl='varchar', max_length=20, unique='data', updatable=False)
+    port = dataorm.IntField(ddl='int', max_length=10, unique='data', updatable=False)
+    location = dataorm.StrField(ddl='varchar', max_length=30)
+    safetype = dataorm.StrField(ddl='varchar', max_length=30)
+    protocol = dataorm.StrField(ddl='varchar', max_length=30)
+    refspeed = dataorm.FloatField(ddl='float')
+    usespeed = dataorm.FloatField(ddl='float')
+    usenum = dataorm.IntField(ddl='int', max_length=10)
+    status = dataorm.IntField(ddl='int', max_length=1)
+    extra = dataorm.StrField(ddl='varchar', max_length=300)
+    creator = dataorm.IdField()
+    updator = dataorm.IdField()
+
+
+'''
 @comment('公众号数据')
 '''
 class Media(MarkModel):
@@ -47,98 +66,56 @@ class Media(MarkModel):
     create_time = dataorm.DatetimeField(ddl='datetime', comment='创建时间')
     update_time = dataorm.DatetimeField(ddl='timestamp', comment='更新时间')
 
-'''
-@comment('代理数据')
-'''
-class Proxy(MarkModel):
-    __table__ = 'grab_proxy'
-    ip = dataorm.StrField(ddl='varchar', max_length=20, unique='data', updatable=False)
-    port = dataorm.IntField(ddl='int', max_length=10, unique='data', updatable=False)
-    location = dataorm.StrField(ddl='varchar', max_length=30)
-    safetype = dataorm.StrField(ddl='varchar', max_length=30)
-    protocol = dataorm.StrField(ddl='varchar', max_length=30)
-    refspeed = dataorm.FloatField(ddl='float')
-    usespeed = dataorm.FloatField(ddl='float')
-    usenum = dataorm.IntField(ddl='int', max_length=10)
-    status = dataorm.IntField(ddl='int', max_length=1)
-    extra = dataorm.StrField(ddl='varchar', max_length=300)
-    creator = dataorm.IdField()
-    updator = dataorm.IdField()
-    create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
-    update_time = baseorm.DatetimeField(ddl='timestamp')
-
 
 '''
-@comment('视频数据')
+@comment('商店数据')
 '''
-class Video(MarkModel):
-    __table__ = 'video'
-    cat = dataorm.ListField(ddl='list', comment='资源分类')
-    url = dataorm.StrField(ddl='str', comment='资源地址')
-    format = dataorm.StrField(ddl='str', comment='资源格式')
-    size = dataorm.IntField(ddl='int', comment='资源大小')
-    during = dataorm.IntField(ddl='int', comment='资源时常')
-    tag = dataorm.ListField(ddl='list', comment='资源标签')
-    name = dataorm.StrField(ddl='str', comment='资源名称')
-    desc = dataorm.StrField(ddl='str', comment='资源描述')
-    cover = dataorm.StrField(ddl='str', comment='资源封面')
-    author = dataorm.StrField(ddl='str', comment='资源作者')
-    owner = dataorm.DictField(ddl='dict', comment='资源拥有者')
-    snum = dataorm.IntField(ddl='int', comment='资源序号')
-    src = dataorm.StrField(ddl='str', comment='资源来源')
-    host = dataorm.StrField(ddl='str', comment='资源域名')
-    page_url = dataorm.StrField(ddl='str', comment='资源原页面地址')
-    page_id = dataorm.IntField(ddl='int', unique='data', updatable=False, comment='资源页面id')
-    parent_page_id = dataorm.IntField(ddl='int', comment='资源父页面id')
-    atime = dataorm.StrField(ddl='str', comment='资源来源时间')
+class Shop(dataorm.Model):
+    __table__ = 'shop'
+    food_id = dataorm.ListField(ddl='list', comment='食物id')
+    name = dataorm.StrField(ddl='varchar', max_length=50, comment='食物名称')
+    desc = dataorm.StrField(ddl='varchar', max_length=640, comment='描述')
+    tel = dataorm.StrField(ddl='varchar', max_length=50, comment='电话')
+    pic = dataorm.ListField(ddl='list', comment='店面图片')
+    province_id = dataorm.StrField(ddl='varchar', max_length=50, comment='省份id')
+    city_id = dataorm.StrField(ddl='varchar', max_length=50, comment='城市id')
+    tag = dataorm.ListField(ddl='list', comment='标签')
+    area_id = dataorm.StrField(ddl='varchar', max_length=50, comment='区域id')
+    town_id = dataorm.StrField(ddl='varchar', max_length=50, comment='镇id')
+    country_id = dataorm.StrField(ddl='varchar', max_length=50, comment='国家id')
+    address = dataorm.StrField(ddl='varchar', max_length=250, comment='地址')
+    longitude = dataorm.StrField(ddl='float', comment='经度')
+    latitude = dataorm.StrField(ddl='float', comment='纬度')
+    dianping = dataorm.DictField(ddl='dict', comment='点评数据')
+    src = dataorm.StrField(ddl='varchar', unique='data', max_length=20, comment='来源')
+    link_url = dataorm.StrField(ddl='varchar', unique='data', max_length=20, comment='来源页面地址')
+    # {
+    # 'url': '',
+    # 'star': 0,
+    # 'average': 0,
+    # 'taste': 0,
+    # 'env': 0,
+    # 'service': 0,
+    # }
+    atime = dataorm.DatetimeField(ddl='datetime', comment='店面创建时间')
+    time = dataorm.DatetimeField(ddl='datetime', updatable=False, comment='时间')
+    uptime = dataorm.DatetimeField(ddl='timestamp', comment='更新时间')
+    tid = baseorm.IdField(unique='data', updatable=False)
 
 '''
-@comment('音频数据')
+@comment('资讯数据')
 '''
-class Audio(MarkModel):
-    __table__ = 'audio'
-    cat = dataorm.ListField(ddl='list', comment='资源分类')
-    url = dataorm.StrField(ddl='str', comment='资源地址')
-    format = dataorm.StrField(ddl='str', comment='资源格式')
-    size = dataorm.IntField(ddl='int', comment='资源大小')
-    during = dataorm.IntField(ddl='int', comment='资源时长')
-    tag = dataorm.ListField(ddl='list', comment='资源标签')
-    name = dataorm.StrField(ddl='str', comment='资源名称')
-    desc = dataorm.StrField(ddl='str', comment='资源描述')
-    cover = dataorm.StrField(ddl='str', comment='资源封面')
-    singer = dataorm.StrField(ddl='str', comment='资源歌手')
-    snum = dataorm.IntField(ddl='int', comment='资源序号')
-    src = dataorm.StrField(ddl='str', comment='资源来源')
-    host = dataorm.StrField(ddl='str', comment='资源域名')
-    page_url = dataorm.StrField(ddl='str', comment='资源原页面地址')
-    page_id = dataorm.IntField(ddl='int', unique='data', updatable=False, comment='资源页面id')
-    parent_page_id = dataorm.IntField(ddl='int', comment='资源父页面id')
-    atime = dataorm.DatetimeField(ddl='datetime', comment='资源来源时间')
-
-'''
-@comment('漫画数据')
-'''
-class Comic(MarkModel):
-    __table__ = 'comic'
-    cat = dataorm.ListField(ddl='list', comment='资源分类')
-    url = dataorm.StrField(ddl='str', comment='资源地址')
-    tag = dataorm.ListField(ddl='list', comment='资源标签')
-    name = dataorm.StrField(ddl='str', comment='资源名称')
-    desc = dataorm.StrField(ddl='str', comment='资源描述')
-    cover = dataorm.StrField(ddl='str', comment='资源封面')
-    author = dataorm.StrField(ddl='str', comment='资源作者')
-    owner = dataorm.DictField(ddl='dict', comment='资源拥有者')
-    snum = dataorm.IntField(ddl='int', comment='资源序号')
-    src = dataorm.StrField(ddl='str', comment='资源来源')
-    host = dataorm.StrField(ddl='str', comment='资源域名')
-    language = dataorm.StrField(ddl='str', comment='语言')
-    parody = dataorm.StrField(ddl='str', comment='出自')
-    relate_page = dataorm.DictField(ddl='dict', comment='相关资源页面id:url')
-    page_url = dataorm.StrField(ddl='str', comment='资源原页面地址')
-    page_id = dataorm.IntField(ddl='int', unique='data', updatable=False, comment='资源页面id')
-    parent_page_id = dataorm.IntField(ddl='int', comment='资源父页面id')
-    atime = dataorm.DatetimeField(ddl='datetime', comment='资源来源时间')
-    download = dataorm.BoolField(ddl='bool', comment='是否下载', default=False)
+class News(MarkModel):
+    __table__ = 'news'
+    name = dataorm.StrField(ddl='varchar', max_length=60, comment='名称', searchable='in')
+    icon = dataorm.StrField(ddl='varchar', max_length=50, comment='图标地址')
+    detail_link = dataorm.StrField(ddl='varchar', unique='data', max_length=50, comment='详情地址', searchable='end')
+    desc = dataorm.StrField(ddl='varchar', max_length=640, comment='描述')
+    src = dataorm.StrField(ddl='varchar', unique='data', max_length=20, comment='来源')
+    category = dataorm.StrField(ddl='varchar', max_length=640, comment='类别')
+    atime = dataorm.DatetimeField(ddl='datetime', comment='来源时间')
+    create_time = dataorm.DatetimeField(ddl='datetime', comment='创建时间')
+    update_time = dataorm.DatetimeField(ddl='timestamp', comment='更新时间')
 
 
 if __name__ == '__main__':

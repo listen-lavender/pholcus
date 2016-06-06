@@ -127,9 +127,9 @@ class Flow(baseorm.Model):
 
 class Creator(AuthModel):
     __table__ = 'grab_creator'
-    username = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='gc')
+    username = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='gc', searchable='in')
     password = baseorm.StrField(ddl='varchar', max_length=20)
-    group = baseorm.StrField(ddl='varchar', max_length=20)
+    group = baseorm.StrField(ddl='varchar', max_length=20, searchable='all')
     desc = baseorm.StrField(ddl='varchar', max_length=128)
     avatar = baseorm.StrField(ddl='varchar', max_length=128)
     contact = baseorm.StrField(ddl='varchar', default=None, max_length=500)
@@ -201,7 +201,7 @@ class Task(AuthModel):
     aid = baseorm.IdField()
     fid = baseorm.IdField()
     sid = baseorm.IdField()
-    name = baseorm.StrField(ddl='varchar', max_length=50)
+    name = baseorm.StrField(ddl='varchar', max_length=50, searchable='in')
     params = baseorm.StrField(ddl='varchar', default=None, max_length=3000)
     worknum = baseorm.IntField(ddl='int', max_length=3)
     queuetype = baseorm.StrField(ddl='char', max_length=1)
@@ -213,7 +213,7 @@ class Task(AuthModel):
     push_url = baseorm.StrField(ddl='varchar', max_length=100)
     period = baseorm.IntField(ddl='int', max_length=4)
     status = baseorm.IntField(ddl='int', max_length=1)
-    extra = baseorm.StrField(ddl='varchar', max_length=300, default=None)
+    extra = baseorm.StrField(ddl='varchar', max_length=300, default=None, searchable='in')
     creator = baseorm.IdField(updatable=False)
     updator = baseorm.IdField()
     create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)

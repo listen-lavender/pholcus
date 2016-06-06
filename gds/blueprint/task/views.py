@@ -2,7 +2,7 @@
 # coding=utf8
 import json
 import urllib
-from model.setting import withBase, basecfg, baseorm
+from model.setting import withBase, basecfg, baseorm, pack
 from model.base import Task, Section, Flow, Article
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
@@ -16,14 +16,16 @@ from monitor import *
 @withBase(basecfg.R, resutype='DICT')
 def tasklist():
     user = request.user
-    pagetotal = int(request.args.get('pagetotal', 10))
-    page = int(request.args.get('page', 1))
-    total = int(request.args.get('total', 0))
-    if total == 0:
-        total = Task.count(user, {})
-    count = (total - 1)/pagetotal + 1
-    tasks = Task.queryAll(user, {}, projection={'name':1, 'extra':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
-    result = {"appname":g.appname, "user":user, "task":tasks}
+    skip = int(request.args.get('skip', 0))
+    limit = int(request.args.get('limit', 10))
+    keyword = request.args.get('keyword')
+
+    condition = {}
+    if keyword:
+        pack(Task, keyword, condition)
+    total = Task.count(user, condition)
+    tasks = Task.queryAll(user, condition, projection={'name':1, 'extra':1}, sort=[('update_time', -1)], skip=skip, limit=limit)
+    result = {"appname":g.appname, "user":user, "task":tasks, 'total':total}
     result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result
 

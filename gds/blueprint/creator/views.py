@@ -2,7 +2,7 @@
 # coding=utf8
 import os, types, datetime, uuid, random, hashlib, json
 from flask import Blueprint, request, Response, render_template, redirect, make_response, session, g
-from model.setting import withBase, basecfg
+from model.setting import withBase, basecfg, pack
 from flask.helpers import send_from_directory
 from bson import ObjectId
 from model.base import Creator, Permit
@@ -55,14 +55,16 @@ creator.send_static_file  = types.MethodType(send_static_file, creator)
 @withBase(basecfg.R, resutype='DICT')
 def user_list():
     user = request.user
-    pagetotal = int(request.args.get('pagetotal', 10))
-    page = int(request.args.get('page', 1))
-    total = int(request.args.get('total', 0))
-    if total == 0:
-        total = Creator.count(user, {})
-    count = (total - 1)/pagetotal + 1
-    creators = Creator.queryAll(user, {}, projection={'username':1, 'group':1, 'create_time':1}, sort=[('update_time', -1)], skip=(page-1)*pagetotal, limit=pagetotal)
-    result = {"appname":g.appname, "user":user, "creator":creators, "pagetotal":pagetotal, "page":page, "total":total, "count":count}
+    skip = int(request.args.get('skip', 0))
+    limit = int(request.args.get('limit', 10))
+    keyword = request.args.get('keyword')
+
+    condition = {}
+    if keyword:
+        pack(Creator, keyword, condition)
+    total = Creator.count(user, condition)
+    creators = Creator.queryAll(user, condition, projection={'username':1, 'group':1, 'create_time':1}, sort=[('update_time', -1)], skip=skip, limit=limit)
+    result = {"appname":g.appname, "user":user, "creator":creators, "total":total}
     return json.dumps({'code':1, 'desc':'success', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
 
 

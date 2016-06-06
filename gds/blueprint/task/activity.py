@@ -3,7 +3,7 @@
 import json
 import time, datetime
 import pickle
-from model.setting import withBase, basecfg
+from model.setting import withBase, basecfg, baseorm
 from flask import Blueprint, request, Response, render_template, g
 from webcrawl.queue.mongo import Queue
 from model.setting import WORKQUEUE
@@ -15,13 +15,22 @@ q = q.mc[q.tube]
 
 @task.route('/activity', methods=['GET'])
 def taskactivity():
-    from model.data import *
     user = request.user
     skip = int(request.args.get('skip', 0))
     limit = int(request.args.get('limit', 10))
+    keyword = request.args.get('keyword')
+
+    if keyword is None:
+        condition = {}
+    elif keyword.isdigit() and len(keyword) == 8:
+        condition = {'version':keyword}
+    elif keyword.isdigit():
+        condition = {'tid':baseorm.IdField.verify(keyword)}
+    else:
+        condition = {'methodName':{'$regex':keyword}}
 
     tasks = []
-    for one in q.find({}, sort=[('priority', 1)], skip=skip, limit=limit):
+    for one in q.find(condition, sort=[('priority', 1)], skip=skip, limit=limit):
         txt = one.pop('txt')
         txt = pickle.loads(txt.encode('utf-8'))
         one['args'] = str(txt['args'])
@@ -31,7 +40,7 @@ def taskactivity():
         tasks.append(one)
 
     if tasks:
-        total = q.find().count()
+        total = q.find(condition).count()
     else:
         total = 0
 
