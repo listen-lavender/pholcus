@@ -29,7 +29,7 @@ class SpiderDianping(SpiderShopOrigin):
             "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36",
         }
         result = request.get(url, headers=headers, timeout=timeout, format='HTML')
-        food_id = additions['food_id']
+        food_id = [additions['food_id'], ]
         name = additions['name']
         desc = additions['desc']
         tel = additions['tel']
@@ -101,15 +101,14 @@ class SpiderDianping(SpiderShopOrigin):
         headers = {
             "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36",
         }
-        print '---', url
         result = request.get(url, headers=headers, timeout=timeout, format='JSON')
         shops = result['msg']['shops']
         for one in shops:
-            additions['name'] = one['shopName'],
-            additions['address'] = one['address'],
-            additions['tel'] = one['contactPhone'],
-            additions['longitude'] = one['glng'],
-            additions['latitude'] = one['glat'],
+            additions['name'] = one['shopName']
+            additions['address'] = one['address']
+            additions['tel'] = one['contactPhone']
+            additions['longitude'] = one['glng']
+            additions['latitude'] = one['glat']
             additions['desc'] = one['businessHours'] + ',' + one['crossRoad']
             additions['average'] = one['avgPrice']
             yield {'url':'http://www.dianping.com/shop/%s' % str(one['shopId']), 'additions':additions}
