@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-import time, datetime, copy
+import time, datetime, datetime, copy
 import os, sys, json
 import random
 import traceback
@@ -94,13 +94,14 @@ def task():
             cls_name = task['article']
             module = __import__(module_name, fromlist=['task.%s' % task['unit']])
             cls = getattr(module, cls_name)
-            if task.get('type', 'FOREVER') == 'FOREVER':
-                spider = local_spider.get(cls_name, None)
-                if spider is None:
-                    spider = cls(worknum=20, queuetype='R', worktype='THREAD', tid=int(task['_id']))
-                    local_spider[cls_name] = spider
-            else:
-                spider = cls(worknum=task['worknum'], queuetype=task['queuetype'], worktype=task['worktype'], tid=int(task['_id']))
+            spider = local_spider.get(cls_name, None)
+            if spider is None:
+                spider = cls(worknum=task['worknum'], queuetype='P', worktype='THREAD', tid=int(task['_id']))
+                local_spider[cls_name] = spider
+
+            if task.get('type', 'FOREVER') == 'FOREVER' and ((datetime.datetime.now() - task['update_time']).seconds)/3600 < task.get('period', 12):
+                continue
+
             try:
                 changestate(task['_id'], 2)
                 step = task.get('step', 1) - 1
@@ -108,49 +109,36 @@ def task():
                 additions['name'] = task['name']
                 additions['cat'] = task['category'].split(',')
                 additions['tag'] = task['tag'].split(',')
-                additions = dict(json.loads(task['additions']), **additions)
-                if task.get('type', 'FOREVER') == 'FOREVER':
-                    if ((datetime.datetime.now() - task['update_time']).seconds)/3600 < task.get('period', 12):
-                        continue
-                    weight = spider.weight(task['flow'], once=True)
-                    section = spider.section(task['flow'], step)
-                    if task['params'] is None or task['params'].strip() == '':
-                        workflow.task(weight, section, task['_id'], **{'additions':additions})
-                    elif task['params'].startswith('{'):
-                        workflow.task(weight, section, task['_id'], **dict(json.loads(task['params']), **{'additions':additions}))
-                    elif task['params'].startswith('('):
-                        workflow.task(weight, section, task['_id'], *tuple(task['params'][1:-1].split(',')), **{'additions':additions})
-                    else:
-                        if task['index'] is None or task['index'].isdigit():
-                            workflow.task(weight, section, task['_id'], task['params'], **{'additions':additions})
-                        else:
-                            workflow.task(weight, section, task['_id'], **{task['index']:task['params'], 'additions':additions})
+                if task['params'].startswith('{') and task['params'].endswith('}'):
+                    args = []
+                    kwargs = json.loads(task['params'])
+                elif task['index'] is None or task['index'].isdigit():
+                    args = [task['params'], ]
+                    kwargs = {}
                 else:
-                    if task['params'] is None or task['params'].strip() == '':
-                        spider.fetchDatas(task['flow'], step, **{'additions':additions})
-                    elif task['params'].startswith('{'):
-                        spider.fetchDatas(task['flow'], step, **dict(json.loads(task['params']), **{'additions':additions}))
-                    elif task['params'].startswith('('):
-                        spider.fetchDatas(task['flow'], step, *tuple(task['params'][1:-1].split(',')), **{'additions':additions})
-                    else:
-                        if task['index'] is None or task['index'].isdigit():
-                            spider.fetchDatas(task['flow'], step, task['params'], **{'additions':additions})
-                        else:
-                            spider.fetchDatas(task['flow'], step, **{task['index']:task['params'], 'additions':additions})
-                    spider.statistic()
-                    changestate(task['_id'], 0)
-                    if task.get('push_url') is not None:
-                        request.post(task['push_url'], {'type':'video', 'tid':task['_id']})
+                    args = []
+                    kwargs = {task['index']:task['params']}
+                kwargs['additions'] = dict(json.loads(task['additions']), **additions)
+
+                args.insert(0, datetime.datetime.now().strftime('%Y%m%d'))
+
+                if task.get('type', 'FOREVER') == 'FOREVER':
+                    section = spider.section(task['flow'], step)
+                    args.insert(0, task['_id'])
+                    args.insert(0, section)
+                    fun = workflow.task
+                    workflow.task(weight, section, task['_id'], *tuple(task['params'][1:-1].split(',')), **{'additions':additions})
+                else:
+                    args.insert(0, step)
+                    args.insert(0, task['flow'])
+                    fun = spider.fetchDatas
+                
+                fun(*args, **kwargs)
             except:
                 t, v, b = sys.exc_info()
                 err_messages = traceback.format_exception(t, v, b)
                 extra = ','.join(err_messages)
-                print extra
                 changestate(task['_id'], 3, extra=extra)
-            else:
-                pass
-            finally:
-                pass
                     
         time.sleep(60)
 

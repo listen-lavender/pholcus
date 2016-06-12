@@ -2,6 +2,7 @@
 # coding=utf-8
 import time, datetime
 import os, sys, json
+import hashlib
 from webcrawl import request
 from godhand import cook
 from setting import USER, SECRET, HOST
@@ -73,6 +74,9 @@ def setDatamodel(filepath, fileupdate=False):
     filepath = 'model/%s' % filepath.split('/model/')[-1]
     data = fi.read()
     fi.close()
+    keyobj = hashlib.md5()
+    keyobj.update(data)
+    digest = keyobj.hexdigest()
     for txt in data.split('@'):
         if 'comment(' in txt:
             comment = None
@@ -96,6 +100,7 @@ def setDatamodel(filepath, fileupdate=False):
                     "table": model,
                     "filepath": filepath,
                     "comment": comment,
+                    'digest': digest
                 }
                 print request.post('%sgds/api/datamodel' % HOST, {'data':json.dumps(data)}, format='JSON')
     if fileupdate:
@@ -106,31 +111,39 @@ def setUnit(filepath):
     name = filepath[filepath.rindex('/')+1:].replace('spider.py', '')
     unit = request.post('%sgds/api/unit' % HOST, {'condition':json.dumps({'name':name}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
     unit = unit['unit']
+    keyobj = hashlib.md5()
+    dmid = None
+    fi = open(filepath, 'r')
+    for one in fi.readlines():
+        keyobj.update(one)
+        if 'as Data' in one:
+            model = one.replace('as Data', '').split('import')[-1].strip().lower()
+            datamodel = request.post('%sgds/api/datamodel' % HOST, {'condition':json.dumps({'name':model}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
+            datamodel = datamodel['datamodel']
+            dmid = datamodel['_id']
+            break
+    fi.close()
+    digest = keyobj.hexdigest()
+    data = {}
+    files = None
     if not unit:
-        dmid = None
-        fi = open(filepath, 'r')
-        for one in fi.readlines():
-            if 'as Data' in one:
-                model = one.replace('as Data', '').split('import')[-1].strip().lower()
-                datamodel = request.post('%sgds/api/datamodel' % HOST, {'condition':json.dumps({'name':model}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
-                datamodel = datamodel['datamodel']
-                dmid = datamodel['_id']
-                break
-        fi.close()
-        short_filepath = '%s/%s' % (name, filepath[filepath.rindex('/')+1:])
-        create_time = datetime.datetime.now()
         data = {
             "dmid": dmid,
             "name": name,
             "filepath": short_filepath,
             "desc": '',
+            "digest": digest
         }
-        print request.post('%sgds/api/unit' % HOST, {'data':json.dumps(data)}, files={'file':('task/%s' % short_filepath, open(filepath, 'rb'))}, format='JSON')
+    if not unit or not unit['digest'] == digest:
+        short_filepath = '%s/%s' % (name, filepath[filepath.rindex('/')+1:])
+        files = {'file':('task/%s' % short_filepath, open(filepath, 'rb'))}
+    if data or files:
+        print request.post('%sgds/api/unit' % HOST, {'data':json.dumps(data)}, files=files, format='JSON')
     else:
         print 'Unit %s has been set.' % name
 
 
-def setArticle(filepath, fileupdate=False):
+def setArticle(filepath):
     unit = None
     for one in os.listdir(os.path.dirname(filepath)):
         if one.endswith('spider.py'):
@@ -148,7 +161,9 @@ def setArticle(filepath, fileupdate=False):
     flows = []
     fi = open(filepath, 'r')
     flag = False
+    keyobj = hashlib.md5()
     for line in fi.readlines():
+        keyobj.update(data)
         if line.startswith('class '):
             clsname = line.replace('class ', '').split('(')[0]
         if '@' in line and not 'find' in line and not 'findall' in line:
@@ -180,19 +195,24 @@ def setArticle(filepath, fileupdate=False):
             section['name'] = one.replace('def ', '').split('(')[0]
             sections[section['name']]=section
             section = {}
-    if article:
-        print 'Article %s has been set.' % name
-        if fileupdate:
-            print request.post('%sgds/api/article' % HOST, files={'file': (filepath, open(filepath, 'rb'))}, format='JSON')
-    else:
-        short_filepath = filepath.split('/task/')[-1]
+    digest = keyobj.hexdigest()
+    data = {}
+    files = {}
+    if not article:
         data = {
             "uid": unit['_id'],
             "name": name,
             "clsname": clsname,
             "filepath": short_filepath,
+            "digest": digest
         }
-        print request.post('%sgds/api/article' % HOST, {'data':json.dumps(data)}, files={'file': ('task/%s' % short_filepath, open(filepath, 'rb'))}, format='JSON')
+    if not article or not article['digest'] == digest:
+        short_filepath = filepath.split('/task/')[-1]
+        files = {'file': (filepath, open(filepath, 'rb'))}
+    if data or files:
+        print request.post('%sgds/api/article' % HOST, {'data':json.dumps(data)}, files=files, format='JSON')
+    else:
+        print 'Article %s has been set.' % name
 
     for section_name, section in sections.items():
         if section.get('flow') is None:
