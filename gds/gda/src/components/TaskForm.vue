@@ -31,7 +31,7 @@
           <input type="text" v-model="model.period">
         </div>
     </div>
-    <cascad :items="items"></cascad>
+    <cascade :items="items"></cascade>
     <!-- <div class="field">
       <label>article</label>
       <select v-model="aid">

@@ -31,7 +31,7 @@ import NavMenuView from './components/NavMenu.vue'
 import TopView from './components/Top.vue'
 
 import ChooseView from './components/Choose.vue'
-import CascadView from './components/Cascad.vue'
+import CascadeView from './components/Cascade.vue'
 import PaginatorView from './components/Paginator.vue'
 
 import UnknowView from './views/Unknow.vue'
@@ -41,7 +41,7 @@ import {isLogined, setLocal} from './util'
 // Vue.component('home', HomeView)
 Vue.component('top', TopView)
 Vue.component('choose', ChooseView)
-Vue.component('cascad', CascadView)
+Vue.component('cascade', CascadeView)
 Vue.component('paginator', PaginatorView)
 
 // var App = Vue.extend({'template':'<home></home>'})
