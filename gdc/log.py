@@ -6,7 +6,7 @@ import cPickle as pickle
 
 from kokolog import KokologHandler, logging
 from kokolog.prettyprint import CFG
-from model.log import RunLog
+from model.log import Log, Logsummary
 from webcrawl.daemon import Daemon
 from model.setting import baseorm
 from model.setting import withData, datacfg, LOGNUM, LOGSTATUS, LOGQUEUE
@@ -47,7 +47,7 @@ CFG.handlers.append(hdr)
 
 @withData(datacfg.W, autocommit=True)
 def record(data):
-    RunLog.insert(RunLog(**data))
+    Log.insert(Log(**data))
 
 
 class Consumer(Thread):
@@ -67,6 +67,11 @@ class Consumer(Thread):
                 data = pickle.loads(data)
                 data['atime'] = datetime.datetime.now()
                 record(data)
+
+
+class Summary(Thread):
+    def __init__(self):
+        pass
 
 
 class LogMonitor(Daemon):

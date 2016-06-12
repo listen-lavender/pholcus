@@ -77,6 +77,8 @@ class SpiderDianping(SpiderShopOrigin):
         uptime = atime
         time = atime
 
+        print link_url, name
+
         time_result = request.get(url+'/editmember', headers=headers, timeout=timeout, format='HTML')
         time_info = time_result.findall('.//ul[@class="block-inner desc-list contribute-list Fix"]//li')
         try:
@@ -111,6 +113,7 @@ class SpiderDianping(SpiderShopOrigin):
             additions['latitude'] = one['glat']
             additions['desc'] = one['businessHours'] + ',' + one['crossRoad']
             additions['average'] = one['avgPrice']
+            print one
             yield {'url':'http://www.dianping.com/shop/%s' % str(one['shopId']), 'additions':additions}
 
 

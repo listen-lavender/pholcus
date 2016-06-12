@@ -2,14 +2,13 @@
 # coding=utf-8
 import os
 from docopt import docopt
-# from hawkeye import initScript
-from hawkeye import setModel, setUnit, setArticle
+from register import setDatamodel, setUnit, setArticle
 
 if __name__ == '__main__':
     helpdoc = """Tools to use gdc(grabbing datas client) conviently.
     Usage:
       gdc (-h|--help)
-      gdc init
+      gdc init (-k|--key) <key> (-v|--val) <val>
       gdc register model (-f|--filepath) <filepath>
       gdc register unit (-f|--filepath) <filepath>
       gdc register article (-f|--filepath) <filepath>
@@ -32,12 +31,12 @@ if __name__ == '__main__':
         # print 'Init task scripts successfully.'
     elif params.get('register'):
         if params.get('model'):
-            setModel(os.path.abspath(params.get('<filepath>')))
+            setDatamodel(os.path.abspath(params.get('<filepath>')))
         elif params.get('unit'):
             setUnit(os.path.abspath(params.get('<filepath>')))
         elif params.get('article'):
             setArticle(os.path.abspath(params.get('<filepath>')))
         else:
-            pass
+            print 'Nothing to do.'
     else:
-        pass
+        print 'Nothing to do.'

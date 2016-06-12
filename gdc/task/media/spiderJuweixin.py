@@ -170,5 +170,4 @@ if __name__ == '__main__':
     print 'start'
     spider = SpiderBilibili(worknum=6, queuetype='P', worktype='COROUTINE')
     spider.fetchDatas('www', 'http://www.bilibili.com/html/js/types.json')
-    spider.statistic()
     print 'end'
