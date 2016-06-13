@@ -44,7 +44,7 @@ def datamodel(dmid=None):
         POST = True
         data['updator'] = user['_id']
         if '_id' in condition:
-            Datamodel.update(condition, {'$set':data})
+            Datamodel.update(condition, data)
             dmid = condition['_id']
         else:
             data['creator'] = user['_id']

@@ -52,7 +52,7 @@ def unit(uid=None):
         POST = True
         data['updator'] = user['_id']
         if '_id' in condition:
-            Unit.update(condition, {'$set':data})
+            Unit.update(condition, data)
             uid = condition['_id']
         else:
             data['creator'] = user['_id']

@@ -75,7 +75,7 @@ def sectiondetail(sid=None):
         addcid = request.form.get('addcid', '').split(',')
         delcid = request.form.get('delcid', '').split(',')
 
-        Section.update(user, {'_id':sid}, {'desc':desc, 'retry':retry, 'timelimit':timelimit, 'store':store, 'additions':additions})
+        Section.update(user, {'_id':sid}, {'$set':{'desc':desc, 'retry':retry, 'timelimit':timelimit, 'store':store, 'additions':additions}})
         for cid in addcid:
             if cid == '':
                 continue

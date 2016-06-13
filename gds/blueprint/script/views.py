@@ -63,7 +63,7 @@ def script_detail(aid=None):
             aid = Article.insert(user, article)
             result['msg'] = 'Create article successfully.'
         else:
-            Article.update(user, {'_id':aid}, {'desc':desc})
+            Article.update(user, {'_id':aid}, {'$set':{'desc':desc}})
             result['msg'] = 'Update article successfully.'
         result = json.dumps(result, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
         return result

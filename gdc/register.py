@@ -27,7 +27,7 @@ def getSection(sid):
 
 
 def getArticle(aid):
-    projection = {'uid':1, 'filepath':1, 'name':1, 'clsname':1, 'filepath':1, 'fileupdate':1}
+    projection = {'uid':1, 'name':1, 'clsname':1, 'filepath':1, 'digest':1}
     article = request.post('%sgdc/api/article/%s' % (HOST, str(aid)), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
     article = article['article']
     filepath = article['filepath']
@@ -40,7 +40,7 @@ def getArticle(aid):
 
 
 def getUnit(uid):
-    projection = {'name':1, 'filepath':1, 'fileupdate':1, 'dmid':1}
+    projection = {'name':1, 'filepath':1, 'digest':1, 'dmid':1}
     unit = request.post('%sgdc/api/unit/%s' % (HOST, str(uid)), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
     unit = unit['unit']
     filepath = unit['filepath']
@@ -56,7 +56,7 @@ def getUnit(uid):
 
 
 def getDatamodel(dmid):
-    projection = {'filepath':1, 'fileupdate':1}
+    projection = {'filepath':1, 'digest':1, 'name':1}
     datamodel = request.post('%sgdc/api/datamodel/%s' % (HOST, str(dmid)), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
     datamodel = datamodel['datamodel']
     filepath = datamodel['filepath']
@@ -86,18 +86,17 @@ def setDatamodel(filepath, fileupdate=False):
                     comment = info[1]
                 if 'class' in line:
                     info = line.replace('(', ' ').replace(')', '').replace(',', '').split(' ')
-                    model = info[1].lower()
+                    model = info[1]
                     break
             if model is not None:
                 fileupdate = True
-                print '%sgdc/api/datamodel' % HOST, {'name':model}
                 datamodel = request.post('%sgdc/api/datamodel' % HOST, {'condition':json.dumps({'name':model}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
                 datamodel = datamodel['datamodel']
                 if datamodel:
                     continue
                 data = {
                     "name": model,
-                    "table": model,
+                    "table": model.lower(),
                     "filepath": filepath,
                     "comment": comment,
                     'digest': digest

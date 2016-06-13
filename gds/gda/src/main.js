@@ -36,7 +36,7 @@ import PaginatorView from './components/Paginator.vue'
 
 import UnknowView from './views/Unknow.vue'
 
-import {isLogined, setLocal} from './util'
+import {isLogined, setLocal, getLocal} from './util'
 
 // Vue.component('home', HomeView)
 Vue.component('top', TopView)
@@ -166,10 +166,12 @@ Vue.http.interceptors.push({
         if(response.data.code == 1){
             if(response.data.res.user == null){
                 isLogined(false)
+                setLocal('group', '')
                 return response
             }
             else{
                 isLogined(true)
+                setLocal('group', response.data.res.user.group)
                 return response
             }
         }
@@ -177,6 +179,7 @@ Vue.http.interceptors.push({
             isLogined(false)
             setLocal('code', response.data.code)
             setLocal('msg', response.data.msg)
+            setLocal('group', '')
             router.go({name:'unknow'})
             return response
         }
@@ -185,17 +188,26 @@ Vue.http.interceptors.push({
 });
 
 router.alias({
-    '/': '/manage/task/active',
+    // '/': '/manage/task/active',
     '/manage': '/manage/task/active',
     '/manage/task': '/manage/task/active',
 })
 
 router.beforeEach(function(transition) {
     if((transition.to.path == '/login' || transition.to.path == '/register') && isLogined()){
-        router.go({name:'active'})
+        if(getLocal('group') == 'operator')
+            router.go({name:'monitor'});
+        else
+            router.go({name:'active'});
     }
     else if(transition.to.path == '/unknow' || transition.to.path == '/login' || transition.to.path == '/register' || isLogined()){
-        transition.next()
+        if(transition.to.path == '/')
+            if(getLocal('group') == 'operator')
+                router.go({name:'monitor'});
+            else
+                router.go({name:'active'});
+        else
+            transition.next();
     }
     else{
         router.go({name:'login'})
@@ -203,5 +215,4 @@ router.beforeEach(function(transition) {
 })
 
 router.start(HomeView, '#app')
-window.Vue = Vue
 

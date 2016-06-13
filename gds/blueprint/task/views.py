@@ -165,7 +165,7 @@ def taskdetail(tid=None):
                 task['fid'] = fid
             if sid is not None:
                 task['sid'] = sid
-            Task.update(user, {'_id':tid}, task)
+            Task.update(user, {'_id':tid}, {'$set':task})
             task['_id'] = tid
         for cid in addcid:
             if cid == '':
