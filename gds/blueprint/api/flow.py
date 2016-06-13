@@ -6,12 +6,12 @@ from model.setting import withBase, basecfg
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from rest import api
-from model.base import Section, Creator
+from model.base import Flow, Creator
 
-@api.route('/section', methods=['POST'])
-@api.route('/section/<sid>', methods=['POST'])
+@api.route('/flow', methods=['POST'])
+@api.route('/flow/<fid>', methods=['POST'])
 @withBase(basecfg.W, resutype='DICT', autocommit=True)
-def section(sid=None):
+def flow(fid=None):
     user = request.user
     condition = request.form.get('condition', '{}')
     condition = json.loads(condition)
@@ -22,23 +22,23 @@ def section(sid=None):
 
     limit = request.form.get('limit', 'one')
 
-    if sid is not None:
-        condition['_id'] = sid
+    if fid is not None:
+        condition['_id'] = fid
     if data:
         data['updator'] = user['_id']
         if '_id' in condition:
-            Section.update(user, condition, data)
-            sid = condition['_id']
+            Flow.update(condition, data)
+            fid = condition['_id']
         else:
             data['creator'] = user['_id']
-            data = Section(**data)
-            sid = Section.insert(user, data)
-        result = json.dumps({'stat':1, 'desc':'Section is set successfully.', 'section':{'_id':sid}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+            data = Flow(**data)
+            fid = Flow.insert(data)
+        result = json.dumps({'stat':1, 'desc':'Flow is set successfully.', 'flow':{'_id':fid}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         if limit == 'one':
-            result = Section.queryOne(user, condition, projection=projection)
+            result = Flow.queryOne(condition, projection=projection)
         else:
-            result = list(Section.queryAll(user, condition, projection=projection))
-        result = json.dumps({'stat':1, 'desc':'', 'section':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+            result = list(Flow.queryAll(condition, projection=projection))
+        result = json.dumps({'stat':1, 'desc':'', 'flow':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result
         

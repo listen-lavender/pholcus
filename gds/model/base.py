@@ -118,7 +118,7 @@ class Flow(baseorm.Model):
     __table__ = 'grab_flow'
     aid = baseorm.IdField()
     name = baseorm.StrField(ddl='varchar', max_length=20, nullable=0, updatable=False, unique='gf')
-    desc = baseorm.StrField(ddl='varchar', max_length=128)
+    desc = baseorm.StrField(ddl='varchar', max_length=128, default=None)
     status = baseorm.IntField(ddl='int', max_length=1)
     creator = baseorm.IdField(updatable=False)
     updator = baseorm.IdField()

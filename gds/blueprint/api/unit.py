@@ -6,9 +6,8 @@ import time, datetime
 from model.setting import withBase, basecfg
 from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
-from rest import api, format_datetime
+from rest import api
 from model.base import Unit, Creator
-from model.log import Logsummary
 from . import exepath, allowed
 
 INIT = """#!/usr/bin/env python
@@ -58,17 +57,12 @@ def unit(uid=None):
             data['creator'] = user['_id']
             data = Unit(**data)
             uid = Unit.insert(data)
-        result = json.dumps({'stat':1, 'desc':'Unit is set successfully.', 'uid':uid}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+        result = json.dumps({'stat':1, 'desc':'Unit is set successfully.', 'unit':{'_id':uid}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     if not POST:
         if limit == 'one':
             result = Unit.queryOne(condition, projection=projection)
-            if result:
-                result = format_datetime(result)
         else:
-            result = []
-            for one in Unit.queryAll(condition, projection=projection):
-                one = format_datetime(one)
-                result.append(one)
+            result = list(Unit.queryAll(condition, projection=projection))
         result = json.dumps({'stat':1, 'desc':'', 'unit':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result
         

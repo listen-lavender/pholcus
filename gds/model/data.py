@@ -120,5 +120,3 @@ class News(MarkModel):
 
 if __name__ == '__main__':
     pass
-
-

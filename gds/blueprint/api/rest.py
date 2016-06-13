@@ -7,16 +7,10 @@ from util.encrypt import rsa, randomKey, encrypt_crypto
 
 api = Blueprint('api', __name__)
 
-def format_datetime(one):
-    if 'create_time' in one:
-        one['create_time'] = one['create_time'].strftime('%Y-%m-%d %H:%M:%S')
-    if 'update_time' in one:
-        one['update_time'] = one['update_time'].strftime('%Y-%m-%d %H:%M:%S')
-    return one
-
 from datamodel import *
 from unit import *
 from article import *
+from flow import *
 from section import *
 from task import *
 
