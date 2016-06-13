@@ -210,7 +210,9 @@ def setArticle(filepath):
     if article and not article['digest'] == digest:
         files = {'file': (displaypath, open(filepath, 'rb'))}
     if data or files:
-        print request.post('%sgdc/api/article' % HOST, {'data':json.dumps(data)}, files=files, format='JSON')
+        article = request.post('%sgdc/api/article' % HOST, {'data':json.dumps(data)}, files=files, format='JSON')
+        print article['desc']
+        article = article['article']
     else:
         print 'Article %s has been set.' % name
 
@@ -228,6 +230,7 @@ def setArticle(filepath):
             flow = request.post('%sgdc/api/flow' % HOST, {'data':json.dumps(data)}, format='JSON')
             flow = flow['flow']
         fid = flow['_id']
+        print sections, section['name']
         setSection(section['flow'], step, section['name'], sections, article['_id'], fid)
 
 
@@ -255,6 +258,7 @@ def setSection(flow, step, section_name, sections, article_id, flow_id):
         }
         section = request.post('%sgdc/api/section' % HOST, {'data':json.dumps(data)}, format='JSON')
         section = section['section']
+        print '------', section
     return section['_id']
 
 

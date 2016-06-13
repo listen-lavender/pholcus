@@ -85,9 +85,9 @@ def schedule():
 
 def changestate(tid, status, extra=None):
     if status == 2:
-        doc = {'data':json.dumps({'$set':{'status':status}, '$inc':{'count':1}})}
+        doc = {'data':json.dumps({'$set':{'status':status, 'extra':extra}, '$inc':{'count':1}})}
     else:
-        doc = {'data':json.dumps({'$set':{'status':status}})}
+        doc = {'data':json.dumps({'$set':{'status':status, 'extra':extra}})}
     result = request.post('%sgdc/api/task/%s' % (HOST, str(tid)), doc)
 
 
@@ -103,8 +103,6 @@ def run():
     local_spider = {}
     while True:
         for task in schedule():
-            if not str(task['_id']) == '3':
-                continue
             module_name = task['filepath'].replace('.py', '').replace('/', '.')
             task['update_time'] = datetime.datetime.strptime(task['update_time'], '%Y-%m-%d %H:%M:%S')
             cls_name = task['article']
@@ -143,11 +141,16 @@ def run():
                 args.insert(0, datetime.datetime.now().strftime('%Y%m%d'))
 
                 if task.get('type', 'FOREVER') == 'FOREVER':
-                    section = spider.section(task['flow'], step)
+                    condition = {'aid':task['aid'], 'fid':task['fid']}
+                    projection = {'_id':1, 'step':1}
+                    result = request.post('%sgdc/api/section' % HOST, {'condition':json.dumps(condition), 'projection':json.dumps(projection), 'limit':'all'}, format='JSON')
+                    result = result['section']
+                    result.sort(key=lambda item:item['step'])
+                    sids = [one['_id'] for one in result]
+                    section = spider.select(task['flow'], step, sids)
                     args.insert(0, task['_id'])
                     args.insert(0, section)
                     fun = workflow.task
-                    print workflow.task, args, kwargs
                     workflow.task(*args, **kwargs)
                 else:
                     args.insert(0, step)
