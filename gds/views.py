@@ -33,7 +33,12 @@ class SpecialEncoder(json.JSONEncoder):
         else:
             return json.JSONEncoder.default(self, obj)
 
+class Utf8Decoder(json.JSONDecoder):
+    def __init__(self):
+        super(Utf8Decoder, self).__init__(object_hook=None)
+
 json.dumps = functools.partial(json.dumps, cls=SpecialEncoder)
+# json.loads = functools.partial(json.loads, cls=Utf8Decoder)
 
 cache = SimpleCache()
 def cached(func):

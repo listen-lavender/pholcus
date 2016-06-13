@@ -9,6 +9,7 @@ from version import Store
 import task
 
 LIMIT = 20
+CURRPATH = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
 def persist(filepath, content):
     if filepath.startswith('/'):
@@ -20,7 +21,7 @@ def persist(filepath, content):
 
 
 def getSection(sid):
-    projection = {'step':1, 'index':1, 'additions':1}
+    projection = {'step':1, 'index':1, 'additions':1, 'flow':1}
     section = request.post('%sgdc/api/section/%s' % (HOST, str(sid)), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
     section = section['section']
     return section
@@ -33,7 +34,7 @@ def getArticle(aid):
     filepath = article['filepath']
     if filepath in Store and article['digest'] == Store[filepath]:
         return article
-    result = request.get('%sgds/static/exe/%s' % (HOST, filepath), format='TEXT')
+    result = request.get('%sstatic/exe/%s' % (HOST, filepath), format='TEXT')
     persist(filepath, result)
     Store[filepath] = article['digest']
     return article
@@ -44,13 +45,13 @@ def getUnit(uid):
     unit = request.post('%sgdc/api/unit/%s' % (HOST, str(uid)), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
     unit = unit['unit']
     filepath = unit['filepath']
-    if filepath in Store and article['digest'] == Store[filepath]:
-        return
-    result = request.get('%sgds/static/exe/%s' % (HOST, filepath), format='TEXT')
+    if filepath in Store and unit['digest'] == Store[filepath]:
+        return unit
+    result = request.get('%sstatic/exe/%s' % (HOST, filepath), format='TEXT')
     persist(filepath, result)
     Store[filepath] = unit['digest']
 
-    filepath = os.path.join(os.path.dirname(os.path.join(CURRPATH, filepath)))
+    filepath = os.path.join(os.path.dirname(os.path.join(CURRPATH, filepath)), '__init__.py')
     persist(filepath, '#!/usr/bin/env python\n# coding=utf8')
     return unit
 
@@ -60,9 +61,9 @@ def getDatamodel(dmid):
     datamodel = request.post('%sgdc/api/datamodel/%s' % (HOST, str(dmid)), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
     datamodel = datamodel['datamodel']
     filepath = datamodel['filepath']
-    if filepath in Store and article['digest'] == Store[filepath]:
-        return
-    result = request.get('%sgds/static/exe/%s' % (HOST, filepath), format='TEXT')
+    if filepath in Store and datamodel['digest'] == Store[filepath]:
+        return datamodel
+    result = request.get('%sstatic/exe/%s' % (HOST, filepath), format='TEXT')
     persist(filepath, result)
     Store[filepath] = datamodel['digest']
     return datamodel

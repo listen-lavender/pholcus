@@ -13,7 +13,7 @@ from . import exepath, modelpath, allowed, store
 
 @api.route('/datamodel', methods=['POST'])
 @api.route('/datamodel/<dmid>', methods=['POST'])
-@withBase(basecfg.R, resutype='DICT')
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def datamodel(dmid=None):
     user = request.user
     condition = request.form.get('condition', '{}')

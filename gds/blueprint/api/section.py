@@ -11,7 +11,7 @@ from model.log import Logsummary
 
 @api.route('/section', methods=['POST'])
 @api.route('/section/<sid>', methods=['POST'])
-@withBase(basecfg.R, resutype='DICT')
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def section(sid=None):
     user = request.user
     condition = request.form.get('condition', '{}')

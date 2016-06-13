@@ -13,7 +13,7 @@ from . import exepath, allowed
 
 @api.route('/article', methods=['POST'])
 @api.route('/article/<aid>', methods=['POST'])
-@withBase(basecfg.R, resutype='DICT')
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def article(aid=None):
     user = request.user
     condition = request.form.get('condition', '{}')

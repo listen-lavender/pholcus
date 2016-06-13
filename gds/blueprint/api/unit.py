@@ -17,7 +17,7 @@ INIT = """#!/usr/bin/env python
 
 @api.route('/unit', methods=['POST'])
 @api.route('/unit/<uid>', methods=['POST'])
-@withBase(basecfg.R, resutype='DICT')
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def unit(uid=None):
     user = request.user
     condition = request.form.get('condition', '{}')

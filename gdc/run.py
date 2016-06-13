@@ -8,6 +8,7 @@ import threading
 import traceback
 import logging
 import os
+import functools
 from webcrawl.daemon import Daemon
 
 from model.setting import withData, datacfg, WORKNUM, WORKQUEUE
@@ -59,7 +60,7 @@ def log(pid, elapse):
 def schedule():
     user_id = 0
     condition = {'status':{'$gt':0}}
-    projection = {'_id':1, 'type':1, 'period':1, 'aid':1, 'sid':1, 'flow':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'timeout':1, 'category':1, 'tag':1, 'name':1, 'extra':1, 'update_time':1, 'push_url':1}
+    projection = {'_id':1, 'type':1, 'period':1, 'aid':1, 'sid':1, 'fid':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'timeout':1, 'category':1, 'tag':1, 'name':1, 'extra':1, 'update_time':1, 'push_url':1}
     tasks = request.post('%sgdc/api/task' % HOST, {'condition':json.dumps(condition), 'projection':json.dumps(projection), 'limit':'all'}, format='JSON')
     tasks = tasks['task']
     for task in tasks:
@@ -74,6 +75,7 @@ def schedule():
         task['step'] = section['step']
         task['index'] = section['index']
         task['additions'] = section.get('additions') or '{}'
+        task['flow'] = section['flow']
         task['filepath'] = article['filepath']
         task['article'] = article['clsname']
         task['unit'] = unit['name']
@@ -82,20 +84,27 @@ def schedule():
 
 
 def changestate(tid, status, extra=None):
-    request.post('%sgdc/api/task/%s' % (HOST, str(tid)), {'data':json.dumps({'$set':{'status':status}, '$inc':{'count':1}})})
+    if status == 2:
+        doc = {'data':json.dumps({'$set':{'status':status}, '$inc':{'count':1}})}
+    else:
+        doc = {'data':json.dumps({'$set':{'status':status}})}
+    result = request.post('%sgdc/api/task/%s' % (HOST, str(tid)), doc)
 
 
 def push(datamodel, url, tid):
-    requPost(url, {'type':datamodel, 'tid':tid})
+    changestate(tid, 0)
+    request.post(url, {'type':datamodel, 'tid':tid})
 
 
 def run():
-    workflow = Workflows(WORKNUM, 'R', 'THREAD', settings=WORKQUEUE)
+    workflow = Workflows(WORKNUM, 'M', 'THREAD', settings=WORKQUEUE)
     workflow.start()
     last_stat = datetime.datetime.now()
     local_spider = {}
     while True:
         for task in schedule():
+            if not str(task['_id']) == '3':
+                continue
             module_name = task['filepath'].replace('.py', '').replace('/', '.')
             task['update_time'] = datetime.datetime.strptime(task['update_time'], '%Y-%m-%d %H:%M:%S')
             cls_name = task['article']
@@ -103,11 +112,14 @@ def run():
             cls = getattr(module, cls_name)
             spider = local_spider.get(cls_name, None)
             if spider is None:
-                callback = functools.partial(push, datamodel=task['datamodel'], url=task['push_url'], tid=int(task['tid']))
+                callback = functools.partial(push, datamodel=task['datamodel'], url=task['push_url'], tid=int(task['_id']))
                 spider = cls(worknum=task['worknum'], queuetype='P', worktype='THREAD', tid=int(task['_id']), settings=WORKQUEUE, callback=callback)
                 local_spider[cls_name] = spider
                 
             if task.get('type', 'FOREVER') == 'FOREVER' and ((datetime.datetime.now() - task['update_time']).seconds)/3600 < task.get('period', 12):
+                continue
+
+            if not task.get('type', 'FOREVER') == 'FOREVER' and not task['status'] == 1:
                 continue
 
             try:
@@ -135,6 +147,7 @@ def run():
                     args.insert(0, task['_id'])
                     args.insert(0, section)
                     fun = workflow.task
+                    print workflow.task, args, kwargs
                     workflow.task(*args, **kwargs)
                 else:
                     args.insert(0, step)
@@ -146,7 +159,7 @@ def run():
                 extra = ','.join(err_messages)
                 changestate(task['_id'], 3, extra=extra)
                     
-        time.sleep(60)
+        time.sleep(3600)
 
 path = os.path.abspath('.')
 
@@ -167,5 +180,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-
     

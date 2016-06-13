@@ -17,8 +17,8 @@ class SpiderDianping(SpiderShopOrigin):
        大众点评 数据爬虫
     """
 
-    def __init__(self, worknum=6, queuetype='P', worktype='COROUTINE', timeout=-1, tid=0):
-        super(SpiderDianping, self).__init__(worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout, tid=tid)
+    def __init__(self, worknum=6, queuetype='P', worktype='COROUTINE', timeout=-1, tid=0, settings={}, callback=None):
+        super(SpiderDianping, self).__init__(worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout, tid=tid, settings=settings, callback=callback)
         self.clsname = self.__class__.__name__
         self.tid = tid
 
@@ -113,7 +113,6 @@ class SpiderDianping(SpiderShopOrigin):
             additions['latitude'] = one['glat']
             additions['desc'] = one['businessHours'] + ',' + one['crossRoad']
             additions['average'] = one['avgPrice']
-            print one
             yield {'url':'http://www.dianping.com/shop/%s' % str(one['shopId']), 'additions':additions}
 
 
@@ -162,7 +161,6 @@ class SpiderDianping(SpiderShopOrigin):
                 'town_id':one['town_id'],
                 'area_id':one['area_id'],
             }}
-
 if __name__ == '__main__':
 
     print 'start'

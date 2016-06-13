@@ -90,7 +90,8 @@ class AuthModel(baseorm.Model):
         if not user['group'] in ('administrator', 'root') and cls.__name__ == 'Creator' and 'group' in doc:
             del doc['group']
         if user['name'] == 'root' or auth['authority'] in (2,3,6,7,10,11,14,15):
-            doc['updator'] = user['_id']
+            doc['$set'] = doc.get('$set', {})
+            doc['$set']['updator'] = user['_id']
             result = super(AuthModel, cls).update(spec, doc)
         else:
             result = None

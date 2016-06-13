@@ -3,7 +3,6 @@
 import json
 import time, datetime
 from model.setting import withBase, basecfg
-from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from rest import api, format_datetime
 from model.base import Task, Creator
@@ -11,7 +10,7 @@ from model.log import Logsummary
 
 @api.route('/task', methods=['POST'])
 @api.route('/task/<tid>', methods=['POST'])
-@withBase(basecfg.R, resutype='DICT')
+@withBase(basecfg.W, resutype='DICT', autocommit=True)
 def task(tid=None):
     user = request.user
     condition = request.form.get('condition', '{}')

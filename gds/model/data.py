@@ -107,9 +107,9 @@ class Shop(dataorm.Model):
 '''
 class News(MarkModel):
     __table__ = 'news'
-    name = dataorm.StrField(ddl='varchar', max_length=60, comment='名称', searchable='in')
+    name = dataorm.StrField(ddl='varchar', max_length=60, comment='名称')
     icon = dataorm.StrField(ddl='varchar', max_length=50, comment='图标地址')
-    detail_link = dataorm.StrField(ddl='varchar', unique='data', max_length=50, comment='详情地址', searchable='end')
+    detail_link = dataorm.StrField(ddl='varchar', unique='data', max_length=50, comment='详情地址')
     desc = dataorm.StrField(ddl='varchar', max_length=640, comment='描述')
     src = dataorm.StrField(ddl='varchar', unique='data', max_length=20, comment='来源')
     category = dataorm.StrField(ddl='varchar', max_length=640, comment='类别')

@@ -16,7 +16,7 @@
         <label>script path: </label><span>{{result.script.filepath}}</span>
     </div>
     <div class="field">
-        <label>script update: </label><span>{{result.script.fileupdate}}</span>
+        <label>script digest: </label><span>{{result.script.digest}}</span>
     </div>
     <div class="field" v-for="flow in result.script.flows">
         <a v-link="{name: 'step', query: {script_id: result.script._id, flow_id:flow['_id']}}">{{flow['name']}} flow</a>

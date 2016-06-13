@@ -15,8 +15,8 @@ class SpiderJuweixin(SpiderMediaOrigin):
        哔哩官网 数据爬虫
     """
 
-    def __init__(self, worknum=6, queuetype='P', worktype='COROUTINE', timeout=-1, tid=0):
-        super(SpiderBilibili, self).__init__(worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout, tid=tid)
+    def __init__(self, worknum=6, queuetype='P', worktype='COROUTINE', timeout=-1, tid=0, settings={}, callback=None):
+        super(SpiderBilibili, self).__init__(worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout, tid=tid, settings=settings, callback=callback)
         self.clsname = self.__class__.__name__
 
     @store(withData(datacfg.W), Data.insert, update=True, method='MANY')

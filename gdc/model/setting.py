@@ -42,3 +42,4 @@ WORKQUEUE = parse(config.items("work-queue"))
 LOGNUM = config.getint("log", "worknum")
 LOGSTATUS = config.getint("log", "status")
 LOGQUEUE = parse(config.items("log-queue"))
+del WORKQUEUE['type']
