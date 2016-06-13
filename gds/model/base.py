@@ -48,13 +48,13 @@ class AuthModel(baseorm.Model):
         return result
 
     @classmethod
-    def insert(cls, user, obj, update=True, method='SINGLE', forcexe=False, maxsize=MAXSIZE):
+    def insert(cls, user, obj, update=True, method='SINGLE', maxsize=MAXSIZE):
         if not cls.__name__ == 'Creator' and user.get('_id') is None:
             user = Creator.queryOne({}, {'username':user.get('username'), 'secret':user.get('secret')})
             user['name'] = user['username']
         auth = Permit.queryOne({'cid':user.get('_id'), 'otype':cls.__name__, 'oid':None}, projection={'authority':1}) or {'authority':0}
         if cls.__name__ == 'Creator' or user['name'] == 'root' or auth['authority'] > 7: # 8 9 10 11 12 13 14 15
-            result = super(AuthModel, cls).insert(obj, update=update, method=method, forcexe=forcexe, maxsize=maxsize)
+            result = super(AuthModel, cls).insert(obj, update=update, method=method, maxsize=maxsize)
             user['_id'] = result if cls.__name__ == 'Creator' else user['_id']
             permit = Permit(cid=user['_id'], otype=cls.__name__, oid=result, authority=15, desc='aduq', status=1, creator=user['_id'], updator=user['_id'], create_time=datetime.datetime.now())
             Permit.insert(permit)
@@ -148,8 +148,6 @@ class Datamodel(baseorm.Model):
     name = baseorm.StrField(ddl='varchar', max_length=64, nullable=0, updatable=False, unique='gdm')
     table = baseorm.StrField(ddl='varchar', max_length=64)
     comment = baseorm.StrField(ddl='varchar', max_length=128)
-    autocreate = baseorm.IntField(ddl='int', max_length=1)
-    iscreated = baseorm.IntField(ddl='int', max_length=1)
     filepath = baseorm.StrField(ddl='varchar', max_length=64)
     digest = baseorm.StrField(ddl='char', max_length=32, default=None)
     status = baseorm.IntField(ddl='int', max_length=1)

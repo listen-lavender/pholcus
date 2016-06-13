@@ -31,7 +31,7 @@ def article(aid=None):
     POST = False
     if pyfile:
         POST = True
-        result = {'stat':0, 'desc':'请上传正确格式的python文件', 'datamodel':''}
+        result = {'stat':0, 'desc':'请上传正确格式的python文件', 'article':''}
         if pyfile and allowed(pyfile.filename):
             filename = pyfile.filename
             pyfile.save(exepath(filename))
