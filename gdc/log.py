@@ -24,16 +24,16 @@ class Producer(KokologHandler):
         self.q = redis.StrictRedis(host=config['host'], port=config['port'], db=config['db'])
 
     def emit(self, record):
-        data = {'tid':baseorm.IdField.verify(record.kwargs['tid']), 
-            'sid':record.kwargs['sid'],
-            'type':record.kwargs['type'],
+        data = {'tid':baseorm.IdField.verify(record.kwargs['tid']),
+            'sid':baseorm.IdField.verify(record.kwargs['sid']),
+            'version':record.kwargs['version'],
             'status':record.kwargs['status'],
-            'sname':record.kwargs['sname'],
             'priority':record.kwargs['priority'],
             'times':record.kwargs['times'],
             'args':record.kwargs['args'],
             'kwargs':record.kwargs['kwargs'],
             'txt':record.kwargs['txt'],
+            'create_time':record.kwargs['create_time'],
         }
         if data['status'] == LOGSTATUS:
             self.q.rpush(self.tube, pickle.dumps(data))
@@ -73,6 +73,10 @@ class Summary(Thread):
     def __init__(self):
         pass
 
+    def run(self):
+        while True:
+            time.sleep(1)
+
 
 class LogMonitor(Daemon):
 
@@ -81,6 +85,8 @@ class LogMonitor(Daemon):
             c = Consumer(**LOGQUEUE)
             c.setDaemon(False)
             c.start()
+        s = Summary()
+        s.start()
 
 
 def main():

@@ -114,7 +114,7 @@ def run():
                 spider = cls(worknum=task['worknum'], queuetype='P', worktype='THREAD', tid=int(task['_id']), settings=WORKQUEUE, callback=callback)
                 local_spider[cls_name] = spider
                 
-            if task.get('type', 'FOREVER') == 'FOREVER' and ((datetime.datetime.now() - task['update_time']).seconds)/3600 < task.get('period', 12):
+            if task.get('type', 'FOREVER') == 'FOREVER' and (datetime.datetime.now() - task['update_time']).total_seconds() < task.get('period', 3600 * 12):
                 continue
 
             if not task.get('type', 'FOREVER') == 'FOREVER' and not task['status'] == 1:
