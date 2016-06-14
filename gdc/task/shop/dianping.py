@@ -26,7 +26,7 @@ class SpiderDianping(SpiderShopOrigin):
     @timelimit(20)
     def fetchShopDetail(self, url, additions={}, timeout=TIMEOUT, implementor=None):
         headers = {
-            "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36",
+            "User-Agent":"iPhone; CPU iPhone OS 9_1 like Mac OS X AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
         }
         result = request.get(url, headers=headers, timeout=timeout, format='HTML')
         food_id = [additions['food_id'], ]
@@ -101,12 +101,13 @@ class SpiderDianping(SpiderShopOrigin):
     @timelimit(20)
     def fetchShopList(self, url, additions={}, timeout=TIMEOUT, implementor=None):
         headers = {
-            "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36",
+            "User-Agent":"iPhone; CPU iPhone OS 9_1 like Mac OS X AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
         }
         result = request.get(url, headers=headers, timeout=timeout, format='JSON')
         shops = result['msg']['shops']
         for one in shops:
-            additions['name'] = one['shopName']
+            additions = {}
+            additions['name'] = one['shopName'] + one['branchName']
             additions['address'] = one['address']
             additions['tel'] = one['contactPhone']
             additions['longitude'] = one['glng']
@@ -119,9 +120,9 @@ class SpiderDianping(SpiderShopOrigin):
     @next(fetchShopList)
     @index('url')
     @timelimit(20)
-    def fetchFoodList(self, url, additions={}, timeout=TIMEOUT, implementor=None):
+    def fetchTuanFoodList(self, url, additions={}, timeout=TIMEOUT, implementor=None):
         headers = {
-            "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36",
+            "User-Agent":"iPhone; CPU iPhone OS 9_1 like Mac OS X AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
         }
         result = request.get(url, headers=headers, timeout=timeout, format='HTML')
         foods = result.findall('.//ul[@class="tg-floor-list Fix tg-floor-list-freak"]//a[@class="tg-floor-img"]')
@@ -148,10 +149,10 @@ class SpiderDianping(SpiderShopOrigin):
             yield {'url': url, 'additions':additions}
 
 
-    @next(fetchFoodList)
+    @next(fetchTuanFoodList)
     @timelimit(20)
-    @initflow('www')
-    def fetchFood(self, additions={}, timeout=TIMEOUT, implementor=None):
+    @initflow('tuan')
+    def fetchTuanFood(self, additions={}, timeout=TIMEOUT, implementor=None):
         for one in food.find({"province_id" : "110000"}, {"name":1, "area_id":1, "city_id":1, "country_id":1, "province_id":1, "town_id":1}):
             yield {'url': 'http://t.dianping.com/list/beijing?q=%s&pageIndex=0' % one['name'], 
             'additions':{'food_id':str(one['_id']),
@@ -161,6 +162,56 @@ class SpiderDianping(SpiderShopOrigin):
                 'town_id':one['town_id'],
                 'area_id':one['area_id'],
             }}
+
+
+    @next(fetchShopList)
+    @index('url')
+    @timelimit(20)
+    def fetchWWWFoodList(self, url, additions={}, timeout=TIMEOUT, implementor=None):
+        headers = {
+            "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36",
+        }
+        result = request.get(url, headers=headers, timeout=timeout, format='HTML')
+        foods = result.findall('.//div[@id="shop-all-list"]//ul//li')
+        print len(foods)
+        if len(foods) < 15:
+            nextpage = None
+        else:
+            index = url.split('/')
+            index[-1] = str(int(index[-1]) + 1)
+            nextpage = '/'.join(index)
+        yield nextpage
+        for one in foods:
+            groupbuy = request.getHtmlNodeContent(one.find('.//div[@class="svr-info"]//a'), {'ATTR':'href'})
+            detail = request.get(groupbuy, headers=headers, timeout=timeout, format='HTML')
+            pic = []
+            try:
+                for pic_one in detail.findall('.//div[@class="detail"]'):
+                    if request.getHtmlNodeContent(pic_one.find('.//span[@class="name"]'), 'TEXT') == '商户介绍':
+                        pic.extend([request.getHtmlNodeContent(img, {'ATTR':'lazy-src-load'}) for img in pic_one.findall('.//img')])
+                        break
+            except:
+                pass
+            additions['pic'] = pic
+            gid = groupbuy.split('/')[-1]
+            url = 'http://t.dianping.com/ajax/dealGroupShopDetail?dealGroupId=%s&action=shops' % gid
+            yield {'url': url, 'additions':additions}
+
+
+    @next(fetchWWWFoodList)
+    @timelimit(20)
+    @initflow('www')
+    def fetchWWWFood(self, additions={}, timeout=TIMEOUT, implementor=None):
+        for one in food.find({"province_id" : "110000"}, {"name":1, "area_id":1, "city_id":1, "country_id":1, "province_id":1, "town_id":1}):
+            yield {'url': 'http://www.dianping.com/search/keyword/2/0_%s/p1' % one['name'], 
+            'additions':{'food_id':str(one['_id']),
+                'country_id':one['country_id'],
+                'province_id':one['province_id'],
+                'city_id':one['city_id'],
+                'town_id':one['town_id'],
+                'area_id':one['area_id'],
+            }}
+
 if __name__ == '__main__':
 
     print 'start'
