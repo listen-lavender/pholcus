@@ -30,7 +30,7 @@ def article(aid=None):
     POST = False
     if pyfile:
         POST = True
-        result = {'stat':0, 'desc':'请上传正确格式的python文件', 'article':''}
+        result = {'stat':0, 'desc':'请上传正确格式的python文件', 'article':Article.queryOne(user, condition, projection=projection)}
         if pyfile and allowed(pyfile.filename):
             filename = pyfile.filename
             pyfile.save(exepath(filename))
@@ -39,12 +39,10 @@ def article(aid=None):
         result = json.dumps(result, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     if data:
         POST = True
-        data['updator'] = user['_id']
         if '_id' in condition:
             Article.update(user, condition, data)
             aid = condition['_id']
         else:
-            data['creator'] = user['_id']
             data = Article(**data)
             aid = Article.insert(user, data)
         result = json.dumps({'stat':1, 'desc':'Article is set successfully.', 'article':{'_id':aid}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')

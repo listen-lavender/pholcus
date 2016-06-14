@@ -27,9 +27,12 @@ def flow(fid=None):
     if data:
         data['updator'] = user['_id']
         if '_id' in condition:
+            data['$set'] = data.get('$set', {})
+            data['$set']['updator'] = user['_id']
             Flow.update(condition, data)
             fid = condition['_id']
         else:
+            data['updator'] = user['_id']
             data['creator'] = user['_id']
             data = Flow(**data)
             fid = Flow.insert(data)

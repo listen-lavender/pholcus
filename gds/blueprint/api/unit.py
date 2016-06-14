@@ -34,7 +34,7 @@ def unit(uid=None):
     POST = False
     if pyfile:
         POST = True
-        result = {'stat':0, 'desc':'请上传正确格式的python文件', 'datamodel':''}
+        result = {'stat':0, 'desc':'请上传正确格式的python文件', 'unit':Unit.queryOne(condition, projection=projection)}
         if pyfile and allowed(pyfile.filename):
             filename = pyfile.filename
             filepath = exepath(filename)
@@ -49,11 +49,13 @@ def unit(uid=None):
         result = json.dumps(result, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     if data:
         POST = True
-        data['updator'] = user['_id']
         if '_id' in condition:
+            data['$set'] = data.get('$set', {})
+            data['$set']['updator'] = user['_id']
             Unit.update(condition, data)
             uid = condition['_id']
         else:
+            data['updator'] = user['_id']
             data['creator'] = user['_id']
             data = Unit(**data)
             uid = Unit.insert(data)

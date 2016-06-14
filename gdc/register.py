@@ -241,24 +241,25 @@ def setSection(flow, step, section_name, sections, article_id, flow_id):
         data['next_id'] = setSection(flow, step+1, next, sections, article_id, flow_id)
     section = request.post('%sgdc/api/section' % HOST, {'condition':json.dumps({'name':section_name, 'aid':str(article_id), 'flow':flow}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
     section = section['section']
+    data = {
+        "aid": article_id,
+        "next_id": data.get('next_id'),
+        "name": section_name,
+        "flow": flow,
+        "step": step,
+        "index": data.get('index'),
+        "retry": data.get('retry', 0),
+        "timelimit": data.get('timelimit', 30),
+        "store": data.get('store', 0),
+        "fid": flow_id
+    }
     if section:
+        section = request.post('%sgdc/api/section/%s' % (HOST, str(section['_id'])), {'data':json.dumps({'$set':data})}, format='JSON')
         print 'Section %s %s has been set.' % (flow, section_name)
     else:
-        data = {
-            "aid": article_id,
-            "next_id": data.get('next_id'),
-            "name": section_name,
-            "flow": flow,
-            "step": step,
-            "index": data.get('index'),
-            "retry": data.get('retry', 0),
-            "timelimit": data.get('timelimit', 30),
-            "store": data.get('store', 0),
-            "fid": flow_id
-        }
         section = request.post('%sgdc/api/section' % HOST, {'data':json.dumps(data)}, format='JSON')
-        section = section['section']
-        print '------', section
+        print section['desc']
+    section = section['section']
     return section['_id']
 
 

@@ -25,12 +25,10 @@ def section(sid=None):
     if sid is not None:
         condition['_id'] = sid
     if data:
-        data['updator'] = user['_id']
         if '_id' in condition:
             Section.update(user, condition, data)
             sid = condition['_id']
         else:
-            data['creator'] = user['_id']
             data = Section(**data)
             sid = Section.insert(user, data)
         result = json.dumps({'stat':1, 'desc':'Section is set successfully.', 'section':{'_id':sid}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
