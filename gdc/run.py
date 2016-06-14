@@ -138,7 +138,7 @@ def run():
                     kwargs = {task['index']:task['params']}
                 kwargs['additions'] = dict(json.loads(task['additions']), **additions)
 
-                args.insert(0, datetime.datetime.now().strftime('%Y%m%d'))
+                args.insert(0, datetime.datetime.now().strftime('%Y%m%dT%H:%M'))
 
                 if task.get('type', 'FOREVER') == 'FOREVER':
                     condition = {'aid':task['aid'], 'fid':task['fid']}
@@ -162,7 +162,7 @@ def run():
                 extra = ','.join(err_messages)
                 changestate(task['_id'], 3, extra=extra)
                     
-        time.sleep(3600)
+        time.sleep(1)
 
 path = os.path.abspath('.')
 
