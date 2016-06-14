@@ -25,7 +25,6 @@ class SpiderSina(SpiderNewsOrigin):
     @index('url')
     @initflow('www')
     def fetchList(self, url, additions={}, timeout=TIMEOUT, implementor=None):
-        url = 'http://feed.mix.sina.com.cn/api/roll/get?pageid=260&lid=1939&num=30&encode=utf-8&page=1'
         result = request.get(url, timeout=timeout, format='JSON')
         news = result['result']['data']
         if len(news) < 30:
