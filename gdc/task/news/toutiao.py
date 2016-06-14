@@ -59,6 +59,8 @@ class SpiderToutiao(SpiderNewsOrigin):
                 "desc":desc,
                 "src":src,
                 "category":category,
+                'group':'text',
+                'content':'',
                 "atime":atime,
                 "create_time":create_time,
                 "update_time":update_time,
