@@ -34,16 +34,11 @@ class Logsummary(dataorm.Model):
 
 class Log(dataorm.Model):
     __table__ = 'grab_log'
+    _id = dataorm.StrField(ddl='varchar', max_length=32)
     tid = baseorm.IdField(updatable=False)
-    ssid = dataorm.StrField(ddl='varchar', max_length=32)
-    version = dataorm.StrField(ddl='varchar', max_length=32)
     status = dataorm.StrField(ddl='varchar', max_length=8)
     elapse = dataorm.IntField(ddl='float')
-    priority = dataorm.IntField(ddl='int', max_length=5)
-    times = dataorm.IntField(ddl='int', max_length=2)
-    args = dataorm.StrField(ddl='varchar', default=None, max_length=640)
-    kwargs = dataorm.StrField(ddl='varchar', default=None, max_length=896)
-    txt = dataorm.StrField(ddl='varchar', default=None, max_length=1280)
+    desc = dataorm.StrField(ddl='varchar', default=None, max_length=1280)
     create_time = dataorm.DatetimeField(ddl='datetime', updatable=False)
 
 

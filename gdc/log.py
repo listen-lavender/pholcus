@@ -24,19 +24,14 @@ class Producer(KokologHandler):
         self.q = redis.StrictRedis(host=config['host'], port=config['port'], db=config['db'])
 
     def emit(self, record):
-        data = {'tid':baseorm.IdField.verify(record.kwargs['tid']),
-            'sid':baseorm.IdField.verify(record.kwargs['sid']),
-            'version':record.kwargs['version'],
+        data = {'_id':record.kwargs['sid'],
+            'tid':baseorm.IdField.verify(record.kwargs['tid']),
             'status':record.kwargs['status'],
-            'priority':record.kwargs['priority'],
-            'times':record.kwargs['times'],
-            'args':record.kwargs['args'],
-            'kwargs':record.kwargs['kwargs'],
-            'txt':record.kwargs['txt'],
+            'elapse':record.kwargs['elapse'],
+            'desc':record.kwargs['txt'],
             'create_time':record.kwargs['create_time'],
         }
-        if data['status'] == LOGSTATUS:
-            self.q.rpush(self.tube, pickle.dumps(data))
+        self.q.rpush(self.tube, pickle.dumps(data))
 
 
 hdr = Producer(**LOGQUEUE)
@@ -85,8 +80,8 @@ class LogMonitor(Daemon):
             c = Consumer(**LOGQUEUE)
             c.setDaemon(False)
             c.start()
-        s = Summary()
-        s.start()
+        # s = Summary()
+        # s.start()
 
 
 def main():

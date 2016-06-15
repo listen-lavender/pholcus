@@ -230,7 +230,6 @@ def setArticle(filepath):
             flow = request.post('%sgdc/api/flow' % HOST, {'data':json.dumps(data)}, format='JSON')
             flow = flow['flow']
         fid = flow['_id']
-        print sections, section['name']
         setSection(section['flow'], step, section['name'], sections, article['_id'], fid)
 
 

@@ -30,9 +30,10 @@ def snapshot():
         condition = {'methodName':{'$regex':keyword}}
 
     tasks = []
-    for one in q.find(condition, sort=[('priority', 1)], skip=skip, limit=limit):
+    for one in q.find(condition, sort=[('status', -1), ('priority', 1)], skip=skip, limit=limit):
         txt = one.pop('txt')
         txt = pickle.loads(txt.encode('utf-8'))
+        one['methodName'] = one['methodName'].replace('task.', '')
         one['args'] = str(txt['args'])
         one['kwargs'] = json.dumps(txt['kwargs'], ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
         one['status'] = DESCRIBE.get(one['status'], '')
