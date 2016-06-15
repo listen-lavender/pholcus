@@ -5,3 +5,4 @@ from flask import Blueprint
 running = Blueprint('running', __name__)
 
 from snapshot import *
+from log import *

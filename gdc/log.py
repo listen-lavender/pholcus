@@ -24,7 +24,7 @@ class Producer(KokologHandler):
         self.q = redis.StrictRedis(host=config['host'], port=config['port'], db=config['db'])
 
     def emit(self, record):
-        data = {'_id':record.kwargs['sid'],
+        data = {'_id':record.kwargs['ssid'],
             'tid':baseorm.IdField.verify(record.kwargs['tid']),
             'status':record.kwargs['status'],
             'elapse':record.kwargs['elapse'],

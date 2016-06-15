@@ -9,6 +9,7 @@ import RegisterForm from './components/RegisterForm.vue'
 import LogoutForm from './components/LogoutForm.vue'
 
 import RunningSnapshotView from './views/RunningSnapshot.vue'
+import RunningLogView from './views/RunningLog.vue'
 import TaskView from './views/Task.vue'
 import TaskDataView from './views/TaskData.vue'
 import TaskTimeView from './views/TaskTime.vue'
@@ -77,6 +78,10 @@ router.map({
             '/running/snapshot': {
                 name: 'runningsnapshot',
                 component: RunningSnapshotView
+            },
+            '/running/log/:_id': {
+                name: 'runninglog',
+                component: RunningLogView
             },
             '/task': {
                 name: 'task',

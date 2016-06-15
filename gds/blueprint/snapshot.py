@@ -27,15 +27,13 @@ def snapshot():
     elif keyword.isdigit():
         condition = {'tid':baseorm.IdField.verify(keyword)}
     else:
-        condition = {'methodName':{'$regex':keyword}}
+        condition = {'name':{'$regex':keyword}}
 
     tasks = []
     for one in q.find(condition, sort=[('status', -1), ('priority', 1)], skip=skip, limit=limit):
         txt = one.pop('txt')
         txt = pickle.loads(txt.encode('utf-8'))
-        one['methodName'] = one['methodName'].replace('task.', '')
-        one['args'] = str(txt['args'])
-        one['kwargs'] = json.dumps(txt['kwargs'], ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+        one['name'] = one['name'].replace('task.', '')
         one['status'] = DESCRIBE.get(one['status'], '')
         one['times'] = one['times'] + 1
         tasks.append(one)
