@@ -120,7 +120,7 @@
                     console.log(response.data.res.msg);
                   }
                   else{
-                    this.$route.router.go({name: 'monitor'});
+                    this.$route.router.go({name: 'task'});
                   }
               })
             }

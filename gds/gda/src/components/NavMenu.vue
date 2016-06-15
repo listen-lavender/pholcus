@@ -2,21 +2,25 @@
   <top></top>
   <div class="ui bottom attached segment pushable">
     <div class="ui visible left vertical sidebar menu m-siderbar">
+        <a class="item" v-link="{name: 'runningsnapshot'}">
+          <i class="tasks icon"></i>
+          Running Snapshot
+        </a>
         <a class="item" v-link="{name: 'task'}">
           <i class="tasks icon"></i>
-          任务
+          Task
         </a>
         <a class="item" v-link="{name: 'script'}">
           <i class="code icon"></i>
-          脚本
+          Script
         </a>
         <a class="item" v-link="{name: 'creator'}">
           <i class="user icon"></i>
-          用户
+          User
         </a>
         <a class="item" v-link="{name: 'setting', 'params':{'_id':_id}}">
           <i class="settings icon"></i>
-          设置
+          Setting
         </a>
     </div>
     <div class="pusher">

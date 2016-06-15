@@ -4,12 +4,11 @@ import json
 import urllib
 from model.setting import withBase, basecfg, baseorm, pack
 from model.base import Task, Section, Flow, Article
-from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 
 task = Blueprint('task', __name__, template_folder='template')
 
-from activity import *
+from snapshot import *
 from monitor import *
 
 @task.route('/list', methods=['GET'])

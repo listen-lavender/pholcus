@@ -8,13 +8,12 @@ import LoginForm from './components/LoginForm.vue'
 import RegisterForm from './components/RegisterForm.vue'
 import LogoutForm from './components/LogoutForm.vue'
 
+import RunningSnapshotView from './views/RunningSnapshot.vue'
 import TaskView from './views/Task.vue'
-import TaskActiveView from './views/TaskActive.vue'
-import TaskMonitorView from './views/TaskMonitor.vue'
-import TaskMonitorDataView from './views/TaskMonitorData.vue'
-import TaskMonitorTimeView from './views/TaskMonitorTime.vue'
-import TaskMonitorTotalView from './views/TaskMonitorTotal.vue'
-import TaskMonitorLogView from './views/TaskMonitorLog.vue'
+import TaskDataView from './views/TaskData.vue'
+import TaskTimeView from './views/TaskTime.vue'
+import TaskTotalView from './views/TaskTotal.vue'
+import TaskLogView from './views/TaskLog.vue'
 import TaskForm from './components/TaskForm.vue'
 
 import ScriptView from './views/Script.vue'
@@ -38,7 +37,7 @@ import UnknowView from './views/Unknow.vue'
 
 import {isLogined, setLocal, getLocal} from './util'
 
-// Vue.component('home', HomeView)
+// Vue.component('index', HomeView)
 Vue.component('top', TopView)
 Vue.component('choose', ChooseView)
 Vue.component('cascade', CascadeView)
@@ -56,7 +55,7 @@ var router = new VueRouter({
 
 router.map({
     '/': {
-        name: 'home',
+        name: 'index',
         component: HomeView
     },
     '/login': {
@@ -75,39 +74,33 @@ router.map({
         name: 'manage',
         component: NavMenuView,
         subRoutes: {
+            '/running/snapshot': {
+                name: 'runningsnapshot',
+                component: RunningSnapshotView
+            },
             '/task': {
                 name: 'task',
                 component: TaskView,
-                subRoutes: {
-                    '/active': {
-                        name: 'active',
-                        component: TaskActiveView
-                    },
-                    '/monitor': {
-                        name: 'monitor',
-                        component: TaskMonitorView,
-                    },
-                    '/monitor/data/:_id': {
-                        name: 'data',
-                        component: TaskMonitorDataView,
-                    },
-                    '/monitor/time/:_id': {
-                        name: 'time',
-                        component: TaskMonitorTimeView,
-                    },
-                    '/monitor/total/:_id': {
-                        name: 'total',
-                        component: TaskMonitorTotalView,
-                    },
-                    '/monitor/log/:_id': {
-                        name: 'log',
-                        component: TaskMonitorLogView,
-                    },
-                    '/:_id':{
-                        name: 'task_detail',
-                        component: TaskForm,
-                    }
-                }
+            },
+            '/task/data/:_id': {
+                name: 'data',
+                component: TaskDataView,
+            },
+            '/task/time/:_id': {
+                name: 'time',
+                component: TaskTimeView,
+            },
+            '/task/total/:_id': {
+                name: 'total',
+                component: TaskTotalView,
+            },
+            '/task/log/:_id': {
+                name: 'log',
+                component: TaskLogView,
+            },
+            '/task/:_id':{
+                name: 'task_detail',
+                component: TaskForm,
             },
             '/script': {
                 name: 'script',
@@ -188,24 +181,22 @@ Vue.http.interceptors.push({
 });
 
 router.alias({
-    // '/': '/manage/task/active',
-    '/manage': '/manage/task/active',
-    '/manage/task': '/manage/task/active',
+    // '/': '/manage/running/snapshot',
 })
 
 router.beforeEach(function(transition) {
     if((transition.to.path == '/login' || transition.to.path == '/register') && isLogined()){
         if(getLocal('group') == 'operator')
-            router.go({name:'monitor'});
+            router.go({name:'task'});
         else
-            router.go({name:'active'});
+            router.go({name:'runningsnapshot'});
     }
     else if(transition.to.path == '/unknow' || transition.to.path == '/login' || transition.to.path == '/register' || isLogined()){
         if(transition.to.path == '/')
             if(getLocal('group') == 'operator')
-                router.go({name:'monitor'});
+                router.go({name:'task'});
             else
-                router.go({name:'active'});
+                router.go({name:'runningsnapshot'});
         else
             transition.next();
     }

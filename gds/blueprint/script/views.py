@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding=utf8
 import json
-from webcrawl.character import unicode2utf8
 from model.setting import withBase, basecfg, pack
 from model.base import Article, Flow, Section, Creator
 from flask import Blueprint, request, Response, render_template, g
@@ -13,7 +12,7 @@ from step import *
 @script.route('/list', methods=['GET'])
 @script.route('/list/<uid>', methods=['GET'])
 @withBase(basecfg.R, resutype='DICT')
-def script_list(uid=''):
+def scriptlist(uid=''):
     user = request.user
     skip = int(request.args.get('skip', 0))
     limit = int(request.args.get('limit', 10))
@@ -32,7 +31,7 @@ def script_list(uid=''):
 @script.route('/', methods=['POST'])
 @script.route('/<aid>', methods=['POST', 'GET'])
 @withBase(basecfg.R, resutype='DICT', autocommit=True)
-def script_detail(aid=None):
+def scriptdetail(aid=None):
     user = request.user
     if request.method == 'GET':
         if aid is None:

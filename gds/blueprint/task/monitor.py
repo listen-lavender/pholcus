@@ -13,7 +13,7 @@ from views import task
 
 @task.route('/<tid>/data', methods=['GET'])
 @withBase(basecfg.R, resutype='DICT')
-def taskdata(tid):
+def data(tid):
     from model.data import *
     if request.method == 'GET':
         user = request.user

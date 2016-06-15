@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding=utf8
 import json, urllib, datetime
-from webcrawl.character import unicode2utf8
 from model.setting import withBase, basecfg, baseorm
 from model.base import Article, Creator, Section
 from flask import Blueprint, request, Response, render_template, g

@@ -1,6 +1,6 @@
 <template>
-    <div class="multi-select">
-        <choose v-for="(index, item) in items" :curr="index" :next="index+1" :url="item.url" :label="item.label" :key="item.key" :val="item.val" :options="item.options"><choose/>
+    <div>
+        <choose v-for="(index, item) in items" :curr="index" :next="index+1" :url="item.url" :label="item.label" :key="item.key" :val="item.val" :options="item.options"></choose>
     </div>
 </template>
 <script>

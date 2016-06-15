@@ -92,7 +92,7 @@
                     console.log(response.data.res.msg);
                   }
                   else{
-                    this.$route.router.go({name: 'home'});
+                    this.$route.router.go({name: 'index'});
                     this.sendUid(user._id)
                   }
               })

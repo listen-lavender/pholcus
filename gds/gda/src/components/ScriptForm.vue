@@ -42,7 +42,13 @@
         methods: {
             save(){
                 this.$http.post('script/'+this.$route.params._id, {'desc':this.desc}).then((response)=>{
-                    console.log(response.data.msg);
+                    let user = response.data.res.user;
+                    if(user == null){
+                        console.log(response.data.res.msg);
+                    }
+                    else{
+                        this.$route.router.go({name: 'script'});
+                    }
                 })
             },
             reset(){

@@ -1,6 +1,6 @@
 <template>
   <div class="ui top attached large menu">
-    <a class="item">
+    <a class="item" v-on:click="goindex">
       <i class="home icon"></i>
       Home
     </a>
@@ -31,6 +31,9 @@
             }
         },
         methods: {
+            goindex(){
+              this.$route.router.go({name:'index'});
+            },
             search(){
               this.$dispatch('setFilter', this.model, this.keyword);
             }

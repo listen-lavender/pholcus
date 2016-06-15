@@ -13,6 +13,7 @@ from werkzeug.contrib.cache import SimpleCache
 from werkzeug.routing import BaseConverter
 from util.session import Session
 
+from blueprint.views import running
 from blueprint.task.views import task
 from blueprint.script.views import script
 from blueprint.creator.views import creator
@@ -82,6 +83,7 @@ Session(app)
 app.jinja_options = Flask.jinja_options.copy() 
 app.jinja_options['loader'] = LeafinlineLoader(app)
 
+app.register_blueprint(running, url_prefix='/gds/api/running')
 app.register_blueprint(task, url_prefix='/gds/api/task')
 app.register_blueprint(script, url_prefix='/gds/api/script')
 app.register_blueprint(creator, url_prefix='/gds/api/creator')

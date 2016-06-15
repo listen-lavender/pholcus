@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding=utf8
 import json
-from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from util.encrypt import rsa, randomKey, encrypt_crypto
 

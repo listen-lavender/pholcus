@@ -7,14 +7,14 @@ from model.setting import withBase, basecfg, baseorm
 from flask import Blueprint, request, Response, render_template, g
 from webcrawl.queue.mongo import Queue
 from model.setting import WORKQUEUE
-from views import task
+from views import running
 
-DESCRIBE = {0:'ERROR', 1:'COMPLETED', 2:'WAIT', 3:'RUNNING', 4:'RETRY', 5:'ABANDONED'}
+DESCRIBE = {-2:'ABANDONED', -1:'ERROR', 0:'COMPLETED', 1:'RETRY', 2:'WAIT', 3:'RUNNING'}
 q = Queue(host=WORKQUEUE['host'], port=WORKQUEUE['port'], db=WORKQUEUE['db'], tube=WORKQUEUE['tube'], init=False)
 q = q.mc[q.tube]
 
-@task.route('/activity', methods=['GET'])
-def taskactivity():
+@running.route('/snapshot', methods=['GET'])
+def snapshot():
     user = request.user
     skip = int(request.args.get('skip', 0))
     limit = int(request.args.get('limit', 10))

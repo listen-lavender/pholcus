@@ -3,7 +3,6 @@
 import json
 import time, datetime
 from model.setting import withBase, basecfg
-from webcrawl.character import unicode2utf8
 from flask import Blueprint, request, Response, render_template, g
 from rest import api
 from model.base import Flow, Creator

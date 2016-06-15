@@ -34,15 +34,9 @@
     import Filter from '../mixin/search';
     export default {
         mixins: [Paginator, Filter],
-        props: {
-            model: {
-                type: String,
-                default: 'activity'
-            }
-        },
         computed: {
             url: function () {
-                let link = 'task/activity?skip='+((this.index-1) * this.size)+'&limit='+this.size;
+                let link = 'running/snapshot?skip='+((this.index-1) * this.size)+'&limit='+this.size;
                 if(this.keyword)
                     link = link + '&keyword=' + this.keyword;
                 return link;

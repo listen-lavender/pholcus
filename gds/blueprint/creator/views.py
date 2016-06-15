@@ -53,7 +53,7 @@ creator.send_static_file  = types.MethodType(send_static_file, creator)
     
 @creator.route('/list', methods=['GET'])
 @withBase(basecfg.R, resutype='DICT')
-def user_list():
+def userlist():
     user = request.user
     skip = int(request.args.get('skip', 0))
     limit = int(request.args.get('limit', 10))
@@ -70,7 +70,7 @@ def user_list():
 
 @creator.route('/<_id>', methods=['GET'])
 @withBase(basecfg.R, resutype='DICT')
-def user_detail(_id):
+def userdetail(_id):
     user = request.user
     creator = Creator.queryOne(user, {'_id':user['_id']})
     creator['avatar'] = creator['avatar'].replace('/gds', '')
