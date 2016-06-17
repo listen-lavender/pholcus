@@ -19,7 +19,7 @@ from webcrawl import request
 from webcrawl.task import Workflows
 
 from setting import USER, SECRET, HOST
-from log import Producer
+from log import LogMonitor
 from register import getSection, getArticle, getUnit, getDatamodel
 import task
 
@@ -172,6 +172,14 @@ class PeriodMonitor(Daemon):
         run()
 
 def main():
+    lmoni = LogMonitor(os.path.join(path, 'log', 'lmoni.pid'), stdout=os.path.join(
+        path, 'log', 'lmoni.out'), stderr=os.path.join(path, 'log', 'lmoni.err'))
+    if os.path.exists(os.path.join(path, 'log', 'lmoni.pid')):
+        print "LogMonitor stop successfully."
+        lmoni.stop()
+    else:
+        print "LogMonitor start successfully."
+        lmoni.start()
     pmoni = PeriodMonitor(os.path.join(path, 'log', 'pmoni.pid'), stdout=os.path.join(
         path, 'log', 'pmoni.out'), stderr=os.path.join(path, 'log', 'pmoni.err'))
     if os.path.exists(os.path.join(path, 'log', 'pmoni.pid')):
@@ -182,5 +190,6 @@ def main():
         pmoni.start()
 
 if __name__ == '__main__':
-    main()
+    # main()
+    run()
     
