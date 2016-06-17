@@ -2,11 +2,11 @@
   <table class="ui fixed celled table">
     <thead>
         <tr>
-          <th>名称</th>
-          <th>描述</th>
+          <th>name</th>
+          <th>description</th>
         </tr>
     </thead>
-    <tbody >
+    <tbody>
         <tr v-for="item in result.script">
             <td>
                 <a v-link="{name: 'script_detail', params: {_id: item._id}}">{{item.name}}</a>

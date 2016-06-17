@@ -106,7 +106,7 @@ class SpiderDianping(SpiderShopOrigin):
         result = request.get(url, headers=headers, timeout=timeout, format='JSON')
         shops = result['msg']['shops']
         for one in shops:
-            additions = {}
+            additions = dict(additions, **{})
             additions['name'] = one['shopName'] + one['branchName']
             additions['address'] = one['address']
             additions['tel'] = one['contactPhone']

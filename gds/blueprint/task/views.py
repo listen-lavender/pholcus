@@ -8,7 +8,6 @@ from flask import Blueprint, request, Response, render_template, g
 
 task = Blueprint('task', __name__, template_folder='template')
 
-from snapshot import *
 from monitor import *
 
 @task.route('/list', methods=['GET'])

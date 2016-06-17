@@ -15,10 +15,10 @@
             <div class="description">{{result.creator.desc}}</div>
         </div>
         <div class="content">
-            <div><i class="users icon"></i>类别：{{result.creator.group}}</div>
-            <div><i class="privacy icon"></i>密钥：{{result.creator.secret}}</div>
-            <div><i class="cube icon"></i>状态：{{result.creator.status}}</div>
-            <div><i class="keyboard icon"></i><a class="item" href="/gds/a/user/password">更换密码</a></div>
+            <div><i class="users icon"></i>group：{{result.creator.group}}</div>
+            <div><i class="privacy icon"></i>secret：{{result.creator.secret}}</div>
+            <div><i class="cube icon"></i>status：{{result.creator.status}}</div>
+            <div><i class="keyboard icon"></i><a class="item" href="/gds/a/user/password">change password</a></div>
             <div><i class="sign out icon"></i><a class="item" v-link="{name: 'logout'}">sign out</a></div>
         </div>
     </div>

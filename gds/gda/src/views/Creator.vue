@@ -2,8 +2,8 @@
   <table class="ui fixed celled table">
     <thead>
         <tr>
-          <th>名称</th>
-          <th>级别</th>
+          <th>name</th>
+          <th>group</th>
         </tr>
     </thead>
     <tbody>

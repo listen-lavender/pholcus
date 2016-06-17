@@ -112,6 +112,8 @@ class News(MarkModel):
     detail_link = dataorm.StrField(ddl='varchar', unique='data', max_length=50, comment='详情地址')
     desc = dataorm.StrField(ddl='varchar', max_length=640, comment='描述')
     src = dataorm.StrField(ddl='varchar', unique='data', max_length=20, comment='来源')
+    content = dataorm.TextField(ddl='text', default=None, comment='页面内容')
+    group = dataorm.StrField(ddl='varchar', max_length=10, default='text', comment='新闻形式')
     category = dataorm.StrField(ddl='varchar', max_length=640, comment='类别')
     atime = dataorm.DatetimeField(ddl='datetime', comment='来源时间')
     create_time = dataorm.DatetimeField(ddl='datetime', comment='创建时间')
@@ -120,5 +122,3 @@ class News(MarkModel):
 
 if __name__ == '__main__':
     pass
-
-
