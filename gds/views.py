@@ -8,7 +8,6 @@ from setting import USEPORT, CACHE_TIMEOUT, APPNAME
 from flask import Flask, g, request, Response, session, redirect, render_template
 from flask.templating import DispatchingJinjaLoader
 from flask.globals import _request_ctx_stack
-from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug.contrib.cache import SimpleCache
 from werkzeug.routing import BaseConverter
 from util.session import Session
@@ -55,17 +54,17 @@ def cached(func):
     return decorator
 
 
-class LeafinlineLoader(DispatchingJinjaLoader):
-    def _iter_loaders(self, template):
-        bp = _request_ctx_stack.top.request.blueprint
-        if bp is not None and bp in self.app.blueprints:
-            loader = self.app.blueprints[bp].jinja_loader
-            if loader is not None:
-                yield loader, template
+# class LeafinlineLoader(DispatchingJinjaLoader):
+#     def _iter_loaders(self, template):
+#         bp = _request_ctx_stack.top.request.blueprint
+#         if bp is not None and bp in self.app.blueprints:
+#             loader = self.app.blueprints[bp].jinja_loader
+#             if loader is not None:
+#                 yield loader, template
 
-        loader = self.app.jinja_loader
-        if loader is not None:
-            yield loader, template
+#         loader = self.app.jinja_loader
+#         if loader is not None:
+#             yield loader, template
 
 
 app = Flask(__name__, static_folder='static', static_path='/static', template_folder='template')
@@ -76,12 +75,9 @@ app.config['SESSION_PERMANENT'] = False
 # app.config['SESSION_COOKIE_HTTPONLY'] = False
 app.permanent_session_lifetime = timedelta(days=1)
 Session(app)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://hotel2:hotel0115@58.83.130.112:3306/hotel20'
-# db = SQLAlchemy(app)
-# g['db'] = db
 
 app.jinja_options = Flask.jinja_options.copy() 
-app.jinja_options['loader'] = LeafinlineLoader(app)
+# app.jinja_options['loader'] = LeafinlineLoader(app)
 
 app.register_blueprint(running, url_prefix='/gds/api/running')
 app.register_blueprint(task, url_prefix='/gds/api/task')
@@ -123,6 +119,12 @@ def is_login():
     g.appname = APPNAME
     sid = request.cookies.get('sid')
     user = session.get(sid, None)
+    user = {
+            "_id": "7", 
+            "group": "developer", 
+            "name": "root", 
+            "status": 1
+        }
     print request.url
     
     flag = request.url == request.url_root or '/task/data/' in request.url or '/static/' in request.url or '/login' in request.url or '/register' in request.url

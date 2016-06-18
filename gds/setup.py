@@ -7,11 +7,10 @@
 from setuptools import setup, find_packages
 
 requires = [
-    'flask',
+    'Flask==0.10.1',
     'flask-script',
-    'flask-sqlalchemy',
-    'dbskit',
-    'webcrawl'
+    'dbskit>=0.0.2',
+    'webcrawl>=0.0.2'
     ]
 
 setup(packages=find_packages(),

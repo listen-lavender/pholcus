@@ -9,6 +9,7 @@ from flask import Blueprint, request, Response, render_template, g
 task = Blueprint('task', __name__, template_folder='template')
 
 from monitor import *
+from statistics import *
 
 @task.route('/list', methods=['GET'])
 @withBase(basecfg.R, resutype='DICT')

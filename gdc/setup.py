@@ -7,8 +7,8 @@
 from setuptools import setup, find_packages
 
 requires = [
-    'dbskit',
-    'webcrawl'
+    'dbskit>=0.0.2',
+    'webcrawl>=0.0.2'
     ]
 
 setup(packages=find_packages(),

@@ -40,6 +40,6 @@ datacfg._SETTING = extract(data)
 WORKNUM = config.getint("work", "worknum")
 WORKQUEUE = parse(config.items("work-queue"))
 LOGNUM = config.getint("log", "worknum")
-LOGSTATUS = config.getint("log", "status")
+LOGSPAN = config.getint("log", "span")
 LOGQUEUE = parse(config.items("log-queue"))
 del WORKQUEUE['type']

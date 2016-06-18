@@ -174,14 +174,14 @@ class PeriodMonitor(Daemon):
         run()
 
 def main():
-    lmoni = LogMonitor(os.path.join(path, 'log', 'lmoni.pid'), stdout=os.path.join(
-        path, 'log', 'lmoni.out'), stderr=os.path.join(path, 'log', 'lmoni.err'))
-    if os.path.exists(os.path.join(path, 'log', 'lmoni.pid')):
-        print "LogMonitor stop successfully."
-        lmoni.stop()
-    else:
-        print "LogMonitor start successfully."
-        lmoni.start()
+    # lmoni = LogMonitor(os.path.join(path, 'log', 'lmoni.pid'), stdout=os.path.join(
+    #     path, 'log', 'lmoni.out'), stderr=os.path.join(path, 'log', 'lmoni.err'))
+    # if os.path.exists(os.path.join(path, 'log', 'lmoni.pid')):
+    #     print "LogMonitor stop successfully."
+    #     lmoni.stop()
+    # else:
+    #     print "LogMonitor start successfully."
+    #     lmoni.start()
     pmoni = PeriodMonitor(os.path.join(path, 'log', 'pmoni.pid'), stdout=os.path.join(
         path, 'log', 'pmoni.out'), stderr=os.path.join(path, 'log', 'pmoni.err'))
     if os.path.exists(os.path.join(path, 'log', 'pmoni.pid')):

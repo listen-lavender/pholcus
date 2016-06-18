@@ -48,3 +48,10 @@ datacfg._BUFFER = data['buffer']
 datacfg._SETTING = extract(data)
 
 WORKQUEUE = parse(config.items("work-queue"))
+LOGSPAN = config.getint("log", "span")
+if LOGSPAN % 3600 == 0:
+    TIMEND = 13
+elif LOGSPAN % 60 == 0:
+    TIMEND = 16
+else:
+    TIMEND = 19
