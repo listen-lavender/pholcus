@@ -9,6 +9,7 @@ import traceback
 import logging
 import os
 import functools
+from types import MethodType
 from webcrawl.daemon import Daemon
 
 from model.setting import withData, datacfg, WORKNUM, WORKQUEUE
@@ -17,14 +18,15 @@ from model.data import Proxy
 from webcrawl.request import PROXY
 from webcrawl import request
 from webcrawl.task import Workflows
+from webcrawl import Logger
 
 from setting import USER, SECRET, HOST
-from log import LogMonitor
+from log import LogMonitor, produce
 from register import getSection, getArticle, getUnit, getDatamodel
 import task
 
 CURRPATH = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-
+Logger._print = MethodType(produce, Logger, Logger)
 LIMIT = 600
 
 INIT = """#!/usr/bin/env python
@@ -190,6 +192,5 @@ def main():
         pmoni.start()
 
 if __name__ == '__main__':
-    # main()
-    run()
+    main()
     

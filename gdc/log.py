@@ -5,10 +5,13 @@ import os, sys, redis, time, datetime
 import cPickle as pickle
 from model.log import Log, Logsummary
 from webcrawl.daemon import Daemon
-from webcrawl import Logger
+from webcrawl.aboutfile import modulename, modulepath
+from webcrawl.prettyprint import logprint
 from model.setting import baseorm
 from model.setting import withData, datacfg, LOGNUM, LOGSPAN, LOGQUEUE
 from threading import Thread
+
+_print, logger = logprint(modulename(__file__), modulepath(__file__))
 
 path = os.path.abspath('.')
 log_queue = redis.StrictRedis(host=LOGQUEUE['host'], port=LOGQUEUE['port'], db=LOGQUEUE['db'])
@@ -37,7 +40,7 @@ def statistic(start, end):
             'succ':result[tid]['succ'],
             'fail':result[tid]['fail'],
             'timeout':result[tid]['timeout'],
-            'elapse':(result[tid]['elapse']/float(result[tid]['total']), 2)
+            'elapse':(result[tid]['elapse']/float(result[tid]['total']), 2),
             'create_time':start
         }))
 
@@ -50,9 +53,15 @@ def produce(cls, **kwargs):
         'desc':kwargs['txt'],
         'create_time':kwargs['create_time'],
     }
+    if kwargs['status'] in ('FAIL', 'TIMEOUT', 'SUCC'):
+        _print('_id-%s' % kwargs['ssid'])
+        _print('tid: %s' % str(kwargs['tid']))
+        _print('status: %s' % kwargs['status'])
+        _print('elapse: %s' % str(kwargs['elapse']))
+        _print('desc: %s' % kwargs['txt'])
+        _print('create_time: %s' % str(kwargs['create_time']))
+        _print('--------------')
     log_queue.rpush(LOGQUEUE['tube'], pickle.dumps(data))
-
-Logger._print = MethodType(produce, Logger, Logger)
 
 
 class Consumer(Thread):
