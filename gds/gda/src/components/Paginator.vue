@@ -1,10 +1,10 @@
 <template>
     <div v-show="last>1" class="ui pagination menu">
-      <a class="item active" style="cursor:pointer;" v-on:click="goto(1)">1</a>
-      <a v-if="!isStart" class="item active" style="cursor:pointer;" v-on:click="goto(index - 1)">&lt;&lt;</a>
-      <a v-for="page in pages" class="item active" style="cursor:pointer;" v-on:click="goto(page.number)">{{page.number}}</a>
-      <a v-if="!isEnd" class="item active" style="cursor:pointer;" v-on:click="goto(index + 1)">&gt;&gt;</a>
-      <a class="item active" style="cursor:pointer;" v-on:click="goto(last)">{{last}}</a>
+      <a class="item" style="cursor:pointer;" v-on:click="goto(1)">1</a>
+      <a v-if="!isStart" class="item" style="cursor:pointer;" v-on:click="goto(index - 1)">&lt;&lt;</a>
+      <a v-for="page in pages" :class="index===page.number ? 'item active': 'item'" v-on:click="goto(page.number)">{{page.number}}</a>
+      <a v-if="!isEnd" class="item" style="cursor:pointer;" v-on:click="goto(index + 1)">&gt;&gt;</a>
+      <a class="item" style="cursor:pointer;" v-on:click="goto(last)">{{last}}</a>
       <!-- <span>
         goto page <input type="text" v-model="index" v-on:keyup.enter="goto(index)">
       </span> -->

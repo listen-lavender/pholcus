@@ -6,7 +6,7 @@
           <div class="meta">
             <span></span>
           </div>
-          <div class="description">
+          <div class="description ui basic secondary segment">
             <p>{{result.log.args}}</p>
           </div>
           <div class="extra">
@@ -20,7 +20,7 @@
           <div class="meta">
             <span></span>
           </div>
-          <div class="description">
+          <div class="description ui basic secondary segment">
             <p>{{result.log.kwargs}}</p>
           </div>
           <div class="extra">
@@ -41,7 +41,7 @@
           </div>
         </div>
       </div>
-      <a v-link="{name: 'task_detail', params: {_id: result.log.tid}}">view task</a>
+      <a class="ui basic blue button" v-link="{name: 'task_detail', params: {_id: result.log.tid}}">view task</a>
     </div>
 </template>
 <script>

@@ -1,29 +1,35 @@
 <template>
-  <top></top>
-  <div class="ui bottom attached segment pushable">
-    <div class="ui visible left vertical sidebar menu m-siderbar">
-        <a class="item" v-link="{name: 'runningsnapshot'}">
-          <i class="tasks icon"></i>
-          Running Snapshot
-        </a>
-        <a class="item" v-link="{name: 'task'}">
-          <i class="tasks icon"></i>
-          Task
-        </a>
-        <a class="item" v-link="{name: 'script'}">
-          <i class="code icon"></i>
-          Script
-        </a>
-        <a class="item" v-link="{name: 'creator'}">
-          <i class="user icon"></i>
-          User
-        </a>
-        <a class="item" v-link="{name: 'setting', 'params':{'_id':_id}}">
-          <i class="settings icon"></i>
-          Setting
-        </a>
+  <div class="ui grid">
+    <div class="row">
+        <top></top>
     </div>
-    <div class="pusher">
+  </div>
+  <div class="ui grid basic segment">
+    <div class="three wide column">
+        <div class="ui secondary vertical pointing fluid menu m-siderbar">
+            <a class="item" v-link="{name: 'runningsnapshot'}">
+              <i class="tasks icon"></i>
+              Running Snapshot
+            </a>
+            <a class="item" v-link="{name: 'task'}">
+              <i class="tasks icon"></i>
+              Task
+            </a>
+            <a class="item" v-link="{name: 'script'}">
+              <i class="code icon"></i>
+              Script
+            </a>
+            <a class="item" v-link="{name: 'creator'}">
+              <i class="user icon"></i>
+              User
+            </a>
+            <a class="item" v-link="{name: 'setting', 'params':{'_id':_id}}">
+              <i class="settings icon"></i>
+              Setting
+            </a>
+        </div>
+    </div>
+    <div class="thirteen wide stretched column">
         <router-view></router-view>
     </div>
   </div>

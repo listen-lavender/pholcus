@@ -1,5 +1,5 @@
 <template>
-  <table class="ui fixed celled table">
+  <table class="ui fixed small celled table">
     <thead>
         <tr>
           <th v-for="col in result.column">{{col}}</th>

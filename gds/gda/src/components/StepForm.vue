@@ -2,43 +2,55 @@
     <div class="ui sizer vertical segment">
         <div class="ui large header">脚本分步抓取流</div>
     </div>
-    <div class="ui styled accordion">
-        <div class="title active">{{model.name}}</div>
-        <div class="content active">
-            <div class="ui input">
-                <span>desc:</span><input type="text" v-model="model.desc">
-            </div>
-            <div class="ui input">
-                <span v-if="model.next_id">next:</span>
-                <span>
-                    <a v-if="model.next_id" v-link="{name: 'step_detail', params: {_id: model.next_id}}">{{model.next}}</a>
-                </span>
-            </div>
-            <div class="ui input">
-                <span>index:</span><span>{{model.index}}</span>
-            </div>
-            <div class="ui input">
-                <span>retry:</span><input type="text" v-model="model.retry">
-            </div>
-            <div class="ui input">
-                <span>timelimit:</span><input type="text" v-model="model.timelimit">
-            </div>
-            <div class="ui input">
-                <span>store:</span><input type="text" v-model="model.store">
-            </div>
-            <div class="ui input">
-                <span>additions:</span><input type="text" v-model="model.additions">
+    <br>
+    <div class="ui form">
+        <h3>{{model.name}}</h3>
+        <div class="two fields">
+            <div class="field">
+                <div class="ui small header">desc</div>
+                <textarea class="ui input" rows="5" v-model="model.desc"></textarea>
             </div>
         </div>
-    </div>
-    <div class="ui container">
-        <i class="save icon" alt="save" v-on:click="update"></i>
+        <div class="field" v-if="model.next_id">
+            <div class="ui small header">next:</div>
+            <a v-link="{name: 'step_detail', params: {_id: model.next_id}}">{{model.next}}</a>
+        </div>
+        <div class="field" v-if="model.index">
+            <div class="ui small header">index</div>
+            <p>{{model.index}}</p>
+        </div>
+        <div class="three fields">
+            <div class="field">
+                <div class="ui small header">retry</div>
+                <input type="text" class="ui input" v-model="model.retry">
+            </div>
+            <div class="field">
+                <div class="ui small header">time limit</div>
+                <input type="text" v-model="model.timelimit">
+            </div>
+            <div class="field">
+                <div class="ui small header">store</div>
+                <input type="text" v-model="model.store">
+            </div>
+        </div>
+        <div class="field">
+            <div class="ui small header">additions</div>
+            <textarea id="" cols="30" rows="15" v-model="model.additions"></textarea>
+        </div>
+        <div class="field">
+            <div class="ui green button" @click="update">
+                <i class="save icon"></i>
+                保存
+            </div>
+        </div>
+        <br>
     </div>
     <div v-if="model.current" class="ui">
-        <span>授权:</span>
+        <div class="ui small header">授权</div>
         <select class="ui search selection dropdown" multiple id="multi-select">
         </select>
     </div>
+    <br>
 </template>
 <script>
     export default {

@@ -165,11 +165,13 @@ Vue.http.interceptors.push({
             if(response.data.res.user == null){
                 isLogined(false)
                 setLocal('group', '')
+                setLocal('uid', '')
                 return response
             }
             else{
                 isLogined(true)
                 setLocal('group', response.data.res.user.group)
+                setLocal('uid', response.data.res.user._id)
                 return response
             }
         }
@@ -178,6 +180,7 @@ Vue.http.interceptors.push({
             setLocal('code', response.data.code)
             setLocal('msg', response.data.msg)
             setLocal('group', '')
+            setLocal('uid', '')
             router.go({name:'unknow'})
             return response
         }

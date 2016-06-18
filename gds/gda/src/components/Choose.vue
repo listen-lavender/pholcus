@@ -2,7 +2,7 @@
     <div class="field">
       <label>{{label}}</label>
       <!-- <select v-model="{{key}}"> -->
-      <select v-model="val">
+      <select class="ui dropdown" v-model="val">
         <option v-for="option in options" :value="option.value">
           {{option.text}}
         </option>

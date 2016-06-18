@@ -1,5 +1,5 @@
 <template>
-    <div class="ui card" style="margin-left:35px; margin-top:35px; width:500px">
+    <div class="ui card" style="width:500px">
         <input type="hidden" id="_id" :value="result.creator._id">
         <form id="avatarform" action="" method="" enctype="multipart/form-data" >
             <input id="avatar" name="avatar" type="file" accept="" style="display:none">

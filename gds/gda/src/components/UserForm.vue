@@ -1,5 +1,5 @@
 <template>
-    <div class="ui card uspace" style="margin-left:35px; margin-top:35px; width:500px">
+    <div class="ui card uspace" style="width:500px">
         <input type="hidden" id="_id" :value="result.creator._id">
         <form id="avatarform" action="" method="" enctype="multipart/form-data" >
             <input id="avatar" name="avatar" type="file" accept="" style="display:none">
@@ -17,9 +17,12 @@
         <div class="content">
             <div><i class="users icon"></i>group：{{result.creator.group}}</div>
             <div><i class="privacy icon"></i>secret：{{result.creator.secret}}</div>
-            <div><i class="cube icon"></i>status：{{result.creator.status}}</div>
-            <div><i class="keyboard icon"></i><a class="item" href="/gds/a/user/password">change password</a></div>
-            <div><i class="sign out icon"></i><a class="item" v-link="{name: 'logout'}">sign out</a></div>
+        </div>
+        <div class="content">
+            <div class="ui small buttons">
+                <a class="ui green button" href="/gds/a/user/password"><i class="keyboard icon"></i>change password</a>
+                <a v-link="{name: 'logout'}" class="ui blue button"><i class="sign out icon"></i>sign out</a>
+            </div>
         </div>
     </div>
 </template>

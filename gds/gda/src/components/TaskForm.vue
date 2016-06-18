@@ -1,75 +1,62 @@
 <template>
-  <div class="ui form">
-    <div class="four fields">
-        <div class="field">
-          <label>名称</label>
-          <input type="text" v-model="model.name">
-        </div>
-        <div class="field">
-          <label>描述</label>
-          <input type="text" v-model="model.extra">
-        </div>
-        <div class="field">
-          <label>分类</label>
-          <input type="text" v-model="model.category">
-        </div>
+  <div class="ui  segment">
+    <div class="ui form basic segment">
+      <h3>基本信息</h3>
+      <div class="three fields">
+          <div class="field">
+            <label>名称</label>
+            <input type="text" v-model="model.name">
+          </div>
+          <div class="field">
+            <label>分类</label>
+            <input type="text" v-model="model.category">
+          </div>
+      </div>
+      <div class="field">
+        <label>标签</label>
+        <input type="text" v-model="model.tag">
+      </div>
+      <div class="field">
+        <label>描述</label>
+        <textarea class="ui input" v-model="model.extra" id="" cols="30" rows="5"></textarea>
+      </div>
+      <h3>任务信息</h3>
+      <div class="two fields">
+          <div class="field">
+            <label>任务类型</label>
+            <select class="ui dropdown" v-model="model.type">
+              <option v-for="option in model.type_options" v-bind:value="option.value">{{option.text}}
+              </option>
+            </select>
+          </div>
+          <div class="field">
+            <label>执行间隔</label>
+            <input type="text" v-model="model.period">
+          </div>
+      </div>
+      <div class="three fields">
+        <cascade :items="items"></cascade>
+      </div>
+      <div class="field">
+        <label>params</label>
+        <input type="text" v-model="model.params">
+      </div>
+      <div class="field">
+        <label>推送接口</label>
+        <input type="url" v-model="model.push_url">
+      </div>
+      <div class="field">
+        <label>拉取接口</label>
+        <p class="ui secondary basic segment">
+          {{model.pull_url}}
+        </p>
+      </div>
+      <button class="ui green button" alt="save" v-on:click="update">
+        <i class="save icon"></i>
+        保存
+      </button>
     </div>
-    <div class="field">
-      <label>标签</label>
-      <input type="text" v-model="model.tag">
-    </div>
-    <div class="two fields">
-        <div class="field">
-          <label>任务类型</label>
-          <select v-model="model.type">
-            <option v-for="option in model.type_options" v-bind:value="option.value">{{option.text}}
-            </option>
-          </select>
-        </div>
-        <div class="field">
-          <label>执行间隔</label>
-          <input type="text" v-model="model.period">
-        </div>
-    </div>
-    <cascade :items="items"></cascade>
-    <!-- <div class="field">
-      <label>article</label>
-      <select v-model="aid">
-        <option v-for="option in model.article_options" :value="option.value">
-          {{option.text}}
-        </option>
-      </select>
-    </div>
-    <div class="field">
-      <label>flow</label>
-      <select v-model="fid">
-        <option v-for="option in model.flow_options" :value="option.value">
-          {{option.text}}
-        </option>
-      </select>
-    </div>
-    <div class="field">
-      <label>section</label>
-      <select v-model="sid">
-        <option v-for="option in model.section_options" :value="option.value">
-          {{option.text}}
-        </option>
-      </select>
-    </div> -->
-    <div class="field">
-      <label>params</label>
-      <input type="text" v-model="model.params">
-    </div>
-    <div class="field">
-      <label>推送接口</label>
-      <input type="text" v-model="model.push_url">
-    </div>
-    <div class="field">
-      <label>拉取接口</label>
-      <span>{{model.pull_url}}</span>
-    </div>
-    <button class="ui green button" alt="save" v-on:click="update">保存</button>
-    <button class="ui button" v-on:click="cancel">取消</button>
+    
   </div>
 </template>
 <script>

@@ -132,12 +132,12 @@ def is_login():
     request.user = user
     if '/logout' in request.url:
         session[sid] = None
-        response = Response(json.dumps({'code':0, 'res':{'user':None}, 'msg':''}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8'), mimetype='application/json')
+        response = Response(json.dumps({'code':1, 'res':{'user':None}, 'msg':''}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8'), mimetype='application/json')
         return response
     elif flag or user:
         pass
     else:
-        response = Response(json.dumps({'code':1, 'res':{'user':None}, 'msg':''}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8'), mimetype='application/json')
+        response = Response(json.dumps({'code':1, 'res':{'user':None}, 'msg':'请登录'}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8'), mimetype='application/json')
         return response
 
 # @app.after_request

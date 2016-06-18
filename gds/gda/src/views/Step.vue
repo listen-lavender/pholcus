@@ -2,9 +2,13 @@
     <div class="ui sizer vertical segment">
         <div class="ui large header">脚本分步抓取流</div>
     </div>
-    <div class="ui input" v-for="(index, step) in result.step">
-        <span>{{index+1}}.</span><span>{{step.name}}
-        <a v-link="{name: 'step_detail', params: {_id: step._id}}">详情</a></span>
+    <br>
+    <div class="ui ordered list">
+        <div class="item" v-for="(index, step) in result.step">
+            <div class="description">
+                <a v-link="{name: 'step_detail', params: {_id: step._id}}">{{step.name}}</a></span>
+            </div>
+        </div>
     </div>
 </template>
 <script>
