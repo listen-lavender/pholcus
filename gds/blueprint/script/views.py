@@ -44,25 +44,23 @@ def scriptdetail(aid=None):
         return result
     elif request.method == 'POST':
         name = request.form.get('name')
-        clsname = request.form.get('clsname')
         desc = request.form.get('desc')
-        filepath = request.form.get('filepath')
         result = {'code':1, 'msg':'', 'res':{"appname":g.appname, "user":user}}
         if aid is None:
-            article = Article(
-                uid=user['_id'],
-                name=name,
-                clsname=clsname,
-                filepath=filepath,
-                status=status,
-                creator=user['_id'],
-                updator=user['_id'],
-                create_time=datetime.datetime.now(),
-                update_time=datetime.datetime.now())
-            aid = Article.insert(user, article)
-            result['msg'] = 'Create article successfully.'
+            # article = Article(
+            #     uid=user['_id'],
+            #     name=name,
+            #     clsname=clsname,
+            #     filepath=filepath,
+            #     status=status,
+            #     creator=user['_id'],
+            #     updator=user['_id'],
+            #     create_time=datetime.datetime.now(),
+            #     update_time=datetime.datetime.now())
+            # aid = Article.insert(user, article)
+            result['msg'] = 'Not create article.'
         else:
-            Article.update(user, {'_id':aid}, {'$set':{'desc':desc}})
+            Article.update(user, {'_id':aid}, {'$set':{'name':name, 'desc':desc}})
             result['msg'] = 'Update article successfully.'
         result = json.dumps(result, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
         return result

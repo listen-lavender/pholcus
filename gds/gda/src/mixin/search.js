@@ -8,6 +8,9 @@ var Filter = {
     created(){
         this.$dispatch('getModel', this.model);
     },
+    attached(){
+        this.$dispatch('updateFlag', true);
+    },
     events: {
         setFilter:function(model, keyword) {
             if(this.model == model & this.keyword != keyword){
@@ -18,6 +21,9 @@ var Filter = {
                     })
             }
         }
+    },
+    detached(){
+        this.$dispatch('updateFlag', false);
     }
 };
 

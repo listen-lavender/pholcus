@@ -4,7 +4,7 @@
       <i class="home icon"></i>
       Home
     </a>
-    <div class="right menu" v-if="loggined">
+    <div class="right menu" v-if="flag">
       <div class="ui mini icon input">
         <input type="text" placeholder="Search..." v-on:keyup.enter="search" v-model="keyword">
         <i class="search icon"></i>
@@ -13,13 +13,15 @@
   </div>
 </template>
 <script>
-    import LoginState from '../mixin/login';
     export default {
-        mixins: [LoginState],
         props: {
             model: {
                 type: String,
                 default: ''
+            },
+            flag: {
+                type: Boolean,
+                default: false
             },
         },
         events: {
@@ -28,7 +30,10 @@
                 this.$set('model', model);
                 this.$set('keyword', '');
               }
-            }
+            },
+            updateFlag: function(flag){
+              this.$set('flag', flag);
+            },
         },
         methods: {
             goindex(){

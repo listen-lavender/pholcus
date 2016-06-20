@@ -48,6 +48,9 @@
             setFilter:function(model, keyword) {
               this.$broadcast('setFilter', model, keyword);
             },
+            updateFlag:function(flag) {
+              this.$broadcast('updateFlag', flag);
+            },
         },
     }
 </script>

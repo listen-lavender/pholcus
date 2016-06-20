@@ -1,20 +1,16 @@
 <template>
     <div v-if="result.script && result.script.name">
-      <form class="ui form" v-on:submit.prevent="save">
+      <div class="ui form">
         <div class="ui sizer vertical segment" >
-            <div class="ui large header">脚本数据源</div>
+            <div class="ui large header"><h3>{{result.script.clsname}}</h3></div>
         </div>
         <br>
         <div class="field">
             <p class="ui small header">Name</p>
-            <p class="ui secondary basic segment">{{result.script.name}}</p>
+            <input type="text" :value="result.script.name" v-model="name">
         </div>
         <div class="field">
-            <p class="ui small header">Clsname</p>
-            <p class="ui secondary basic segment">{{result.script.clsname}}</p>
-        </div>
-        <div class="field">
-            <p class="ui small header">Desc</p>
+            <p class="ui small header">Description</p>
             <textarea :value="result.script.desc" v-model="desc" rows="5"></textarea>
         </div>
         <div class="field">
@@ -25,18 +21,22 @@
             <p class="ui small header">Script digest</p>
             <p class="ui secondary basic segment">{{result.script.digest}}</p>
         </div>
-        <h3>脚本抓取流</h3>
+        <hr/>
         <div class="ui ordered list">
             <div class="item" v-for="flow in result.script.flows">
                 <a v-link="{name: 'step', query: {script_id: result.script._id, flow_id:flow['_id']}}">{{flow['name']}} flow</a>
             </div>
         </div>
-        <button class="ui green button" type="submit">
-            <i class="save icon"></i>
-            保存
-        </button>
-        <button class="ui button" v-on:click="reset">取消</button>
-      </form>
+        <br>
+        <br>
+        <br>
+        <div class="field">
+            <div class="ui green button" @click="update">
+                <i class="save icon"></i>
+                Save
+            </div>
+        </div>
+      </div>
     </div>
 </template>
 <script>
@@ -54,8 +54,8 @@
             }
         },
         methods: {
-            save(){
-                this.$http.post('script/'+this.$route.params._id, {'desc':this.desc}).then((response)=>{
+            update(){
+                this.$http.post('script/'+this.$route.params._id, {'desc':this.desc, 'name':this.name}).then((response)=>{
                     let user = response.data.res.user;
                     if(user == null){
                         console.log(response.data.res.msg);
@@ -64,9 +64,6 @@
                         this.$route.router.go({name: 'script'});
                     }
                 })
-            },
-            reset(){
-                this.$set('desc', '')
             }
         }
     }

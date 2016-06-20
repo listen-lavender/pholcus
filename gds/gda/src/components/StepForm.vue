@@ -1,56 +1,52 @@
 <template>
     <div class="ui sizer vertical segment">
-        <div class="ui large header">脚本分步抓取流</div>
+        <div class="ui large header"><h3>{{model.name}}</h3></div>
     </div>
     <br>
     <div class="ui form">
-        <h3>{{model.name}}</h3>
-        <div class="two fields">
-            <div class="field">
-                <div class="ui small header">desc</div>
-                <textarea class="ui input" rows="5" v-model="model.desc"></textarea>
-            </div>
-        </div>
         <div class="field" v-if="model.next_id">
-            <div class="ui small header">next:</div>
+            <div class="ui small header">Next</div>
             <a v-link="{name: 'step_detail', params: {_id: model.next_id}}">{{model.next}}</a>
         </div>
-        <div class="field" v-if="model.index">
-            <div class="ui small header">index</div>
-            <p>{{model.index}}</p>
+        <div class="field">
+            <div class="ui small header">Description</div>
+            <textarea class="ui input" rows="5" v-model="model.desc"></textarea>
         </div>
-        <div class="three fields">
+        <div class="four fields">
+            <div class="field" v-if="model.index">
+                <div class="ui small header">Index</div>
+                <input type="text" class="ui input" v-model="model.index">
+            </div>
             <div class="field">
-                <div class="ui small header">retry</div>
+                <div class="ui small header">Retry</div>
                 <input type="text" class="ui input" v-model="model.retry">
             </div>
             <div class="field">
-                <div class="ui small header">time limit</div>
+                <div class="ui small header">Timelimit</div>
                 <input type="text" v-model="model.timelimit">
             </div>
             <div class="field">
-                <div class="ui small header">store</div>
+                <div class="ui small header">Store</div>
                 <input type="text" v-model="model.store">
             </div>
         </div>
         <div class="field">
-            <div class="ui small header">additions</div>
+            <div class="ui small header">Additions</div>
             <textarea id="" cols="30" rows="15" v-model="model.additions"></textarea>
+        </div>
+        <div v-if="model.current" class="field">
+            <div class="ui small header">Authorize</div>
+            <select class="ui search selection dropdown" multiple id="multi-select">
+            </select>
         </div>
         <div class="field">
             <div class="ui green button" @click="update">
                 <i class="save icon"></i>
-                保存
+                Save
             </div>
         </div>
         <br>
     </div>
-    <div v-if="model.current" class="ui">
-        <div class="ui small header">授权</div>
-        <select class="ui search selection dropdown" multiple id="multi-select">
-        </select>
-    </div>
-    <br>
 </template>
 <script>
     export default {

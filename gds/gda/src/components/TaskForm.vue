@@ -1,36 +1,36 @@
 <template>
   <div class="ui  segment">
     <div class="ui form basic segment">
-      <h3>基本信息</h3>
-      <div class="three fields">
-          <div class="field">
-            <label>名称</label>
-            <input type="text" v-model="model.name">
-          </div>
-          <div class="field">
-            <label>分类</label>
-            <input type="text" v-model="model.category">
-          </div>
+      <h3>Basic</h3>
+      <div class="field">
+        <label>name</label>
+        <input type="text" v-model="model.name">
       </div>
       <div class="field">
-        <label>标签</label>
-        <input type="text" v-model="model.tag">
-      </div>
-      <div class="field">
-        <label>描述</label>
+        <label>Description</label>
         <textarea class="ui input" v-model="model.extra" id="" cols="30" rows="5"></textarea>
       </div>
-      <h3>任务信息</h3>
+      <h3>Control</h3>
       <div class="two fields">
           <div class="field">
-            <label>任务类型</label>
+            <label>Category</label>
+            <input type="text" v-model="model.category">
+          </div>
+          <div class="field">
+            <label>Tag</label>
+            <input type="text" v-model="model.tag">
+          </div>
+      </div>
+      <div class="two fields">
+          <div class="field">
+            <label>Task type</label>
             <select class="ui dropdown" v-model="model.type">
-              <option v-for="option in model.type_options" v-bind:value="option.value">{{option.text}}
+              <option v-for="option in model.type_options" :value="option.value">{{option.text}}
               </option>
             </select>
           </div>
           <div class="field">
-            <label>执行间隔</label>
+            <label>Exe span</label>
             <input type="text" v-model="model.period">
           </div>
       </div>
@@ -42,19 +42,25 @@
         <input type="text" v-model="model.params">
       </div>
       <div class="field">
-        <label>推送接口</label>
+        <label>Push interface</label>
         <input type="url" v-model="model.push_url">
       </div>
       <div class="field">
-        <label>拉取接口</label>
+        <label>Pull interface</label>
         <p class="ui secondary basic segment">
           {{model.pull_url}}
         </p>
       </div>
-      <button class="ui green button" alt="save" v-on:click="update">
-        <i class="save icon"></i>
-        保存
-      </button>
+      <div class="field">
+        <div class="ui green button" @click="update">
+            <i class="save icon"></i>
+            Save
+        </div>
+        <div class="ui green button" @click="cancel">
+            <i class="cancel icon"></i>
+            Cancel
+        </div>
+      </div>
     </div>
     
   </div>
@@ -110,6 +116,9 @@
                     this.$route.router.go({name: 'task'});
                   }
               })
+            },
+            cancel(){
+              
             }
         },
         events: {
