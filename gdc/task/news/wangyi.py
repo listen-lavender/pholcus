@@ -36,6 +36,7 @@ class Spider163(SpiderNewsOrigin):
             start = end
             end = str(int(start) + span)
             nextpage = '%s/%s-%s.html' % (url[:url.rindex('/')], start, end)
+        nextpage = None
         yield nextpage
 
         for one in news:

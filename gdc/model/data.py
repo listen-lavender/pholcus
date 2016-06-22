@@ -15,6 +15,8 @@ class MarkModel(dataorm.Model):
         attributes['create_time'] = attributes.get('create_time', datetime.datetime.now())
         attributes['update_time'] = attributes.get('update_time', datetime.datetime.now())
         for key in self.__mappings__:
+            if key == '_id' and not key in attributes:
+                continue
             if not key in attributes:
                 raise Exception('Need field %s. ' % key)
             attributes[key] = self.__mappings__[key].check_value(attributes[key])

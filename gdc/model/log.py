@@ -34,7 +34,7 @@ class Logsummary(dataorm.Model):
 
 class Log(dataorm.Model):
     __table__ = 'grab_log'
-    _id = dataorm.StrField(ddl='varchar', max_length=32)
+    _id = dataorm.StrField(ddl='varchar', max_length=32, primary=True)
     tid = baseorm.IdField(updatable=False)
     status = dataorm.StrField(ddl='varchar', max_length=8)
     elapse = dataorm.IntField(ddl='float')

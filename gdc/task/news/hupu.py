@@ -1,60 +1,58 @@
 #!/usr/bin/env python
 # coding=utf-8
-
+import time
 from datetime import *
 from webcrawl.character import *
 from webcrawl.task import *
-from webcrawl.urlkit import URLParse
 from newsspider import *
 from webcrawl import request
 
 #_print, logger = logprint(modulename(__file__), modulepath(__file__))
 
-class SpiderYidian(SpiderNewsOrigin):
+class SpiderHupu(SpiderNewsOrigin):
 
     """
-       一点资讯 数据爬虫
+       新浪网 数据爬虫
     """
 
     def __init__(self, worknum=6, queuetype='P', worktype='COROUTINE', timeout=-1, tid=0, settings={}, callback=None):
-        super(SpiderYidian, self).__init__(worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout, tid=tid, settings=settings, callback=callback)
+        super(SpiderHupu, self).__init__(worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout, tid=tid, settings=settings, callback=callback)
         self.clsname = self.__class__.__name__
         self.tid = tid
 
     @store(withData(datacfg.W), Data.insert, update=True, method='MANY')
-    @index('url')
     @timelimit(20)
+    @index('url')
     @initflow('www')
     def fetchList(self, url, additions={}, timeout=TIMEOUT, implementor=None):
         result = request.get(url, timeout=timeout, format='JSON')
-        news = result['result']
-        if len(news) == 0:
-            nextpage = None
+        news = result['data']['data']
+        if result['data']['is_more']:
+            index = url.split('=')
+            index[-1] = str(int(index[-1]) + 1)
+            nextpage = '='.join(index)
         else:
-            urlobj, params = URLParse.decode(url)
-
-            span = int(params['cend']) - int(params['cstart'])
-            params['cstart'] = params['cend']
-            params['cend'] = str(int(params['cstart']) + span)
-            
-            nextpage = URLParse.encode(urlobj, params)
+            nextpage = None
         nextpage = None
         yield nextpage
         for one in news:
-            if not one['ctype'] == "news":
-                continue
             name = one['title']
-            if 'icon' in one:
-                icon = one['icon']
-            elif 'image_urls' in one and one['image_urls']:
-                icon = 'http://i1.go2yd.com/image.php?url=%s&type=thumbnail_200x140' % one['image_urls'][0]
+            icon = one['img_url']
+            detail_link = one['link'].strip()
+            desc = one['description']
+            src = '虎扑新闻'
+            category = '足球'
+            group = 'text'
+            detail = request.get(detail_link, timeout=timeout, format='HTML')
+            atime = request.getHtmlNodeContent(detail.find('.//span[@class="stime"]'), 'TEXT').strip()
+            if not atime:
+                atime = request.getHtmlNodeContent(detail.find('.//span[@id="pubtime_baidu"]'), 'TEXT').strip()
             else:
-                icon = ''
-            detail_link = one['url']
-            desc = one['summary']
-            src = '一点资讯'
-            category = one['category']
-            atime = datetime.strptime(one['date'], '%Y-%m-%d %H:%M:%S')
+                atime = '%s:00' % atime
+            if not atime:
+                continue
+            else:
+                atime = datetime.strptime(atime, '%Y-%m-%d %H:%M:%S')
             create_time = datetime.now()
             update_time = datetime.now()
             data = {"name":name,
@@ -63,13 +61,14 @@ class SpiderYidian(SpiderNewsOrigin):
                 "desc":desc,
                 "src":src,
                 "category":category,
-                'group':'text',
+                'group':group,
                 'content':'',
                 "atime":atime,
                 "create_time":create_time,
                 "update_time":update_time,
                 'tid':self.tid}
             yield Data(**data)
+
 
 if __name__ == '__main__':
     pass

@@ -47,7 +47,7 @@ def statistic(start, end, reserve=None):
         }))
     if reserve:
         for log in Log.queryAll({'create_time':{'$lt':reserve}}):
-            Log.remove({'_id':log['_id']})
+            Log.delete({'_id':log['_id']})
             work_queue.remove({'_id':log['_id']})
 
 

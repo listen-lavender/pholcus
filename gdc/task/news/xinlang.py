@@ -33,11 +33,12 @@ class SpiderSina(SpiderNewsOrigin):
             index = url.split('=')
             index[-1] = str(int(index[-1]) + 1)
             nextpage = '='.join(index)
+        nextpage = None
         yield nextpage
         for one in news:
             name = one['stitle']
             icon = one['img']['u']
-            detail_link = one['url']
+            detail_link = one.get('wapurl') or one.get('url', '')
             desc = one['intro']
             src = '新浪新闻'
             category = '足球'

@@ -37,6 +37,7 @@ class SpiderToutiao(SpiderNewsOrigin):
             else:
                 params['max_behot_time'] = result['next']['max_behot_time']
                 nextpage = URLParse.encode(urlobj, params)
+        nextpage = None
         yield nextpage
         for one in news:
             name = one['title']
