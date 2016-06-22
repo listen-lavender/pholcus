@@ -127,7 +127,7 @@ def run():
                 step = task.get('step', 1) - 1
                 additions = {}
                 additions['name'] = task['name']
-                additions['cat'] = task['category'].split(',')
+                additions['category'] = task['category']
                 additions['tag'] = task['tag'].split(',')
                 if task['params'].startswith('{') and task['params'].endswith('}'):
                     args = []
@@ -193,4 +193,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
     

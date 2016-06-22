@@ -7,21 +7,23 @@ from model.log import Log, Logsummary
 from webcrawl.daemon import Daemon
 from webcrawl.aboutfile import modulename, modulepath
 from webcrawl.prettyprint import logprint
-from model.setting import baseorm
-from model.setting import withData, datacfg, LOGNUM, LOGSPAN, LOGQUEUE
+from webcrawl.queue.mongo import Queue
+from model.setting import baseorm, withData, datacfg, LOGNUM, LOGSPAN, LOGRESERVE, LOGQUEUE, WORKQUEUE
 from threading import Thread
 
 _print, logger = logprint(modulename(__file__), modulepath(__file__))
 
 path = os.path.abspath('.')
 log_queue = redis.StrictRedis(host=LOGQUEUE['host'], port=LOGQUEUE['port'], db=LOGQUEUE['db'])
+work_queue = Queue(host=WORKQUEUE['host'], port=WORKQUEUE['port'], db=WORKQUEUE['db'], tube=WORKQUEUE['tube'], init=False)
+work_queue = work_queue.mc[work_queue.tube]
 
 @withData(datacfg.W, autocommit=True)
 def record(data):
     Log.insert(Log(**data))
 
 @withData(datacfg.W, autocommit=True)
-def statistic(start, end):
+def statistic(start, end, reserve=None):
     result = {}
     for log in Log.queryAll({'$and':[{'create_time':{'$gte':start}}, {'create_time':{'$lt':end}}]}):
         if not log['tid'] in result:
@@ -43,6 +45,10 @@ def statistic(start, end):
             'elapse':round(result[tid]['elapse']/result[tid]['total'], 2),
             'create_time':start
         }))
+    if reserve:
+        for log in Log.queryAll({'create_time':{'$lt':reserve}}):
+            Log.remove({'_id':log['_id']})
+            work_queue.remove({'_id':log['_id']})
 
 
 def produce(cls, **kwargs):
@@ -84,7 +90,10 @@ class Summary(Thread):
         while True:
             end = datetime.datetime.now()
             start = end - datetime.timedelta(seconds=LOGSPAN)
-            statistic(start.strftime('%Y-%m-%d %H:%M:%S'), end.strftime('%Y-%m-%d %H:%M:%S'))
+            statistic(start.strftime('%Y-%m-%d %H:%M:%S'), \
+                end.strftime('%Y-%m-%d %H:%M:%S'), \
+                (end - datetime.timedelta(hours=LOGRESERVE)).strftime('%Y-%m-%d %H:%M:%S')
+                )
             time.sleep(LOGSPAN)
 
 

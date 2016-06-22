@@ -41,5 +41,6 @@ WORKNUM = config.getint("work", "worknum")
 WORKQUEUE = parse(config.items("work-queue"))
 LOGNUM = config.getint("log", "worknum")
 LOGSPAN = config.getint("log", "span")
+LOGRESERVE = config.getint("log", "reserve")
 LOGQUEUE = parse(config.items("log-queue"))
 del WORKQUEUE['type']
