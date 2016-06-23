@@ -25,9 +25,9 @@ var Paginator = {
     },
     watch: {
         'deleted': function(newVal, oldVal) {
-            for(var k=0; k<this.result.length; k++){
-                let src = this.result[k];
-                let obj = shallowCopy(src, {'deleted':newVal})
+            for(let k=0; k<this.result.length; k++){
+                let obj = this.result[k];
+                obj.deleted = newVal;
                 this.result.$set(k, obj);
             }
         }
@@ -40,8 +40,11 @@ var Paginator = {
     ready(){
         this.$http.get(this.url).then((response)=>{
             this.$set('total', response.data.res.total);
-            if(this.datakey)
+            if(this.datakey){
+                for(let k=0; k<response.data.res[this.datakey].length; k++)
+                    response.data.res[this.datakey][k].deleted = this.deleted
                 this.$set('result', response.data.res[this.datakey]);
+            }
             else
                 this.$set('result', response.data.res);
         })
