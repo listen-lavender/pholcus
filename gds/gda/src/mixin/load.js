@@ -1,3 +1,5 @@
+import {shallowCopy} from '../util';
+
 var Paginator = {
     props: {
         index: {
@@ -7,24 +9,66 @@ var Paginator = {
         size: {
             type: Number,
             default: 10
+        },
+        deleted: {
+            type: Boolean,
+            default: false
+        },
+        datakey: {
+            type: String,
+            default: null
+        },
+        total: {
+            type: Number,
+            default: 0
+        }
+    },
+    watch: {
+        'deleted': function(newVal, oldVal) {
+            for(var k=0; k<this.result.length; k++){
+                let src = this.result[k];
+                let obj = shallowCopy(src, {'deleted':newVal})
+                this.result.$set(k, obj);
+            }
         }
     },
     data() {
         return {
-          result: {},
+          result:{}
         }
     },
     ready(){
         this.$http.get(this.url).then((response)=>{
-            this.$set('result', response.data.res);
+            this.$set('total', response.data.res.total);
+            if(this.datakey)
+                this.$set('result', response.data.res[this.datakey]);
+            else
+                this.$set('result', response.data.res);
         })
+    },
+    methods: {
+        remove:function(obj) {
+            console.log(obj);
+            this.result.$remove(obj);
+        },
+        removeAll:function() {
+            for(let k=0; k<this.result.length; k++){
+                console.log(this.result[k]);
+                console.log(this.result[k]._id);
+                console.log(this.result[k].deleted);
+            }
+        }
     },
     events: {
         goto:function(index) {
             this.$set('index', index);
             this.$http.get(this.url).then((response)=>{
+                this.$set('total', response.data.res.total);
+                if(this.datakey)
+                    this.$set('result', response.data.res[this.datakey]);
+                else
                     this.$set('result', response.data.res);
-                })
+            })
         }
     }
 };

@@ -82,3 +82,10 @@ export const near = function(index, last, horizon) {
         pages.push({'number':k});
     return pages;
 }
+
+export const shallowCopy = function(src, obj) {
+    for(let key in src)
+        if(!(key in obj))
+            obj[key] = src[key];
+    return obj;
+}
