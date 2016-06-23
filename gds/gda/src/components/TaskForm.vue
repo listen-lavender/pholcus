@@ -52,13 +52,21 @@
         </p>
       </div>
       <div class="field">
-        <div class="ui green button" @click="update">
+        <div v-if="!model._id" class="ui green button" @click="save">
             <i class="save icon"></i>
             Save
+        </div>
+        <div v-if="model._id" class="ui green button" @click="update">
+            <i class="save icon"></i>
+            Update
         </div>
         <div class="ui green button" @click="cancel">
             <i class="cancel icon"></i>
             Cancel
+        </div>
+        <div v-if="model._id" class="ui green button" @click="clone">
+            <i class="copy icon"></i>
+            Clone
         </div>
       </div>
     </div>
@@ -69,24 +77,42 @@
     export default {
         data () {
             return {
-              model: null,
+              model:{
+                '_id':null,
+                'name':null,
+                'extra':null,
+                'category':null,
+                'tag':null,
+                'type':null,
+                'period':null,
+                'params':null,
+                'push_url':null,
+                'aid':null,
+                'fid':null,
+                'sid':null,
+              },
               items:[]
             }
         },
         route: {
             data(transition){
-                this.$http.get('task/detail/'+this.$route.params._id).then((response)=>{
-                    let model = response.data.res.task;
-                    let items = [];
-                    items.push(model.article);
-                    delete model['article'];
-                    items.push(model.flow);
-                    delete model['flow'];
-                    items.push(model.section);
-                    delete model['section'];
-                    this.$set('model', model);
-                    this.$set('items', items);
-                })
+                if(!(this.$route.params._id == ':_id'))
+                  this.$set('model._id', this.$route.params._id);
+                if(this.model._id)
+                  this.$http.get('task/detail/'+this.model._id).then((response)=>{
+                      let model = response.data.res.task;
+                      let items = [];
+                      items.push(model.article);
+                      delete model['article'];
+                      items.push(model.flow);
+                      delete model['flow'];
+                      items.push(model.section);
+                      delete model['section'];
+                      this.$set('model', model);
+                      this.$set('items', items);
+                  })
+                else
+                  console.log('null');
             }
             // data(transition){
             //     let response_data = {}
@@ -117,9 +143,23 @@
                   }
               })
             },
+            save(){
+              this.$http.post('task/detail', {'name':this.model.name, 'extra':this.model.extra, 'category':this.model.category, 'tag':this.model.tag, 'type':this.model.type, 'period':this.model.period, 'aid':this.model.aid, 'fid':this.model.fid, 'sid':this.model.sid, 'params':this.model.params, 'push_url':this.model.push_url}).then((response)=>{
+                  let user = response.data.res.user;
+                  if(user == null){
+                    console.log(response.data.res.msg);
+                  }
+                  else{
+                    this.$route.router.go({name: 'task'});
+                  }
+              })
+            },
             cancel(){
               
-            }
+            },
+            clone(){
+              this.$set('model._id', null);
+            },
         },
         events: {
             modify:function(key, val) {

@@ -39,7 +39,7 @@
         </tr>
         <tr>
             <td colspan="7" align="center">
-                <a v-link="{name: 'task_detail', params: {_id: item._id}}"><i class="plus icon"></i></a>
+                <a v-link="{name: 'task_detail'}"><i class="plus icon"></i></a>
             </td>
         </tr>
     </tbody>
@@ -58,12 +58,12 @@
             },
         },
         computed: {
-            url: function () {
+            getUrl: function () {
                 let link = 'task/list?skip='+((this.index-1) * this.size)+'&limit='+this.size;
                 if(this.keyword)
                     link = link + '&keyword=' + this.keyword;
                 return link;
-            }
+            },
         }
     }
 </script>

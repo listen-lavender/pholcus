@@ -19,7 +19,7 @@ def tasklist():
     limit = int(request.args.get('limit', 10))
     keyword = request.args.get('keyword')
 
-    condition = {}
+    condition = {'status':{'$gt':0}}
     if keyword:
         pack(Task, keyword, condition)
     total = Task.count(user, condition)
@@ -28,13 +28,12 @@ def tasklist():
     result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result
 
-
-@task.route('/detail', methods=['GET', 'POST'])
-@task.route('/detail/<tid>', methods=['GET', 'POST'])
+@task.route('/detail', methods=['DELETE', 'POST'])
+@task.route('/detail/<tid>', methods=['GET', 'POST', 'DELETE'])
 @withBase(basecfg.W, resutype='DICT', autocommit=True)
 def taskdetail(tid=None):
     user = request.user
-    tid = baseorm.IdField.verify(tid)
+    tid = baseorm.IdField.verify(tid) if tid else tid
     if request.method == 'GET':
         user = request.user
         if tid is None:
@@ -179,6 +178,17 @@ def taskdetail(tid=None):
             Permit.delete({'cid':cid, 'otype':'Task', 'oid':tid})
         result = {"appname":g.appname, "user":user, "task":task}
         result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
+        return result
+    elif request.method == 'DELETE':
+        if tid:
+            Task.update(user, {'_id':tid}, {'$set':{'status':0}})
+        else:
+            ids = request.form.get('ids')
+            for tid in ids.split(','):
+                tid = baseorm.IdField.verify(tid)
+                Task.update(user, {'_id':tid}, {'$set':{'status':0}})
+        result = {"appname":g.appname, "user":user, "task":{}}
+        result = json.dumps({'code':1, 'msg':'Delete it successfully.', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
         return result
     else:
         pass

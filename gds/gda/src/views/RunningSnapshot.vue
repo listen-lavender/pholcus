@@ -31,7 +31,7 @@
     export default {
         mixins: [Paginator, Filter],
         computed: {
-            url: function () {
+            getUrl: function () {
                 let link = 'running/snapshot?skip='+((this.index-1) * this.size)+'&limit='+this.size;
                 if(this.keyword)
                     link = link + '&keyword=' + this.keyword;

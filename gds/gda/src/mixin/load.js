@@ -23,6 +23,12 @@ var Paginator = {
             default: 0
         }
     },
+    computed: {
+        deleteUrl: function() {
+            let link = this.datakey + '/detail';
+            return link;
+        },
+    },
     watch: {
         'deleted': function(newVal, oldVal) {
             for(var k=0; k<this.result.length; k++){
@@ -38,7 +44,7 @@ var Paginator = {
         }
     },
     ready(){
-        this.$http.get(this.url).then((response)=>{
+        this.$http.get(this.getUrl).then((response)=>{
             this.$set('total', response.data.res.total);
             if(this.datakey)
                 this.$set('result', response.data.res[this.datakey]);
@@ -48,21 +54,25 @@ var Paginator = {
     },
     methods: {
         remove:function(obj) {
-            console.log(obj);
-            this.result.$remove(obj);
+            this.$http.delete(this.deleteUrl + '/' + obj._id).then((response)=>{
+                this.result.$remove(obj);
+            })
         },
         removeAll:function() {
+            let ids = [];
             for(let k=0; k<this.result.length; k++){
-                console.log(this.result[k]);
-                console.log(this.result[k]._id);
-                console.log(this.result[k].deleted);
+                ids.push(this.result[k]._id);
             }
+            ids = ids.join(',');
+            this.$http.delete(this.deleteUrl, {'ids':ids}).then((response)=>{
+                this.$dispatch('goto', 1);
+            })
         }
     },
     events: {
         goto:function(index) {
             this.$set('index', index);
-            this.$http.get(this.url).then((response)=>{
+            this.$http.get(this.getUrl).then((response)=>{
                 this.$set('total', response.data.res.total);
                 if(this.datakey)
                     this.$set('result', response.data.res[this.datakey]);

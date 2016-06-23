@@ -29,7 +29,7 @@
             }
         },
         computed: {
-            url: function () {
+            getUrl: function () {
                 let link = 'script/list?skip='+((this.index-1) * this.size)+'&limit='+this.size;
                 if(this.keyword)
                     link = link + '&keyword=' + this.keyword;

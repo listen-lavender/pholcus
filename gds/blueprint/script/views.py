@@ -18,7 +18,7 @@ def scriptlist(uid=''):
     limit = int(request.args.get('limit', 10))
     keyword = request.args.get('keyword')
 
-    condition = {}
+    condition = {'status':1}
     if keyword:
         pack(Article, keyword, condition)
     total = Article.count(user, condition)
@@ -28,7 +28,6 @@ def scriptlist(uid=''):
     return result
 
 
-@script.route('/', methods=['POST'])
 @script.route('/<aid>', methods=['POST', 'GET'])
 @withBase(basecfg.R, resutype='DICT', autocommit=True)
 def scriptdetail(aid=None):

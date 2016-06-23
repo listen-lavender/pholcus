@@ -43,7 +43,8 @@ def sectionlist():
     else:
         pass
 
-@script.route('/step/detail/<sid>', methods=['GET', 'POST'])
+
+@script.route('/step/detail/<sid>', methods=['GET', 'POST', 'DELETE'])
 @withBase(basecfg.W, resutype='DICT', autocommit=True)
 def sectiondetail(sid=None):
     user = request.user
