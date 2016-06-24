@@ -143,13 +143,7 @@ def run():
                 args.insert(0, datetime.datetime.now().strftime('%Y%m%dT%H:%M'))
 
                 if task.get('type', 'FOREVER') == 'FOREVER':
-                    condition = {'aid':task['aid'], 'fid':task['fid']}
-                    projection = {'_id':1, 'step':1}
-                    result = request.post('%sgdc/api/section' % HOST, {'condition':json.dumps(condition), 'projection':json.dumps(projection), 'limit':'all'}, format='JSON')
-                    result = result['section']
-                    result.sort(key=lambda item:item['step'])
-                    sids = [one['_id'] for one in result]
-                    section = spider.select(task['flow'], step, sids)
+                    section = spider.select(task['flow'], step)
                     args.insert(0, task['_id'])
                     args.insert(0, section)
                     fun = workflow.task
