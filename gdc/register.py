@@ -11,6 +11,9 @@ import task
 LIMIT = 20
 CURRPATH = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
+session = request.Session()
+request.post('%s%s' % (HOST, 'gdc/api/login'), {'username':USER, 'secret':SECRET}, s=session)
+
 def persist(filepath, content):
     if filepath.startswith('/'):
         fi = open(filepath, 'w')
@@ -22,14 +25,14 @@ def persist(filepath, content):
 
 def getSection(sid):
     projection = {'step':1, 'index':1, 'additions':1, 'flow':1}
-    section = request.post('%sgdc/api/section/%s' % (HOST, str(sid)), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+    section = request.post('%sgdc/api/section/%s' % (HOST, str(sid)), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON', s=session)
     section = section['section']
     return section
 
 
 def getArticle(aid):
     projection = {'uid':1, 'name':1, 'clsname':1, 'filepath':1, 'digest':1}
-    article = request.post('%sgdc/api/article/%s' % (HOST, str(aid)), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+    article = request.post('%sgdc/api/article/%s' % (HOST, str(aid)), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON', s=session)
     article = article['article']
     filepath = article['filepath']
     if filepath in Store and article['digest'] == Store[filepath]:
@@ -42,7 +45,7 @@ def getArticle(aid):
 
 def getUnit(uid):
     projection = {'name':1, 'filepath':1, 'digest':1, 'dmid':1}
-    unit = request.post('%sgdc/api/unit/%s' % (HOST, str(uid)), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+    unit = request.post('%sgdc/api/unit/%s' % (HOST, str(uid)), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON', s=session)
     unit = unit['unit']
     filepath = unit['filepath']
     if filepath in Store and unit['digest'] == Store[filepath]:
@@ -58,7 +61,7 @@ def getUnit(uid):
 
 def getDatamodel(dmid):
     projection = {'filepath':1, 'digest':1, 'name':1}
-    datamodel = request.post('%sgdc/api/datamodel/%s' % (HOST, str(dmid)), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON')
+    datamodel = request.post('%sgdc/api/datamodel/%s' % (HOST, str(dmid)), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON', s=session)
     datamodel = datamodel['datamodel']
     filepath = datamodel['filepath']
     if filepath in Store and datamodel['digest'] == Store[filepath]:
@@ -91,7 +94,7 @@ def setDatamodel(filepath, fileupdate=False):
                     break
             if model is not None:
                 fileupdate = True
-                datamodel = request.post('%sgdc/api/datamodel' % HOST, {'condition':json.dumps({'name':model}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
+                datamodel = request.post('%sgdc/api/datamodel' % HOST, {'condition':json.dumps({'name':model}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON', s=session)
                 datamodel = datamodel['datamodel']
                 if datamodel:
                     continue
@@ -102,14 +105,14 @@ def setDatamodel(filepath, fileupdate=False):
                     "comment": comment,
                     'digest': digest
                 }
-                print request.post('%sgdc/api/datamodel' % HOST, {'data':json.dumps(data)}, format='JSON')
+                print request.post('%sgdc/api/datamodel' % HOST, {'data':json.dumps(data)}, format='JSON', s=session)
     if fileupdate:
-        print request.post('%sgdc/api/datamodel' % HOST, files={'file':(filepath, open(filepath, 'rb'))}, format='JSON')
+        print request.post('%sgdc/api/datamodel' % HOST, files={'file':(filepath, open(filepath, 'rb'))}, format='JSON', s=session)
 
 
 def setUnit(filepath):
     name = filepath[filepath.rindex('/')+1:].replace('spider.py', '')
-    unit = request.post('%sgdc/api/unit' % HOST, {'condition':json.dumps({'name':name}), 'limit':'one', 'projection':json.dumps({'_id':1, 'digest':1})}, format='JSON')
+    unit = request.post('%sgdc/api/unit' % HOST, {'condition':json.dumps({'name':name}), 'limit':'one', 'projection':json.dumps({'_id':1, 'digest':1})}, format='JSON', s=session)
     unit = unit['unit']
     keyobj = hashlib.md5()
     dmid = None
@@ -118,7 +121,7 @@ def setUnit(filepath):
         keyobj.update(one)
         if 'as Data' in one:
             model = one.replace('as Data', '').split('import')[-1].strip().lower()
-            datamodel = request.post('%sgdc/api/datamodel' % HOST, {'condition':json.dumps({'name':model}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
+            datamodel = request.post('%sgdc/api/datamodel' % HOST, {'condition':json.dumps({'name':model}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON', s=session)
             datamodel = datamodel['datamodel']
             dmid = datamodel['_id']
             break
@@ -138,7 +141,7 @@ def setUnit(filepath):
     if unit and not unit['digest'] == digest:
         files = {'file':(displaypath, open(filepath, 'rb'))}
     if data or files:
-        print request.post('%sgdc/api/unit' % HOST, {'data':json.dumps(data)}, files=files, format='JSON')
+        print request.post('%sgdc/api/unit' % HOST, {'data':json.dumps(data)}, files=files, format='JSON', s=session)
     else:
         print 'Unit %s has been set.' % name
 
@@ -147,7 +150,7 @@ def setArticle(filepath):
     unit = None
     for one in os.listdir(os.path.dirname(filepath)):
         if one.endswith('spider.py'):
-            unit = request.post('%sgdc/api/unit' % HOST, {'condition':json.dumps({'name':one.replace('spider.py', '')}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
+            unit = request.post('%sgdc/api/unit' % HOST, {'condition':json.dumps({'name':one.replace('spider.py', '')}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON', s=session)
             unit = unit['unit']
             break
     if not unit:
@@ -155,7 +158,7 @@ def setArticle(filepath):
         return
     name = filepath[filepath.rindex('/')+1:filepath.rindex('.')]
     clsname = ''
-    article = request.post('%sgdc/api/article' % HOST, {'condition':json.dumps({'name':name, 'uid':str(unit['_id'])}), 'limit':'one', 'projection':json.dumps({'_id':1, 'digest':1})}, format='JSON')
+    article = request.post('%sgdc/api/article' % HOST, {'condition':json.dumps({'name':name, 'uid':str(unit['_id'])}), 'limit':'one', 'projection':json.dumps({'_id':1, 'digest':1})}, format='JSON', s=session)
     article = article['article']
     lines = []
     flows = []
@@ -210,7 +213,7 @@ def setArticle(filepath):
     if article and not article['digest'] == digest:
         files = {'file': (displaypath, open(filepath, 'rb'))}
     if data or files:
-        article = request.post('%sgdc/api/article' % HOST, {'data':json.dumps(data)}, files=files, format='JSON')
+        article = request.post('%sgdc/api/article' % HOST, {'data':json.dumps(data)}, files=files, format='JSON', s=session)
         print article['desc']
         article = article['article']
     else:
@@ -220,14 +223,14 @@ def setArticle(filepath):
         if section.get('flow') is None:
             continue
         step = 1
-        flow = request.post('%sgdc/api/flow' % HOST, {'condition':json.dumps({'name':name, 'aid':str(article['_id'])}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
+        flow = request.post('%sgdc/api/flow' % HOST, {'condition':json.dumps({'name':name, 'aid':str(article['_id'])}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON', s=session)
         flow = flow['flow']
         if not flow:
             data = {
                 'aid':article['_id'],
                 'name':section['flow'],
             }
-            flow = request.post('%sgdc/api/flow' % HOST, {'data':json.dumps(data)}, format='JSON')
+            flow = request.post('%sgdc/api/flow' % HOST, {'data':json.dumps(data)}, format='JSON', s=session)
             flow = flow['flow']
         fid = flow['_id']
         setSection(section['flow'], step, section['name'], sections, article['_id'], fid)
@@ -238,7 +241,7 @@ def setSection(flow, step, section_name, sections, article_id, flow_id):
     next = data.get('next')
     if next is not None:
         data['next_id'] = setSection(flow, step+1, next, sections, article_id, flow_id)
-    section = request.post('%sgdc/api/section' % HOST, {'condition':json.dumps({'name':section_name, 'aid':str(article_id), 'flow':flow}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON')
+    section = request.post('%sgdc/api/section' % HOST, {'condition':json.dumps({'name':section_name, 'aid':str(article_id), 'flow':flow}), 'limit':'one', 'projection':json.dumps({'_id':1})}, format='JSON', s=session)
     section = section['section']
     data = {
         "aid": article_id,
@@ -253,10 +256,10 @@ def setSection(flow, step, section_name, sections, article_id, flow_id):
         "fid": flow_id
     }
     if section:
-        section = request.post('%sgdc/api/section/%s' % (HOST, str(section['_id'])), {'data':json.dumps({'$set':data})}, format='JSON')
+        section = request.post('%sgdc/api/section/%s' % (HOST, str(section['_id'])), {'data':json.dumps({'$set':data})}, format='JSON', s=session)
         print 'Section %s %s has been set.' % (flow, section_name)
     else:
-        section = request.post('%sgdc/api/section' % HOST, {'data':json.dumps(data)}, format='JSON')
+        section = request.post('%sgdc/api/section' % HOST, {'data':json.dumps(data)}, format='JSON', s=session)
         print section['desc']
     section = section['section']
     return section['_id']

@@ -61,7 +61,7 @@ def log(pid, elapse):
 
 def schedule():
     user_id = 0
-    condition = {'status':{'$gt':0}}
+    condition = {'state':{'$gt':0}}
     projection = {'_id':1, 'type':1, 'period':1, 'aid':1, 'sid':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'timeout':1, 'category':1, 'tag':1, 'name':1, 'extra':1, 'update_time':1, 'push_url':1}
     tasks = request.post('%sgdc/api/task' % HOST, {'condition':json.dumps(condition), 'projection':json.dumps(projection), 'limit':'all'}, format='JSON')
     tasks = tasks['task']
@@ -85,11 +85,11 @@ def schedule():
     return tasks
 
 
-def changestate(tid, status, extra=None):
-    if status == 2:
-        doc = {'data':json.dumps({'$set':{'status':status, 'extra':extra}, '$inc':{'count':1}})}
+def changestate(tid, state, extra=None):
+    if state == 2:
+        doc = {'data':json.dumps({'$set':{'state':state, 'extra':extra}, '$inc':{'count':1}})}
     else:
-        doc = {'data':json.dumps({'$set':{'status':status, 'extra':extra}})}
+        doc = {'data':json.dumps({'$set':{'state':state, 'extra':extra}})}
     result = request.post('%sgdc/api/task/%s' % (HOST, str(tid)), doc)
 
 
@@ -119,7 +119,7 @@ def run():
             if task.get('type', 'FOREVER') == 'FOREVER' and (datetime.datetime.now() - task['update_time']).total_seconds() < task.get('period', 3600 * 12):
                 continue
 
-            if not task.get('type', 'FOREVER') == 'FOREVER' and not task['status'] == 1:
+            if not task.get('type', 'FOREVER') == 'FOREVER' and not task['state'] == 1:
                 continue
 
             try:

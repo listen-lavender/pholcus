@@ -6,7 +6,7 @@ import time, datetime
 from model.setting import withBase, basecfg
 from flask import Blueprint, request, Response, render_template, g
 from rest import api
-from model.base import Article, Creator
+from model.base import Article
 from . import exepath, allowed
 
 @api.route('/article', methods=['POST'])

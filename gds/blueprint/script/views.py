@@ -2,7 +2,7 @@
 # coding=utf8
 import json
 from model.setting import withBase, basecfg, pack
-from model.base import Article, Flow, Section, Creator
+from model.base import Article, Flow
 from flask import Blueprint, request, Response, render_template, g
 
 script = Blueprint('script', __name__, template_folder='template')
@@ -21,7 +21,7 @@ def scriptlist(uid=''):
     condition = {'status':1}
     if keyword:
         pack(Article, keyword, condition)
-    total = Article.count(user, condition)
+    total = Article.count(condition)
     articles = Article.queryAll(user, condition, projection={'name':1, 'desc':1}, sort=[('update_time', -1)], skip=skip, limit=limit)
     result = {"appname":g.appname, "user":user, "uid":uid, "script":articles, "total":total}
     result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
@@ -37,7 +37,7 @@ def scriptdetail(aid=None):
             article = {'_id':'', 'name':'', 'clsname':'', 'desc':1, 'filepath':'', 'digest':0, 'flows':[]}
         else:
             article = Article.queryOne(user, {'_id':aid}, projection={'name':1, 'clsname':1, 'desc':1, 'filepath':1, 'digest':1})
-            article['flows'] = list(Flow.queryAll({'aid':aid}, projection={'name':1, '_id':1}))
+            article['flows'] = list(Flow.queryAll(user, {'aid':aid}, projection={'name':1, '_id':1}))
         result = {"appname":g.appname, "user":user, "script":article}
         result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
         return result

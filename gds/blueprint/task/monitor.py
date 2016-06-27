@@ -31,8 +31,8 @@ def data(tid):
 
     task = Task.queryOne(user, {'_id':tid}, projection={'aid':1})
     article = Article.queryOne(user, {'_id':task['aid']}, projection={'uid':1})
-    unit = Unit.queryOne({'_id':article['uid']}, projection={'dmid':1})
-    datamodel = Datamodel.queryOne({'_id':unit['dmid']}, projection={'name':1, 'table':1})
+    unit = Unit.queryOne(user, {'_id':article['uid']}, projection={'dmid':1})
+    datamodel = Datamodel.queryOne(user, {'_id':unit['dmid']}, projection={'name':1, 'table':1})
     model, table = datamodel['name'], datamodel['table']
 
     Cls = locals()[model]

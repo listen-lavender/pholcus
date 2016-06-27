@@ -5,7 +5,7 @@ import time, datetime
 from model.setting import withBase, basecfg
 from flask import Blueprint, request, Response, render_template, g
 from rest import api
-from model.base import Flow, Creator
+from model.base import Flow
 
 @api.route('/flow', methods=['POST'])
 @api.route('/flow/<fid>', methods=['POST'])
@@ -28,19 +28,19 @@ def flow(fid=None):
         if '_id' in condition:
             data['$set'] = data.get('$set', {})
             data['$set']['updator'] = user['_id']
-            Flow.update(condition, data)
+            Flow.update(user, condition, data)
             fid = condition['_id']
         else:
             data['updator'] = user['_id']
             data['creator'] = user['_id']
             data = Flow(**data)
-            fid = Flow.insert(data)
+            fid = Flow.insert(user, data)
         result = json.dumps({'stat':1, 'desc':'Flow is set successfully.', 'flow':{'_id':fid}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     else:
         if limit == 'one':
-            result = Flow.queryOne(condition, projection=projection)
+            result = Flow.queryOne(user, condition, projection=projection)
         else:
-            result = list(Flow.queryAll(condition, projection=projection))
+            result = list(Flow.queryAll(user, condition, projection=projection))
         result = json.dumps({'stat':1, 'desc':'', 'flow':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result
         

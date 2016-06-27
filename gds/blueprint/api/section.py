@@ -5,7 +5,7 @@ import time, datetime
 from model.setting import withBase, basecfg
 from flask import Blueprint, request, Response, render_template, g
 from rest import api
-from model.base import Section, Creator
+from model.base import Section
 
 @api.route('/section', methods=['POST'])
 @api.route('/section/<sid>', methods=['POST'])

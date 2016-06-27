@@ -5,7 +5,7 @@ import time, datetime
 from model.setting import withBase, basecfg
 from flask import Blueprint, request, Response, render_template, g
 from rest import api
-from model.base import Task, Creator
+from model.base import Task
 
 @api.route('/task', methods=['POST'])
 @api.route('/task/<tid>', methods=['POST'])

@@ -10,14 +10,14 @@ class AuthModel(baseorm.Model):
 
     @classmethod
     def queryOne(cls, user, spec, projection={}, sort=[]):
-        if spec.get('_id') is None:
+        if spec.get('_id') is None and user and not user.get('api'):
             raise Exception("Wrong detail query condition without id.")
         auth = {'authority':0}
-        if cls.__name__ in ('Creator', 'Article', 'Task'):
-            auth = Permit.queryOne({'cid':user.get('_id'), 'otype':cls.__name__, 'oid':spec.get('_id')}, projection={'authority':1}) or {'authority':0}
+        if cls.__name__ in ('Creator', 'Article', 'Task') and user and not user.get('api'):
+            auth = Permit.queryOne({'cid':user['_id'], 'otype':cls.__name__, 'oid':spec['_id']}, projection={'authority':1}) or {'authority':0}
         else:
             auth['authority'] = 1
-        if user['group'] == 'administrator' or auth['authority'] % 2 == 1: # 1 3 5 7 9 11 13 15
+        if auth['authority'] % 2 == 1 or user['group'] == 'administrator': # 1 3 5 7 9 11 13 15
             result = super(AuthModel, cls).queryOne(spec, projection=projection, sort=sort)
         else:
             result = None
@@ -275,10 +275,5 @@ class Unit(AuthModel):
 
 
 if __name__ == '__main__':
-    import datetime
-    h = Hash(sid=1, hashweb=123456666, create_time=datetime.datetime.now(), update_time=datetime.datetime.now())
-    print h
+    pass
     
-
-
-

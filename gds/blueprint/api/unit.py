@@ -6,7 +6,7 @@ import time, datetime
 from model.setting import withBase, basecfg
 from flask import Blueprint, request, Response, render_template, g
 from rest import api
-from model.base import Unit, Creator
+from model.base import Unit
 from . import exepath, allowed
 
 INIT = """#!/usr/bin/env python
@@ -33,7 +33,7 @@ def unit(uid=None):
     POST = False
     if pyfile:
         POST = True
-        result = {'stat':0, 'desc':'请上传正确格式的python文件', 'unit':Unit.queryOne(condition, projection=projection)}
+        result = {'stat':0, 'desc':'请上传正确格式的python文件', 'unit':Unit.queryOne(user, condition, projection=projection)}
         if pyfile and allowed(pyfile.filename):
             filename = pyfile.filename
             filepath = exepath(filename)
@@ -51,19 +51,19 @@ def unit(uid=None):
         if '_id' in condition:
             data['$set'] = data.get('$set', {})
             data['$set']['updator'] = user['_id']
-            Unit.update(condition, data)
+            Unit.update(user, condition, data)
             uid = condition['_id']
         else:
             data['updator'] = user['_id']
             data['creator'] = user['_id']
             data = Unit(**data)
-            uid = Unit.insert(data)
+            uid = Unit.insert(user, data)
         result = json.dumps({'stat':1, 'desc':'Unit is set successfully.', 'unit':{'_id':uid}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     if not POST:
         if limit == 'one':
-            result = Unit.queryOne(condition, projection=projection)
+            result = Unit.queryOne(user, condition, projection=projection)
         else:
-            result = list(Unit.queryAll(condition, projection=projection))
+            result = list(Unit.queryAll(user, condition, projection=projection))
         result = json.dumps({'stat':1, 'desc':'', 'unit':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result
         

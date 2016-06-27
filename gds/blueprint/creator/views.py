@@ -62,7 +62,7 @@ def userlist():
     condition = {}
     if keyword:
         pack(Creator, keyword, condition)
-    total = Creator.count(user, condition)
+    total = Creator.count(condition)
     creators = Creator.queryAll(user, condition, projection={'username':1, 'group':1, 'create_time':1}, sort=[('update_time', -1)], skip=skip, limit=limit)
     result = {"appname":g.appname, "user":user, "creator":creators, "total":total}
     return json.dumps({'code':1, 'desc':'success', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')

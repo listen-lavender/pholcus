@@ -22,7 +22,7 @@ def tasklist():
     condition = {'status':{'$gt':0}}
     if keyword:
         pack(Task, keyword, condition)
-    total = Task.count(user, condition)
+    total = Task.count(condition)
     tasks = Task.queryAll(user, condition, projection={'name':1, 'extra':1}, sort=[('update_time', -1)], skip=skip, limit=limit)
     result = {"appname":g.appname, "user":user, "task":tasks, 'total':total}
     result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
@@ -59,7 +59,7 @@ def taskdetail(tid=None):
                 'key':'fid',
                 'val':task['fid'],
                 'url':'task/flow',
-                'options':[{'text':one['name'], 'value':one['_id']} for one in Flow.queryAll({'aid':task['aid']}, projection=projection)]
+                'options':[{'text':one['name'], 'value':one['_id']} for one in Flow.queryAll(user, {'aid':task['aid']}, projection=projection)]
             }
 
             projection = {'name':1}
@@ -218,7 +218,7 @@ def taskflow():
         flows = Flow.queryAll(user, {}, projection={'name':1})
     else:
         aid = baseorm.IdField.verify(aid)
-        flows = Flow.queryAll({'aid':aid}, projection={'name':1})
+        flows = Flow.queryAll(user, {'aid':aid}, projection={'name':1})
     result = {"appname":g.appname, "user":user, "options":[{'text':one['name'], 'value':one['_id']} for one in flows]}
     result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result

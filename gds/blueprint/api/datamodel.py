@@ -6,7 +6,7 @@ import time, datetime
 from model.setting import withBase, basecfg
 from flask import Blueprint, request, Response, render_template, g
 from rest import api
-from model.base import Datamodel, Creator
+from model.base import Datamodel
 from . import exepath, modelpath, allowed, store
 
 @api.route('/datamodel', methods=['POST'])
@@ -29,7 +29,7 @@ def datamodel(dmid=None):
     POST = False
     if pyfile:
         POST = True
-        result = {'stat':0, 'desc':'请上传正确格式的python文件', 'datamodel':Datamodel.queryOne(condition, projection=projection)}
+        result = {'stat':0, 'desc':'请上传正确格式的python文件', 'datamodel':Datamodel.queryOne(user, condition, projection=projection)}
         if pyfile and allowed(pyfile.filename):
             filename = pyfile.filename
             model = pyfile.stream.read()
@@ -43,19 +43,19 @@ def datamodel(dmid=None):
         if '_id' in condition:
             data['$set'] = data.get('$set', {})
             data['$set']['updator'] = user['_id']
-            Datamodel.update(condition, data)
+            Datamodel.update(user, condition, data)
             dmid = condition['_id']
         else:
             data['updator'] = user['_id']
             data['creator'] = user['_id']
             data = Datamodel(**data)
-            dmid = Datamodel.insert(data)
+            dmid = Datamodel.insert(user, data)
         result = json.dumps({'stat':1, 'desc':'Datamodel is set successfully.', 'datamodel':{'_id':dmid}}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     if not POST:
         if limit == 'one':
-            result = Datamodel.queryOne(condition, projection=projection)
+            result = Datamodel.queryOne(user, condition, projection=projection)
         else:
-            result = list(Datamodel.queryAll(condition, projection=projection))
+            result = list(Datamodel.queryAll(user, condition, projection=projection))
         result = json.dumps({'stat':1, 'desc':'', 'datamodel':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
     return result
         
