@@ -24,6 +24,31 @@ class AuthModel(baseorm.Model):
         return result
 
     @classmethod
+    def queryAll(cls, user, spec, projection={}, sort=[], skip=0, limit=10):
+        if cls.__name__ in ('Creator', 'Task', 'Article'):
+            result = super(AuthModel, cls).queryAll(spec, projection=projection, sort=sort, skip=skip, limit=limit)
+            for one in result:
+                one['updatable'] = False
+                one['queryable'] = False
+                auth = Permit.queryOne({'cid':user['_id'], 'otype':cls.__name__, 'oid':one['_id']}, projection={'authority':1}) or {'authority':0}
+                if auth['authority'] in (2,3,6,7,10,11,14,15):
+                    one['updatable'] = True
+                if auth['authority'] % 2 == 1:
+                    one['queryable'] = True
+        else:
+            result = super(AuthModel, cls).queryAll(spec, projection=projection, sort=sort, skip=skip, limit=limit)
+        return result
+
+    @classmethod
+    def reverseQuery(cls, user, projection={}, sort=[], skip=0, limit=10):
+        result = []
+        if cls.__name__ in ('Creator', 'Task', 'Article'):
+            for one in Permit.queryAll({'cid':user['_id'], 'otype':cls.__name__}, projection={'authority':1}, skip=0, limit=None):
+                one = super(AuthModel, cls).queryOne({'_id':one['oid']}, projection=projection)
+                result.append(one)
+        return result
+
+    @classmethod
     def insert(cls, user, obj, update=True, method='SINGLE', maxsize=MAXSIZE):
         if cls.__name__ == 'Task' and not user['group'] == 'operator':
             raise Exception("Wrong user for creating task.")
@@ -88,27 +113,6 @@ class Article(AuthModel):
     create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
     update_time = baseorm.DatetimeField(ddl='timestamp')
 
-    @classmethod
-    def queryAll(cls, user, spec, projection={}, sort=[], skip=0, limit=10):
-        result = super(Article, cls).queryAll(spec, projection=projection, sort=sort, skip=skip, limit=limit)
-        for one in result:
-            one['updatable'] = False
-            one['queryable'] = False
-            auth = Permit.queryOne({'cid':user['_id'], 'otype':cls.__name__, 'oid':one['_id']}, projection={'authority':1}) or {'authority':0}
-            if auth['authority'] in (2,3,6,7,10,11,14,15):
-                one['updatable'] = True
-            if auth['authority'] % 2 == 1:
-                one['queryable'] = True
-        return result
-
-    @classmethod
-    def reverseQuery(cls, user, projection={}, sort=[], skip=0, limit=10):
-        result = []
-        for one in Permit.queryAll({'cid':user['_id'], 'otype':cls.__name__}, projection={'authority':1}, skip=0, limit=None):
-            one = super(Article, cls).queryOne({'_id':one['oid']}, projection=projection)
-            result.append(one)
-        return result
-
 
 class Flow(AuthModel):
     __table__ = 'grab_flow'
@@ -138,27 +142,6 @@ class Creator(AuthModel):
     updator = baseorm.IdField()
     create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
     update_time = baseorm.DatetimeField(ddl='timestamp')
-
-    @classmethod
-    def queryAll(cls, user, spec, projection={}, sort=[], skip=0, limit=10):
-        result = super(Creator, cls).queryAll(spec, projection=projection, sort=sort, skip=skip, limit=limit)
-        for one in result:
-            one['updatable'] = False
-            one['queryable'] = False
-            auth = Permit.queryOne({'cid':user['_id'], 'otype':cls.__name__, 'oid':one['_id']}, projection={'authority':1}) or {'authority':0}
-            if auth['authority'] in (2,3,6,7,10,11,14,15):
-                one['updatable'] = True
-            if auth['authority'] % 2 == 1:
-                one['queryable'] = True
-        return result
-
-    @classmethod
-    def reverseQuery(cls, user, projection={}, sort=[], skip=0, limit=10):
-        result = []
-        for one in Permit.queryAll({'cid':user['_id'], 'otype':cls.__name__}, projection={'authority':1}, skip=0, limit=None):
-            one = super(Creator, cls).queryOne({'_id':one['oid']}, projection=projection)
-            result.append(one)
-        return result
 
 
 class Datamodel(AuthModel):
@@ -236,27 +219,6 @@ class Task(AuthModel):
     updator = baseorm.IdField()
     create_time = baseorm.DatetimeField(ddl='datetime', updatable=False)
     update_time = baseorm.DatetimeField(ddl='timestamp')
-
-    @classmethod
-    def queryAll(cls, user, spec, projection={}, sort=[], skip=0, limit=10):
-        result = super(Task, cls).queryAll(spec, projection=projection, sort=sort, skip=skip, limit=limit)
-        for one in result:
-            one['updatable'] = False
-            one['queryable'] = False
-            auth = Permit.queryOne({'cid':user['_id'], 'otype':cls.__name__, 'oid':one['_id']}, projection={'authority':1}) or {'authority':0}
-            if auth['authority'] in (2,3,6,7,10,11,14,15):
-                one['updatable'] = True
-            if auth['authority'] % 2 == 1:
-                one['queryable'] = True
-        return result
-
-    @classmethod
-    def reverseQuery(cls, user, projection={}, sort=[], skip=0, limit=10):
-        result = []
-        for one in Permit.queryAll({'cid':user['_id'], 'otype':cls.__name__}, projection={'authority':1}, skip=0, limit=None):
-            one = super(Task, cls).queryOne({'_id':one['oid']}, projection=projection)
-            result.append(one)
-        return result
 
 
 class Unit(AuthModel):
