@@ -50,7 +50,7 @@ def taskdetail(tid=None):
                 'key':'aid',
                 'val':task['aid'],
                 'url':'task/article',
-                'options':[{'text':one['name'], 'value':one['_id']} for one in Article.queryAll(user, {}, projection=projection)]
+                'options':[{'text':one['name'], 'value':one['_id']} for one in Article.queryAll(user, {}, projection=projection, limit=None)]
             }
 
             projection = {'name':1}
