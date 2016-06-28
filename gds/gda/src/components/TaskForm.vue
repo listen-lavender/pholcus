@@ -56,11 +56,11 @@
             <i class="save icon"></i>
             Save
         </div>
-        <div v-if="model._id" class="ui green button" @click="update">
+        <div v-if="model.updatable" class="ui green button" @click="update">
             <i class="save icon"></i>
             Update
         </div>
-        <div class="ui green button" @click="cancel">
+        <div v-if="saveorupdate" class="ui green button" @click="cancel">
             <i class="cancel icon"></i>
             Cancel
         </div>
@@ -90,9 +90,15 @@
                 'aid':null,
                 'fid':null,
                 'sid':null,
+                'updatable':false,
               },
               items:[]
             }
+        },
+        computed: {
+            saveorupdate: function() {
+                return this.model.updatable || !this.model._id;
+            },
         },
         route: {
             data(transition){
