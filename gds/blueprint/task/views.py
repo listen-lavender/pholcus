@@ -3,7 +3,7 @@
 import json
 import urllib
 from model.setting import withBase, basecfg, baseorm, pack
-from model.base import Task, Section, Flow, Article
+from model.base import Task, Section, Flow, Article, Permit
 from flask import Blueprint, request, Response, render_template, g
 
 task = Blueprint('task', __name__, template_folder='template')
@@ -88,6 +88,11 @@ def taskdetail(tid=None):
         # for one in Permit.queryAll({'otype':'Task', 'oid':tid}, projection={'cid':1, '_id':0}):
         #     author[str(one['cid'])] = ''
         task['author'] = urllib.quote(json.dumps(author).encode('utf8'))
+        projection = {'_id':1, 'username':1}
+        task['update_options'] = [{'text':one['username'], 'value':one['_id']} for one in Creator.queryAll(user, {'_id':{'$ne':user['_id']}}, projection=projection, limit=None)]
+        task['query_options'] = task['update_options']
+        task['updators'] = [one['cid'] for one in Permit.queryAll({'creator':user['_id'], 'oid':tid, 'otype':'Task', 'authority':{'$in':[2,3,6,7,10,11,14,15]}}, projection={'cid':1}, limit=None)]
+        task['queryers'] = [one['cid'] for one in Permit.queryAll({'creator':user['_id'], 'oid':tid, 'otype':'Task', 'authority':{'$mod':[2, 1]}}, projection={'cid':1}, limit=None)]
         result = {"appname":g.appname, "user":user, "task":task}
         result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
         return result

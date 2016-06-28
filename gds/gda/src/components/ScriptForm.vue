@@ -29,9 +29,18 @@
         </div>
         <br>
         <div v-if="model.own" class="field">
-            <div class="ui small header">Authorize</div>
-            <select class="ui search selection dropdown" multiple id="multi-select">
-            </select>
+          <div class="ui small header">Update authorize</div>
+          <select class="ui dropdown" v-model="model.updators" multiple>
+            <option v-for="option in model.update_options" :value="option.value">{{option.text}}
+            </option>
+          </select>
+        </div>
+        <div v-if="model.own" class="field">
+          <div class="ui small header">Query authorize</div>
+          <select class="ui dropdown" v-model="model.queryers" multiple>
+            <option v-for="option in model.query_options" :value="option.value">{{option.text}}
+            </option>
+          </select>
         </div>
         <br>
         <br>
