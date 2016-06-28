@@ -39,7 +39,7 @@ def taskdetail(tid=None):
         if tid is None:
             tid = request.args.get('tid')
         if tid is None:
-            task = {'_id':'', 'aid':'', 'sid':'', 'name':'', 'extra':'', 'type':'ONCE', 'period':0, 'fid':'', 'params':'', 'worknum':6, 'queuetype':'M', 'worktype':'THREAD', 'timeout':30, 'category':'', 'push_url':'', 'pull_url':'', 'tag':'', 'current':True}
+            task = {'_id':'', 'aid':'', 'sid':'', 'name':'', 'extra':'', 'type':'ONCE', 'period':0, 'fid':'', 'params':'', 'worknum':6, 'queuetype':'M', 'worktype':'THREAD', 'timeout':30, 'category':'', 'push_url':'', 'pull_url':'', 'tag':'', 'own':True}
         else:
             projection = {'aid':1, 'sid':1, 'name':1, 'extra':1, 'type':1, 'period':1, 'fid':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'timeout':1, 'category':1, 'push_url':1, 'tag':1, 'creator':1}
             task = Task.queryOne(user, {'_id':tid}, projection=projection)
@@ -71,7 +71,7 @@ def taskdetail(tid=None):
                 'options':[{'text':one['name'], 'value':one['_id']} for one in Section.queryAll(user, {'fid':task['fid']}, projection=projection)]
             }
 
-            task['current'] = str(task['creator']) == user['_id']
+            task['own'] = str(task['creator']) == user['_id']
             task['pull_url'] = 'http://%s/gdc/api/data/%s' % (request.host, str(task['_id']))
             del task['creator']
         task['queuetype'] = 'M' # QUEUETYPE.get(task['queuetype'], '')

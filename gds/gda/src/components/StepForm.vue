@@ -34,11 +34,6 @@
             <div class="ui small header">Additions</div>
             <textarea id="" cols="30" rows="15" v-model="model.additions"></textarea>
         </div>
-        <div v-if="model.current" class="field">
-            <div class="ui small header">Authorize</div>
-            <select class="ui search selection dropdown" multiple id="multi-select">
-            </select>
-        </div>
         <div class="field">
             <div v-if="model.updatable" class="ui green button" @click="update">
                 <i class="save icon"></i>

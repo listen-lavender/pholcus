@@ -28,6 +28,11 @@
             </div>
         </div>
         <br>
+        <div v-if="model.own" class="field">
+            <div class="ui small header">Authorize</div>
+            <select class="ui search selection dropdown" multiple id="multi-select">
+            </select>
+        </div>
         <br>
         <br>
         <div class="field">

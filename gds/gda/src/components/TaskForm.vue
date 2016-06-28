@@ -51,6 +51,11 @@
           {{model.pull_url}}
         </p>
       </div>
+      <div v-if="model.own" class="field">
+            <div class="ui small header">Authorize</div>
+            <select class="ui search selection dropdown" multiple id="multi-select">
+            </select>
+        </div>
       <div class="field">
         <div v-if="!model._id" class="ui green button" @click="save">
             <i class="save icon"></i>
@@ -90,6 +95,7 @@
                 'aid':null,
                 'fid':null,
                 'sid':null,
+                'own':false,
                 'updatable':false,
               },
               items:[]

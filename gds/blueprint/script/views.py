@@ -34,9 +34,10 @@ def scriptdetail(aid=None):
     user = request.user
     if request.method == 'GET':
         if aid is None:
-            article = {'_id':'', 'name':'', 'clsname':'', 'desc':1, 'filepath':'', 'digest':0, 'flows':[]}
+            article = {'_id':'', 'name':'', 'clsname':'', 'desc':1, 'filepath':'', 'digest':0, 'flows':[], 'own':True}
         else:
             article = Article.queryOne(user, {'_id':aid}, projection={'name':1, 'clsname':1, 'desc':1, 'filepath':1, 'digest':1})
+            article['own'] = str(article['creator']) == user['_id']
             article['flows'] = list(Flow.queryAll(user, {'aid':aid}, projection={'name':1, '_id':1}))
         result = {"appname":g.appname, "user":user, "script":article}
         result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')

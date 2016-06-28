@@ -56,7 +56,6 @@ def sectiondetail(sid=None):
             section['next'] = ''
         else:
             section['next'] = next['name']
-        section['current'] = str(section['creator']) == user['_id']
         del section['creator']
         author = {}
         for one in Permit.queryAll({'otype':'Section', 'oid':sid}, projection={'cid':1, '_id':0}):
