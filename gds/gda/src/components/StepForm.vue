@@ -40,7 +40,7 @@
             </select>
         </div>
         <div class="field">
-            <div class="ui green button" @click="update">
+            <div v-if="model.updatable" class="ui green button" @click="update">
                 <i class="save icon"></i>
                 Save
             </div>
@@ -59,6 +59,7 @@
             data(transition){
                 this.$http.get('script/step/detail/'+this.$route.params._id).then((response)=>{
                     this.$set('model', response.data.res.step);
+                    console.log(this.model.updatable);
                 })
             }
         },

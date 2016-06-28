@@ -4,14 +4,27 @@
         <tr>
           <th>name</th>
           <th>description</th>
+          <th>
+            <div class="ui checkbox">
+                <input type="checkbox" v-model="deleted">
+                <label><a v-on:click="removeAll"><i class="remove icon"></i></a></label>
+            </div>
+          </th>
         </tr>
     </thead>
     <tbody>
-        <tr v-for="item in result.script">
+        <tr v-for="item in result">
             <td>
-                <a v-link="{name: 'script_detail', params: {_id: item._id}}">{{item.name}}</a>
+                <a v-if="item.queryable" v-link="{name: 'script_detail', params: {_id: item._id}}">{{item.name}}</a>
+                <span v-else>{{item.name}}</span>
             </td>
             <td>{{item.desc}}</td>
+            <td>
+                <div v-if="item.own" class="ui checkbox">
+                    <input type="checkbox" v-model="item.deleted">
+                    <label><a v-on:click="remove(item)"><i class="remove icon"></i></a></label>
+                </div>
+            </td>
         </tr>
     </tbody>
   </table>
@@ -23,10 +36,10 @@
     export default {
         mixins: [Paginator, Filter],
         props: {
-            model: {
+            datakey: {
                 type: String,
                 default: 'script'
-            }
+            },
         },
         computed: {
             getUrl: function () {

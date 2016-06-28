@@ -47,6 +47,7 @@ var Paginator = {
     },
     ready(){
         this.$http.get(this.getUrl).then((response)=>{
+            this.$set('deleted', false);
             this.$set('total', response.data.res.total);
             if(this.datakey){
                 for(let k=0; k<response.data.res[this.datakey].length; k++)
@@ -80,9 +81,13 @@ var Paginator = {
         goto:function(index) {
             this.$set('index', index);
             this.$http.get(this.getUrl).then((response)=>{
+                this.$set('deleted', false);
                 this.$set('total', response.data.res.total);
-                if(this.datakey)
+                if(this.datakey){
+                    for(let k=0; k<response.data.res[this.datakey].length; k++)
+                        response.data.res[this.datakey][k].deleted = this.deleted
                     this.$set('result', response.data.res[this.datakey]);
+                }
                 else
                     this.$set('result', response.data.res);
             })

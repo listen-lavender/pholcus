@@ -19,10 +19,10 @@
             <td>{{item.name}}</td>
             <td>{{item.extra}}</td>
             <td>
-                <a v-link="{name: 'task_detail', params: {_id: item._id}}"><i class="edit icon"></i></a>
+                <a v-if="item.queryable" v-link="{name: 'task_detail', params: {_id: item._id}}"><i class="edit icon"></i></a>
             </td>
             <td>
-                <a v-link="{name: 'data', params: {_id: item._id}}"><i class="database icon"></i></a>
+                <a v-if="item.queryable" v-link="{name: 'data', params: {_id: item._id}}"><i class="database icon"></i></a>
             </td>
             <td>
                 <a v-link="{name: 'time', params: {_id: item._id}}">timeline</a>

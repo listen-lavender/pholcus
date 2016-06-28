@@ -1,37 +1,37 @@
 <template>
-    <div v-if="result.script && result.script.name">
+    <div v-if="model && model.name">
       <div class="ui form">
         <div class="ui sizer vertical segment" >
-            <div class="ui large header"><h3>{{result.script.clsname}}</h3></div>
+            <div class="ui large header"><h3>{{model.clsname}}</h3></div>
         </div>
         <br>
         <div class="field">
             <p class="ui small header">Name</p>
-            <input type="text" :value="result.script.name" v-model="name">
+            <input type="text" :value="model.name" v-model="name">
         </div>
         <div class="field">
             <p class="ui small header">Description</p>
-            <textarea :value="result.script.desc" v-model="desc" rows="5"></textarea>
+            <textarea :value="model.desc" v-model="desc" rows="5"></textarea>
         </div>
         <div class="field">
             <p class="ui small header">Script path</p>
-            <p class="ui secondary basic segment">{{result.script.filepath}}</p>
+            <p class="ui secondary basic segment">{{model.filepath}}</p>
         </div>
         <div class="field">
             <p class="ui small header">Script digest</p>
-            <p class="ui secondary basic segment">{{result.script.digest}}</p>
+            <p class="ui secondary basic segment">{{model.digest}}</p>
         </div>
         <hr/>
         <div class="ui ordered list">
-            <div class="item" v-for="flow in result.script.flows">
-                <a v-link="{name: 'step', query: {script_id: result.script._id, flow_id:flow['_id']}}">{{flow['name']}} flow</a>
+            <div class="item" v-for="flow in model.flows">
+                <a v-link="{name: 'step', query: {script_id: model._id, flow_id:flow['_id']}}">{{flow['name']}} flow</a>
             </div>
         </div>
         <br>
         <br>
         <br>
         <div class="field">
-            <div class="ui green button" @click="update">
+            <div v-if="model.updatable" class="ui green button" @click="update">
                 <i class="save icon"></i>
                 Save
             </div>
@@ -43,13 +43,13 @@
     export default {
         data () {
             return {
-              result: null,
+              model: null,
             }
         },
         route: {
             data(transition){
                 this.$http.get('script/'+this.$route.params._id).then((response)=>{
-                    this.$set('result', response.data.res);
+                    this.$set('model', response.data.res.script);
                 })
             }
         },

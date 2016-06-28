@@ -20,7 +20,12 @@ class AuthModel(baseorm.Model):
         else:
             auth['authority'] = 1
         if auth['authority'] % 2 == 1 or user['group'] == 'administrator': # 1 3 5 7 9 11 13 15
+            if cls.__name__ == 'Section' and projection:
+                projection['aid'] = 1
             result = super(AuthModel, cls).queryOne(spec, projection=projection, sort=sort)
+            if cls.__name__ == 'Section':
+                auth = Permit.queryOne({'cid':user['_id'], 'otype':'Article', 'oid':result['aid']}, projection={'authority':1}) or {'authority':0}
+                updatable = auth['authority'] in (2,3,6,7,10,11,14,15)
             if updatable is not None:
                 result['updatable'] = updatable
         else:
@@ -56,12 +61,17 @@ class AuthModel(baseorm.Model):
             result = super(AuthModel, cls).insert(obj, update=update, method=method, maxsize=maxsize)
             user['_id'] = result
         else:
-            obj['creator'] = user.get('_id')
-            obj['updator'] = user.get('_id')
+            obj['creator'] = user['_id']
+            obj['updator'] = user['_id']
             result = super(AuthModel, cls).insert(obj, update=update, method=method, maxsize=maxsize)
         if cls.__name__ in ('Creator', 'Task', 'Article'):
             permit = Permit(cid=user['_id'], otype=cls.__name__, oid=result, authority=15, desc='aduq', status=1, creator=user['_id'], updator=user['_id'], create_time=datetime.datetime.now())
             Permit.insert(permit)
+        if cls.__name__ == 'Task':
+            article = Article.queryOne(user, {'_id':obj['aid']}, projection={'creator':1})
+            if not str(article['creator']) == str(obj['creator']):
+                permit = Permit(cid=article['creator'], otype=cls.__name__, oid=result, authority=1, desc='---q', status=1, creator=user['_id'], updator=user['_id'], create_time=datetime.datetime.now())
+                Permit.insert(permit)
         return result
 
     @classmethod
