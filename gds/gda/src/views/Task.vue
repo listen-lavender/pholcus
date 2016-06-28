@@ -31,7 +31,7 @@
                 <a v-link="{name: 'total', params: {_id: item._id}}">quantityline</a>
             </td>
             <td>
-                <div class="ui checkbox">
+                <div v-if="item.own" class="ui checkbox">
                     <input type="checkbox" v-model="item.deleted">
                     <label><a v-on:click="remove(item)"><i class="remove icon"></i></a></label>
                 </div>

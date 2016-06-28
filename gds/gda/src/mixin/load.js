@@ -33,8 +33,10 @@ var Paginator = {
         'deleted': function(newVal, oldVal) {
             for(let k=0; k<this.result.length; k++){
                 let obj = this.result[k];
-                obj.deleted = newVal;
-                this.result.$set(k, obj);
+                if(obj.own){
+                    obj.deleted = newVal;
+                    this.result.$set(k, obj);
+                }
             }
         }
     },
@@ -63,13 +65,15 @@ var Paginator = {
         },
         removeAll:function() {
             let ids = [];
-            for(let k=0; k<this.result.length; k++){
-                ids.push(this.result[k]._id);
+            for(let k=0; k<this.result.length; k++)
+                if(this.result[k].own)
+                    ids.push(this.result[k]._id);
+            if(ids.length > 0){
+                ids = ids.join(',');
+                this.$http.delete(this.deleteUrl, {'ids':ids}).then((response)=>{
+                    this.$dispatch('goto', 1);
+                })
             }
-            ids = ids.join(',');
-            this.$http.delete(this.deleteUrl, {'ids':ids}).then((response)=>{
-                this.$dispatch('goto', 1);
-            })
         }
     },
     events: {

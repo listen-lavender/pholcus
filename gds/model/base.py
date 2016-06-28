@@ -28,13 +28,10 @@ class AuthModel(baseorm.Model):
         if cls.__name__ in ('Creator', 'Task', 'Article'):
             result = super(AuthModel, cls).queryAll(spec, projection=projection, sort=sort, skip=skip, limit=limit)
             for one in result:
-                one['updatable'] = False
-                one['queryable'] = False
                 auth = Permit.queryOne({'cid':user['_id'], 'otype':cls.__name__, 'oid':one['_id']}, projection={'authority':1}) or {'authority':0}
-                if auth['authority'] in (2,3,6,7,10,11,14,15):
-                    one['updatable'] = True
-                if auth['authority'] % 2 == 1:
-                    one['queryable'] = True
+                one['updatable'] = auth['authority'] in (2,3,6,7,10,11,14,15)
+                one['queryable'] = auth['authority'] % 2 == 1
+                one['own'] = auth['authority'] == 15
         else:
             result = super(AuthModel, cls).queryAll(spec, projection=projection, sort=sort, skip=skip, limit=limit)
         return result
