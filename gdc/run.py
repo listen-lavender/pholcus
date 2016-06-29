@@ -22,7 +22,7 @@ from webcrawl import Logger
 
 from setting import USER, SECRET, HOST
 from log import LogMonitor, produce
-from register import getSection, getArticle, getUnit, getDatamodel
+from register import getSection, getArticle, getUnit, getDatamodel, session
 import task
 
 CURRPATH = os.path.join(os.path.dirname(os.path.abspath(__file__)))
@@ -63,7 +63,7 @@ def schedule():
     user_id = 0
     condition = {'state':{'$gt':0}}
     projection = {'_id':1, 'type':1, 'period':1, 'aid':1, 'sid':1, 'params':1, 'worknum':1, 'queuetype':1, 'worktype':1, 'timeout':1, 'category':1, 'tag':1, 'name':1, 'extra':1, 'update_time':1, 'push_url':1}
-    tasks = request.post('%sgdc/api/task' % HOST, {'condition':json.dumps(condition), 'projection':json.dumps(projection), 'limit':'all'}, format='JSON')
+    tasks = request.post('%sgdc/api/task' % HOST, {'condition':json.dumps(condition), 'projection':json.dumps(projection), 'limit':'all'}, format='JSON', s=session)
     tasks = tasks['task']
     for task in tasks:
         section = getSection(task['sid'])
@@ -90,12 +90,12 @@ def changestate(tid, state, extra=None):
         doc = {'data':json.dumps({'$set':{'state':state, 'extra':extra}, '$inc':{'count':1}})}
     else:
         doc = {'data':json.dumps({'$set':{'state':state, 'extra':extra}})}
-    result = request.post('%sgdc/api/task/%s' % (HOST, str(tid)), doc)
+    request.post('%sgdc/api/task/%s' % (HOST, str(tid)), doc, s=session)
 
 
 def push(datamodel, url, tid):
     changestate(tid, 0)
-    request.post(url, {'type':datamodel, 'tid':tid})
+    request.post(url, {'type':datamodel, 'tid':tid}, s=session)
 
 
 def run():

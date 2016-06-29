@@ -37,6 +37,7 @@ class SpiderEastnews(SpiderNewsOrigin):
             src = '东方网'
             category = request.getHtmlNodeContent(category, 'TEXT')
             atime = request.getHtmlNodeContent(detail.find('.//div[@id="title"]//span[@class="src"]'), 'TEXT').split(u'\u2003')[-1]
+            atime = atime.split(u'\xa0\xa0\xa0\xa0')[0]
             atime = datetime.strptime(atime, '%Y-%m-%d %H:%M')
             create_time = datetime.now()
             update_time = datetime.now()

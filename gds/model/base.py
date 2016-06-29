@@ -97,7 +97,7 @@ class AuthModel(baseorm.Model):
             auth = Permit.queryOne({'cid':user['_id'], 'otype':cls.__name__, 'oid':spec['_id']}, projection={'authority':1}) or {'authority':0}
         else:
             auth['authority'] = 2
-        if user['group'] == 'administrator' or auth['authority'] in (2,3,6,7,10,11,14,15):
+        if user['group'] == 'administrator' or auth['authority'] in (2,3,6,7,10,11,14,15) or (cls.__name__ == 'Task' and user.get('api')):
             doc['$set'] = doc.get('$set', {})
             doc['$set']['updator'] = user['_id']
             result = super(AuthModel, cls).update(spec, doc)

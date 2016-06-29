@@ -119,12 +119,6 @@ def is_login():
     g.appname = APPNAME
     sid = request.cookies.get('sid')
     user = session.get(sid, None)
-    user = {
-            "_id": "7", 
-            "group": "developer", 
-            "name": "root", 
-            "status": 1
-        }
     print request.url
     
     flag = request.url == request.url_root or '/task/data/' in request.url or '/static/' in request.url or '/login' in request.url or '/register' in request.url
