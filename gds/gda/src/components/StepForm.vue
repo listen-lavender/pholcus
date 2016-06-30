@@ -54,7 +54,6 @@
             data(transition){
                 this.$http.get('script/step/detail/'+this.$route.params._id).then((response)=>{
                     this.$set('model', response.data.res.step);
-                    console.log(this.model.updatable);
                 })
             }
         },

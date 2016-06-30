@@ -29,23 +29,23 @@
             selectIds: function() {
                 let selectIds = [];
                 for(let k=0;k<this.selectitems.length;k++)
-                    selectIds.push(this.selectitems[k]._id);
+                    selectIds.push(this.selectitems[k].value);
                 return selectIds.join(',');
             },
             unselectIds: function() {
                 let unselectIds = [];
                 for(let k=0;k<this.unselectitems.length;k++)
-                    unselectIds.push(this.unselectitems[k]._id);
+                    unselectIds.push(this.unselectitems[k].value);
                 return unselectIds.join(',');
             },
         },
         methods: {
-            choose(item){
+            choose:function(item){
                 this.unselectitems.$remove(item);
                 this.selectitems.push(item);
                 this.$dispatch('selectmulti', this.mark, this.selectIds, this.unselectIds);
             },
-            rid(item){
+            rid:function(item){
                 this.selectitems.$remove(item);
                 this.unselectitems.push(item);
                 this.$dispatch('selectmulti', this.mark, this.selectIds, this.unselectIds);
@@ -73,7 +73,6 @@
         border: 1px solid #ddd;
         line-height: 25px;
         height: 30px;
-        width: 100%;
         padding: 1px 5px;
     }
     .tag{
@@ -90,6 +89,9 @@
     .delete{
         color: #000;
     }
+    .delete::before {
+        content: "x";
+    }
     .content{
         border: none;
         display: inline;
@@ -103,9 +105,12 @@
     .optionlist{
         position: absolute;
         z-index: 1;
+        top: 13px;
         max-height: 500px;
         opacity: 1;
+        background: white;
         visibility: visible;
+        border:1px solid black;
     }
     .optionlist li{
         cursor: pointer;

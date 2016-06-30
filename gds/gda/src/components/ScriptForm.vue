@@ -29,24 +29,16 @@
         </div>
         <br>
         <div v-if="model.own" class="field">
-          <div class="ui small header">Update authorize</div>
-          <!-- <select class="ui dropdown" v-model="model.updators" multiple>
-            <option v-for="option in model.update_options" :value="option.value">{{option.text}}
-            </option>
-          </select> -->
-          <input type="hidden" v-model="model.select_updators">
-          <input type="hidden" v-model="model.unselect_updators">
-          <multiselect :mark="updators" :selectitems="model.select_updators_options" :unselectitems="model.unselect_updators_options"></multiselect>
+            <div class="ui small header">Update authorize</div>
+            <input type="hidden" v-model="model.select_updators">
+            <input type="hidden" v-model="model.unselect_updators">
+            <multiselect mark="updators" :selectitems="model.select_updators_options" :unselectitems="model.unselect_updators_options"></multiselect>
         </div>
         <div v-if="model.own" class="field">
-          <div class="ui small header">Query authorize</div>
-          <!-- <select class="ui dropdown" v-model="model.queryers" multiple>
-            <option v-for="option in model.query_options" :value="option.value">{{option.text}}
-            </option>
-          </select> -->
-          <input type="hidden" v-model="model.select_queryers">
-          <input type="hidden" v-model="model.unselect_queryers">
-          <multiselect :mark="queryers" :selectitems="model.select_queryers_options" :unselectitems="model.unselect_queryers_options"></multiselect>
+            <div class="ui small header">Query authorize</div>
+            <input type="hidden" v-model="model.select_queryers">
+            <input type="hidden" v-model="model.unselect_queryers">
+            <multiselect mark="queryers" :selectitems="model.select_queryers_options" :unselectitems="model.unselect_queryers_options"></multiselect>
         </div>
         <br>
         <br>
@@ -69,15 +61,16 @@
         route: {
             data(transition){
                 this.$http.get('script/'+this.$route.params._id).then((response)=>{
-                    let select_updators = response.data.res.script.select_updators;
-                    let select_queryers = response.data.res.script.select_queryers;
-                    let all_options = response.data.res.script.creators;
-                    this.$set('model', response.data.res.script);
+                    let model = response.data.res.script;
+                    this.$set('model', model);
+                    
+                    let select_updators = model.select_updators;
+                    let select_queryers = model.select_queryers;
+                    let all_options = model.creators;
                     this.set_options('updators', select_updators, all_options);
                     this.set_options('queryers', select_queryers, all_options);
                     this.$set('model.unselect_updators', '');
                     this.$set('model.unselect_queryers', '');
-                    window.model = this.model;
                 })
             }
         },

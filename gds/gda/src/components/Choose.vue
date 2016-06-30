@@ -48,7 +48,6 @@
                     this.$set('val', '');
                 }
                 if(this.curr == next){
-                    console.log()
                     this.$http.get(this.url + '?' + key + '=' + val).then((response)=>{
                         this.$set('options', response.data.res['options']);
                         this.$set('val', this.options.length>0?this.options[0].value:'');

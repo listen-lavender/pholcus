@@ -5,6 +5,7 @@ import urllib
 from model.setting import withBase, basecfg, baseorm, pack
 from model.base import Task, Section, Flow, Article, Permit
 from flask import Blueprint, request, Response, render_template, g
+from .. import select, unselect
 
 task = Blueprint('task', __name__, template_folder='template')
 
@@ -88,11 +89,12 @@ def taskdetail(tid=None):
         # for one in Permit.queryAll({'otype':'Task', 'oid':tid}, projection={'cid':1, '_id':0}):
         #     author[str(one['cid'])] = ''
         task['author'] = urllib.quote(json.dumps(author).encode('utf8'))
+
         projection = {'_id':1, 'username':1}
-        task['update_options'] = [{'text':one['username'], 'value':one['_id']} for one in Creator.queryAll(user, {'_id':{'$ne':user['_id']}}, projection=projection, limit=None)]
-        task['query_options'] = task['update_options']
-        task['updators'] = [one['cid'] for one in Permit.queryAll({'creator':user['_id'], 'oid':tid, 'otype':'Task', 'authority':{'$in':[2,3,6,7,10,11,14,15]}}, projection={'cid':1}, limit=None)]
-        task['queryers'] = [one['cid'] for one in Permit.queryAll({'creator':user['_id'], 'oid':tid, 'otype':'Task', 'authority':{'$mod':[2, 1]}}, projection={'cid':1}, limit=None)]
+        task['creators'] = [{'text':one['username'], 'value':one['_id']} for one in Creator.queryAll(user, {'_id':{'$ne':user['_id']}}, projection=projection, limit=None)]
+        task['select_updators'] = ','.join([str(one['cid']) for one in Permit.queryAll({'cid':{'$ne':user['_id']}, 'creator':user['_id'], 'oid':tid, 'otype':'Task', 'authority':{'$in':[2,3,6,7,10,11,14,15]}}, projection={'cid':1}, limit=None)])
+        task['select_queryers'] = ','.join([str(one['cid']) for one in Permit.queryAll({'cid':{'$ne':user['_id']}, 'creator':user['_id'], 'oid':tid, 'otype':'Task', 'authority':{'$mod':[2, 1]}}, projection={'cid':1}, limit=None)])
+
         result = {"appname":g.appname, "user":user, "task":task}
         result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
         return result
@@ -112,8 +114,11 @@ def taskdetail(tid=None):
         worknum = request.form.get('worknum', 6)
         queuetype = request.form.get('queuetype', 'P')
         worktype = 'THREAD'
-        addcid = request.form.get('addcid', '').split(',')
-        delcid = request.form.get('delcid', '').split(',')
+
+        select_updators = request.form.get('select_updators')
+        unselect_updators = request.form.get('unselect_updators')
+        select_queryers = request.form.get('select_queryers')
+        unselect_queryers = request.form.get('unselect_queryers')
 
         aid = baseorm.IdField.verify(aid) if aid is not None else aid
         fid = baseorm.IdField.verify(fid) if fid is not None else fid
@@ -172,17 +177,10 @@ def taskdetail(tid=None):
                 task['sid'] = sid
             Task.update(user, {'_id':tid}, {'$set':task})
             task['_id'] = tid
-        for cid in addcid:
-            if cid == '':
-                continue
-            cid = baseorm.IdField.verify(cid)
-            if Permit.queryOne({'cid':cid, 'otype':'Task', 'oid':tid}) is None:
-                permit = Permit(cid=cid, otype='Task', oid=baseorm.IdField.verify(tid), authority=1, desc='---q', status=1, creator=user['_id'], updator=user['_id'], create_time=datetime.datetime.now())
-                Permit.insert(permit)
-        for cid in delcid:
-            if cid == '':
-                continue
-            Permit.delete({'cid':cid, 'otype':'Task', 'oid':tid})
+        unselect(unselect_queryers, 'Task', tid, user['_id'])
+        unselect(unselect_updators, 'Task', tid, user['_id'])
+        select(select_updators, 'Task', tid, user['_id'], 'update')
+        select(select_queryers, 'Task', tid, user['_id'], 'query')
         result = {"appname":g.appname, "user":user, "task":task}
         result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
         return result

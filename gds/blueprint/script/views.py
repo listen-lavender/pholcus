@@ -62,10 +62,10 @@ def scriptdetail(aid=None):
         else:
             Article.update(user, {'_id':aid}, {'$set':{'name':name, 'desc':desc}})
             result['msg'] = 'Update article successfully.'
-            select(select_updators, 'Article', aid, user['_id'], 'update')
-            unselect(unselect_updators, 'Article', aid, user['_id'])
-            select(select_queryers, 'Article', aid, user['_id'], 'query')
             unselect(unselect_queryers, 'Article', aid, user['_id'])
+            unselect(unselect_updators, 'Article', aid, user['_id'])
+            select(select_updators, 'Article', aid, user['_id'], 'update')
+            select(select_queryers, 'Article', aid, user['_id'], 'query')
         result = json.dumps(result, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')
         return result
     else:
