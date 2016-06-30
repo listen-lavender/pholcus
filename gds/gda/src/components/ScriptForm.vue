@@ -7,11 +7,11 @@
         <br>
         <div class="field">
             <p class="ui small header">Name</p>
-            <input type="text" :value="model.name" v-model="name">
+            <input type="text" v-model="model.name">
         </div>
         <div class="field">
             <p class="ui small header">Description</p>
-            <textarea :value="model.desc" v-model="desc" rows="5"></textarea>
+            <textarea v-model="model.desc" rows="5"></textarea>
         </div>
         <div class="field">
             <p class="ui small header">Script path</p>
@@ -30,17 +30,23 @@
         <br>
         <div v-if="model.own" class="field">
           <div class="ui small header">Update authorize</div>
-          <select class="ui dropdown" v-model="model.updators" multiple>
+          <!-- <select class="ui dropdown" v-model="model.updators" multiple>
             <option v-for="option in model.update_options" :value="option.value">{{option.text}}
             </option>
-          </select>
+          </select> -->
+          <input type="hidden" v-model="model.select_updators">
+          <input type="hidden" v-model="model.unselect_updators">
+          <multiselect :mark="updators" :selectItems="model.select_updators_options" :unselectItems="model.unselect_updators_options"></multiselect>
         </div>
         <div v-if="model.own" class="field">
           <div class="ui small header">Query authorize</div>
-          <select class="ui dropdown" v-model="model.queryers" multiple>
+          <!-- <select class="ui dropdown" v-model="model.queryers" multiple>
             <option v-for="option in model.query_options" :value="option.value">{{option.text}}
             </option>
-          </select>
+          </select> -->
+          <input type="hidden" v-model="model.select_queryers">
+          <input type="hidden" v-model="model.unselect_queryers">
+          <multiselect :mark="queryers" :selectItems="model.select_queryers_options" :unselectItems="model.unselect_queryers_options"></multiselect>
         </div>
         <br>
         <br>
@@ -63,13 +69,26 @@
         route: {
             data(transition){
                 this.$http.get('script/'+this.$route.params._id).then((response)=>{
+                    let select_updators = response.data.res.script.select_updators;
+                    let select_queryers = response.data.res.script.select_queryers;
+                    let all_options = response.data.res.script.creators;
+                    this.set_options('updators', select_updators, all_options);
+                    this.set_options('queryers', select_queryers, all_options);
                     this.$set('model', response.data.res.script);
+                    this.$set('model.unselect_updators', '');
+                    this.$set('model.unselect_queryers', '');
                 })
             }
         },
+        events: {
+            selectmulti:function(mark, selectIds, unselectIds) {
+                this.$set('model.select_'+mark, selectIds);
+                this.$set('model.unselect_'+mark, unselectIds);
+            },
+        },
         methods: {
             update(){
-                this.$http.post('script/'+this.$route.params._id, {'desc':this.desc, 'name':this.name}).then((response)=>{
+                this.$http.post('script/'+this.$route.params._id, {'desc':this.model.desc, 'name':this.model.name, 'select_updators':this.model.select_updators, 'unselect_updators':this.model.unselect_updators, 'select_queryers':this.model.select_queryers, 'unselect_queryers':this.model.unselect_queryers}).then((response)=>{
                     let user = response.data.res.user;
                     if(user == null){
                         console.log(response.data.res.msg);
@@ -78,6 +97,17 @@
                         this.$route.router.go({name: 'script'});
                     }
                 })
+            },
+            set_options(mark, all_options, select_ids){
+                let select_options = [];
+                let unselect_options = [];
+                for(let k=0; k<all_options.length; k++)
+                    if(select_ids.indexOf(all_options[k]._id) > -1)
+                        select_options.push(all_options[k]);
+                    else
+                        unselect_options.push(all_options[k]);
+                this.$set('model.select_'+mark+'_options', select_options);
+                this.$set('model.unselect_'+mark+'_options', unselect_options);
             }
         }
     }

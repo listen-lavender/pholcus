@@ -30,6 +30,7 @@ import UserForm from './components/UserForm.vue'
 import NavMenuView from './components/NavMenu.vue'
 import TopView from './components/Top.vue'
 
+import MultiselectView from './components/Multiselect.vue'
 import ChooseView from './components/Choose.vue'
 import CascadeView from './components/Cascade.vue'
 import PaginatorView from './components/Paginator.vue'
@@ -42,6 +43,7 @@ import {isLogined, setLocal, getLocal} from './util'
 Vue.component('top', TopView)
 Vue.component('choose', ChooseView)
 Vue.component('cascade', CascadeView)
+Vue.component('multiselect', MultiselectView)
 Vue.component('paginator', PaginatorView)
 
 // var App = Vue.extend({'template':'<home></home>'})
