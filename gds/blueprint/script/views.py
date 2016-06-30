@@ -43,8 +43,8 @@ def scriptdetail(aid=None):
 
         projection = {'_id':1, 'username':1}
         article['creators'] = [{'text':one['username'], 'value':one['_id']} for one in Creator.queryAll(user, {'_id':{'$ne':user['_id']}}, projection=projection, limit=None)]
-        article['select_updators'] = ','.join([str(one['cid']) for one in Permit.queryAll({'creator':user['_id'], 'oid':aid, 'otype':'Article', 'authority':{'$in':[2,3,6,7,10,11,14,15]}}, projection={'cid':1}, limit=None)])
-        article['select_queryers'] = ','.join([str(one['cid']) for one in Permit.queryAll({'creator':user['_id'], 'oid':aid, 'otype':'Article', 'authority':{'$mod':[2, 1]}}, projection={'cid':1}, limit=None)])
+        article['select_updators'] = ','.join([str(one['cid']) for one in Permit.queryAll({'cid':{'$ne':user['_id']}, 'creator':user['_id'], 'oid':aid, 'otype':'Article', 'authority':{'$in':[2,3,6,7,10,11,14,15]}}, projection={'cid':1}, limit=None)])
+        article['select_queryers'] = ','.join([str(one['cid']) for one in Permit.queryAll({'cid':{'$ne':user['_id']}, 'creator':user['_id'], 'oid':aid, 'otype':'Article', 'authority':{'$mod':[2, 1]}}, projection={'cid':1}, limit=None)])
 
         result = {"appname":g.appname, "user":user, "script":article}
         result = json.dumps({'code':1, 'msg':'', 'res':result}, ensure_ascii=False, sort_keys=True, indent=4).encode('utf8')

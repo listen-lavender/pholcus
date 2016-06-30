@@ -36,7 +36,7 @@
           </select> -->
           <input type="hidden" v-model="model.select_updators">
           <input type="hidden" v-model="model.unselect_updators">
-          <multiselect :mark="updators" :selectItems="model.select_updators_options" :unselectItems="model.unselect_updators_options"></multiselect>
+          <multiselect :mark="updators" :selectitems="model.select_updators_options" :unselectitems="model.unselect_updators_options"></multiselect>
         </div>
         <div v-if="model.own" class="field">
           <div class="ui small header">Query authorize</div>
@@ -46,7 +46,7 @@
           </select> -->
           <input type="hidden" v-model="model.select_queryers">
           <input type="hidden" v-model="model.unselect_queryers">
-          <multiselect :mark="queryers" :selectItems="model.select_queryers_options" :unselectItems="model.unselect_queryers_options"></multiselect>
+          <multiselect :mark="queryers" :selectitems="model.select_queryers_options" :unselectitems="model.unselect_queryers_options"></multiselect>
         </div>
         <br>
         <br>
@@ -72,11 +72,12 @@
                     let select_updators = response.data.res.script.select_updators;
                     let select_queryers = response.data.res.script.select_queryers;
                     let all_options = response.data.res.script.creators;
+                    this.$set('model', response.data.res.script);
                     this.set_options('updators', select_updators, all_options);
                     this.set_options('queryers', select_queryers, all_options);
-                    this.$set('model', response.data.res.script);
                     this.$set('model.unselect_updators', '');
                     this.$set('model.unselect_queryers', '');
+                    window.model = this.model;
                 })
             }
         },
@@ -98,11 +99,11 @@
                     }
                 })
             },
-            set_options(mark, all_options, select_ids){
+            set_options(mark, select_ids, all_options){
                 let select_options = [];
                 let unselect_options = [];
                 for(let k=0; k<all_options.length; k++)
-                    if(select_ids.indexOf(all_options[k]._id) > -1)
+                    if(select_ids.indexOf(all_options[k].value) > -1)
                         select_options.push(all_options[k]);
                     else
                         unselect_options.push(all_options[k]);

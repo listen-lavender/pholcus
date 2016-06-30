@@ -1,13 +1,13 @@
 <template>
     <div class="uidropdown">
         <div class="multi">
-            <span v-for="item in selectItems" class="tag">
-                <san class="text">banana</san>
+            <span v-for="item in selectitems" class="tag">
+                <span class="text">{{item.text}}</span>
                 <a class="delete" v-on:click="rid(item)"></a>
             </span>
         </div>
         <ul class="optionlist">
-            <li v-for="item in unselectItems" class="optionitem" v-on:click="choose(item)"><div>{{item.name}}</div></li>
+            <li v-for="item in unselectitems" class="optionitem" v-on:click="choose(item)"><div>{{item.text}}</div></li>
         </ul>
     </div>
 </template>
@@ -18,36 +18,36 @@
                 type: String,
                 default:'',
             },
-            selectItems: {
+            selectitems: {
                 type: Array,
             },
-            unselectItems: {
+            unselectitems: {
                 type: Array,
             },
         },
         computed: {
             selectIds: function() {
                 let selectIds = [];
-                for(let k=0;k<this.selectItems.length;k++)
-                    selectIds.push(this.selectItems[k]._id);
+                for(let k=0;k<this.selectitems.length;k++)
+                    selectIds.push(this.selectitems[k]._id);
                 return selectIds.join(',');
             },
             unselectIds: function() {
                 let unselectIds = [];
-                for(let k=0;k<this.unselectItems.length;k++)
-                    unselectIds.push(this.unselectItems[k]._id);
+                for(let k=0;k<this.unselectitems.length;k++)
+                    unselectIds.push(this.unselectitems[k]._id);
                 return unselectIds.join(',');
             },
         },
         methods: {
             choose(item){
-                this.unselectItems.$remove(item);
-                this.selectItems.push(item);
+                this.unselectitems.$remove(item);
+                this.selectitems.push(item);
                 this.$dispatch('selectmulti', this.mark, this.selectIds, this.unselectIds);
             },
             rid(item){
-                this.selectItems.$remove(item);
-                this.unselectItems.push(item);
+                this.selectitems.$remove(item);
+                this.unselectitems.push(item);
                 this.$dispatch('selectmulti', this.mark, this.selectIds, this.unselectIds);
             },
         }
@@ -56,6 +56,7 @@
 <style lang='less'>
     .uidropdown{
         position: relative;
+        z-index: 0;
         border: 0;
         font: inherit;
         font-size: 100%;
@@ -100,6 +101,8 @@
         margin-left: -6px;
     }
     .optionlist{
+        position: absolute;
+        z-index: 1;
         max-height: 500px;
         opacity: 1;
         visibility: visible;
