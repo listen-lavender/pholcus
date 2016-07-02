@@ -56,18 +56,6 @@
 <style lang='less'>
     .uidropdown{
         position: relative;
-        z-index: 0;
-        border: 0;
-        font: inherit;
-        font-size: 100%;
-        padding: 0;
-        margin: 0;
-        word-break: break-all;
-        vertical-align: baseline;
-        -webkit-overflow-scrolling: touch;
-        outline: 0;
-        box-sizing: border-box;
-        display: block;
     }
     .multi{
         border: 1px solid #ddd;
@@ -105,12 +93,13 @@
     .optionlist{
         position: absolute;
         z-index: 1;
-        top: 13px;
         max-height: 500px;
         opacity: 1;
         background: white;
         visibility: visible;
-        border:1px solid black;
+        border:1px solid #eee;
+        margin: 0;
+        padding: 0;
     }
     .optionlist li{
         cursor: pointer;
