@@ -19,7 +19,7 @@ class AuthModel(baseorm.Model):
             updatable = auth['authority'] in (2,3,6,7,10,11,14,15)
         else:
             auth['authority'] = 1
-        if auth['authority'] % 2 == 1 or user['group'] == 'administrator': # 1 3 5 7 9 11 13 15
+        if auth['authority'] % 2 == 1 or user['group'] == 'administrator' or user.get('api'): # 1 3 5 7 9 11 13 15
             if cls.__name__ == 'Section' and projection:
                 projection['aid'] = 1
             result = super(AuthModel, cls).queryOne(spec, projection=projection, sort=sort)
@@ -85,7 +85,9 @@ class AuthModel(baseorm.Model):
         if spec.get('_id') is None:
             raise Exception("Wrong update condition without id.")
         auth = {'authority':0}
-        if cls.__name__ == 'Creator':
+        if cls.__name__ == 'Task' and user.get('api'):
+            auth['authority'] = 2
+        elif cls.__name__ == 'Creator':
             if not user['group'] == 'administrator':
                 spec['creator'] = user['_id']
             doc['$set'] = doc.get('$set', {})

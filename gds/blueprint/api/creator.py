@@ -14,6 +14,7 @@ def login():
     
     result = {"appname":g.appname, "user":{}, "msg":""}
     user = Creator.queryOne({}, {'username':username, 'secret':secret, 'status':{'$ne':0}})
+    sid = None
     if user is None:
         result['msg'] = '未找到用户，是否未注册？'
     else:
