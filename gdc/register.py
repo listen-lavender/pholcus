@@ -24,7 +24,7 @@ def persist(filepath, content):
 
 
 def getSection(sid):
-    projection = {'step':1, 'index':1, 'additions':1, 'flow':1}
+    projection = {'index':1, 'name':1, 'additions':1, 'flow':1}
     section = request.post('%sgdc/api/section/%s' % (HOST, str(sid)), {'projection':json.dumps(projection), 'limit':'one'}, format='JSON', s=session)
     section = section['section']
     return section

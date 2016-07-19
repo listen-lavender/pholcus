@@ -17,7 +17,7 @@ from model.log import ProxyLog
 from model.data import Proxy
 from webcrawl.request import PROXY
 from webcrawl import request
-from webcrawl.task import Workflows
+from webcrawl.task import Workflows, Onceworker
 from webcrawl import Logger
 
 from setting import USER, SECRET, HOST
@@ -74,7 +74,7 @@ def schedule():
         
         datamodel = getDatamodel(unit['dmid'])
         
-        task['step'] = section['step']
+        task['section'] = section['name']
         task['index'] = section['index']
         task['additions'] = section.get('additions') or '{}'
         task['flow'] = section['flow']
@@ -99,7 +99,7 @@ def push(datamodel, url, tid):
 
 
 def run():
-    workflow = Workflows(WORKNUM, 'M', 'THREAD', settings=WORKQUEUE)
+    workflow = Workflows(WORKNUM, 'Mongo', settings=WORKQUEUE)
     workflow.start()
     last_stat = datetime.datetime.now()
     local_spider = {}
@@ -110,11 +110,11 @@ def run():
             cls_name = task['article']
             module = __import__(module_name, fromlist=['task.%s' % task['unit']])
             cls = getattr(module, cls_name)
-            spider = local_spider.get(cls_name, None)
+            spider = local_spider.get(cls_name, {'fetcher':None})['fetcher']
             if spider is None:
                 callback = functools.partial(push, datamodel=task['datamodel'], url=task['push_url'], tid=int(task['_id']))
-                spider = cls(worknum=task['worknum'], queuetype='P', worktype='THREAD', tid=int(task['_id']), settings=WORKQUEUE, callback=callback)
-                local_spider[cls_name] = spider
+                spider = cls(worknum=task['worknum'], queuetype='Mongo', tid=int(task['_id']), settings=WORKQUEUE)
+                local_spider[cls_name] = {'fetcher':spider, 'callback':callback}
                 
             if task.get('type', 'FOREVER') == 'FOREVER' and (datetime.datetime.now() - task['update_time']).total_seconds() < task.get('period', 3600 * 12):
                 continue
@@ -124,7 +124,7 @@ def run():
 
             try:
                 changestate(task['_id'], 2)
-                step = task.get('step', 1) - 1
+                section = task['section']
                 additions = {}
                 additions['name'] = task['name']
                 additions['category'] = task['category']
@@ -143,15 +143,16 @@ def run():
                 args.insert(0, datetime.datetime.now().strftime('%Y%m%dT%H:%M'))
 
                 if task.get('type', 'FOREVER') == 'FOREVER':
-                    section = spider.select(task['flow'], step)
+                    step = spider.select(task['flow'], spider.format_section(section))
                     args.insert(0, task['_id'])
-                    args.insert(0, section)
-                    fun = workflow.task
-                    workflow.task(*args, **kwargs)
-                else:
                     args.insert(0, step)
                     args.insert(0, task['flow'])
-                    threading.Thread(target=spider.fetchDatas, args=args, kwargs=kwargs).start()
+                    workflow.task(*args, **kwargs)
+                else:
+                    args.insert(0, section)
+                    args.insert(0, task['flow'])
+                    callback = local_spider.get(cls_name, {'callback':None})['callback']
+                    Onceworker(spider.fetch, args=args, kwargs=kwargs, callback=callback).start()
             except:
                 t, v, b = sys.exc_info()
                 err_messages = traceback.format_exception(t, v, b)
@@ -186,6 +187,7 @@ def main():
         pmoni.start()
 
 if __name__ == '__main__':
-    main()
+    # main()
+    run()
 
     
