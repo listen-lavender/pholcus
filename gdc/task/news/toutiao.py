@@ -71,5 +71,5 @@ class SpiderToutiao(SpiderNewsOrigin):
 
 if __name__ == '__main__':
     import time
-    spider = SpiderToutiao(worknum=2, queuetype='P', worktype='THREAD')
+    spider = SpiderToutiao(worknum=2, queuetype='P')
     spider.fetchDatas('www', 0, datetime.datetime.now().strftime('%Y%m%d'), 'http://www.toutiao.com/api/article/recent/?source=2&count=2&category=news_finance&max_behot_time=%s&utm_source=toutiao&offset=0&max_create_time=1464674041&_=1464682558376' % str(int(time.time())))
