@@ -15,8 +15,8 @@ class SpiderJuweixin(SpiderMediaOrigin):
        哔哩官网 数据爬虫
     """
 
-    def __init__(self, worknum=6, queuetype='P', worktype='COROUTINE', timeout=-1, tid=0, settings={}, callback=None):
-        super(SpiderBilibili, self).__init__(worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout, tid=tid, settings=settings, callback=callback)
+    def __init__(self, worknum=6, queuetype='Local', timeout=-1, tid=0, settings={}):
+        super(SpiderBilibili, self).__init__(worknum=worknum, queuetype=queuetype, timeout=timeout, tid=tid, settings=settings)
         self.clsname = self.__class__.__name__
 
     @store(withData(datacfg.W), Data.insert, update=True, method='MANY')
@@ -168,6 +168,6 @@ class SpiderJuweixin(SpiderMediaOrigin):
 if __name__ == '__main__':
 
     print 'start'
-    spider = SpiderBilibili(worknum=6, queuetype='P', worktype='COROUTINE')
+    spider = SpiderBilibili(worknum=6, queuetype='Local')
     spider.fetchDatas('www', 'http://www.bilibili.com/html/js/types.json')
     print 'end'

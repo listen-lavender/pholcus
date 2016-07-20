@@ -114,6 +114,7 @@ def run():
             if spider is None:
                 callback = functools.partial(push, datamodel=task['datamodel'], url=task['push_url'], tid=int(task['_id']))
                 spider = cls(worknum=task['worknum'], queuetype='Mongo', tid=int(task['_id']), settings=WORKQUEUE)
+                workflow.record(spider.select(task['flow']))
                 local_spider[cls_name] = {'fetcher':spider, 'callback':callback}
                 
             if task.get('type', 'FOREVER') == 'FOREVER' and (datetime.datetime.now() - task['update_time']).total_seconds() < task.get('period', 3600 * 12):
@@ -152,7 +153,7 @@ def run():
                     args.insert(0, section)
                     args.insert(0, task['flow'])
                     callback = local_spider.get(cls_name, {'callback':None})['callback']
-                    Onceworker(spider.fetch, args=args, kwargs=kwargs, callback=callback).start()
+                    Onceworker(spider.fetch, args=args, kwargs=kwargs).start()
             except:
                 t, v, b = sys.exc_info()
                 err_messages = traceback.format_exception(t, v, b)
@@ -187,7 +188,7 @@ def main():
         pmoni.start()
 
 if __name__ == '__main__':
-    # main()
-    run()
+    main()
+    # run()
 
     

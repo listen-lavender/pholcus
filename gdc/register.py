@@ -37,7 +37,7 @@ def getArticle(aid):
     filepath = article['filepath']
     if filepath in Store and article['digest'] == Store[filepath]:
         return article
-    result = request.get('%sstatic/exe/%s' % (HOST, filepath), format='TEXT')
+    result = request.get('%sstatic/exe/%s' % (HOST, filepath), format='PLAIN')
     persist(filepath, result)
     Store[filepath] = article['digest']
     return article
@@ -50,7 +50,7 @@ def getUnit(uid):
     filepath = unit['filepath']
     if filepath in Store and unit['digest'] == Store[filepath]:
         return unit
-    result = request.get('%sstatic/exe/%s' % (HOST, filepath), format='TEXT')
+    result = request.get('%sstatic/exe/%s' % (HOST, filepath), format='PLAIN')
     persist(filepath, result)
     Store[filepath] = unit['digest']
 
@@ -66,7 +66,7 @@ def getDatamodel(dmid):
     filepath = datamodel['filepath']
     if filepath in Store and datamodel['digest'] == Store[filepath]:
         return datamodel
-    result = request.get('%sstatic/exe/%s' % (HOST, filepath), format='TEXT')
+    result = request.get('%sstatic/exe/%s' % (HOST, filepath), format='PLAIN')
     persist(filepath, result)
     Store[filepath] = datamodel['digest']
     return datamodel

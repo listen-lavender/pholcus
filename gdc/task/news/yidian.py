@@ -16,8 +16,8 @@ class SpiderYidian(SpiderNewsOrigin):
        一点资讯 数据爬虫
     """
 
-    def __init__(self, worknum=6, queuetype='P', worktype='COROUTINE', timeout=-1, tid=0, settings={}, callback=None):
-        super(SpiderYidian, self).__init__(worknum=worknum, queuetype=queuetype, worktype=worktype, timeout=timeout, tid=tid, settings=settings, callback=callback)
+    def __init__(self, worknum=6, queuetype='Local', timeout=-1, tid=0, settings={}):
+        super(SpiderYidian, self).__init__(worknum=worknum, queuetype=queuetype, timeout=timeout, tid=tid, settings=settings)
         self.clsname = self.__class__.__name__
         self.tid = tid
 
