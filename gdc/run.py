@@ -113,7 +113,7 @@ def run():
             spider = local_spider.get(cls_name, {'fetcher':None})['fetcher']
             if spider is None:
                 callback = functools.partial(push, datamodel=task['datamodel'], url=task['push_url'], tid=int(task['_id']))
-                spider = cls(worknum=task['worknum'], queuetype='Mongo', tid=int(task['_id']), settings=WORKQUEUE)
+                spider = cls(worknum=task['worknum'], queuetype='Local', tid=int(task['_id']), settings=WORKQUEUE)
                 workflow.record(spider.select(task['flow']))
                 local_spider[cls_name] = {'fetcher':spider, 'callback':callback}
                 

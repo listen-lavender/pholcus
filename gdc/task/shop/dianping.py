@@ -26,9 +26,17 @@ class SpiderDianping(SpiderShopOrigin):
     @timelimit(20)
     def fetchShopDetail(self, url, additions={}, timeout=TIMEOUT, implementor=None):
         headers = {
-            "User-Agent":"iPhone; CPU iPhone OS 9_1 like Mac OS X AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
+            "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Encoding":"gzip, deflate, sdch",
+            "Host":"www.dianping.com",
+            "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 9_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36",
         }
-        result = request.get(url, headers=headers, timeout=timeout, format='HTML')
+        cookies = {
+            'PHOENIX_ID':'0a0102df-155fd7a5b95-5b73d',
+            'pvhistory':'6L+U5ZuePjo8Lz46PDE0NjkxNjgxMDQ5MjhdX1vov5Tlm54+Ojwvc3VnZ2VzdC9nZXRKc29uRGF0YT9fPTE0NjkxNjkxMDAzMTAmY2FsbGJhY2s9anNvbnAyPjo8MTQ2OTE2OTEwMDI5OV1fWw==',
+            'JSESSIONID':'A9B729CED05C083E8763C9082D1BCC62',
+        }
+        result = request.get(url, headers=headers, cookies=cookies, timeout=timeout, format='HTML')
         food_id = [additions['food_id'], ]
         name = additions['name']
         desc = additions['desc']
@@ -76,8 +84,6 @@ class SpiderDianping(SpiderShopOrigin):
         atime = datetime.now()
         uptime = atime
         time = atime
-
-        print link_url, name
 
         time_result = request.get(url+'/editmember', headers=headers, timeout=timeout, format='HTML')
         time_info = time_result.findall('.//ul[@class="block-inner desc-list contribute-list Fix"]//li')
@@ -164,37 +170,46 @@ class SpiderDianping(SpiderShopOrigin):
             }}
 
 
-    @next(fetchShopList)
+    @next(fetchShopDetail)
     @index('url')
     @timelimit(20)
     def fetchWWWFoodList(self, url, additions={}, timeout=TIMEOUT, implementor=None):
         headers = {
-            "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36",
+            "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Encoding":"gzip, deflate, sdch",
+            "Host":"www.dianping.com",
+            "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 9_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36",
         }
-        result = request.get(url, headers=headers, timeout=timeout, format='HTML')
+        cookies = {
+            'PHOENIX_ID':'0a0102df-155fd7a5b95-5b73d',
+            'pvhistory':'6L+U5ZuePjo8Lz46PDE0NjkxNjgxMDQ5MjhdX1vov5Tlm54+Ojwvc3VnZ2VzdC9nZXRKc29uRGF0YT9fPTE0NjkxNjkxMDAzMTAmY2FsbGJhY2s9anNvbnAyPjo8MTQ2OTE2OTEwMDI5OV1fWw==',
+            'JSESSIONID':'A9B729CED05C083E8763C9082D1BCC62',
+        }
+        result = request.get(url, headers=headers, cookies=cookies, timeout=timeout, format='HTML')
         foods = result.findall('.//div[@id="shop-all-list"]//ul//li')
-        print len(foods)
         if len(foods) < 15:
             nextpage = None
         else:
             index = url.split('/')
-            index[-1] = str(int(index[-1]) + 1)
+            index[-1] = 'p' + str(int(index[-1].replace('p', '')) + 1)
             nextpage = '/'.join(index)
+        nextpage = None
         yield nextpage
         for one in foods:
-            groupbuy = request.getHtmlNodeContent(one.find('.//div[@class="svr-info"]//a'), {'ATTR':'href'})
-            detail = request.get(groupbuy, headers=headers, timeout=timeout, format='HTML')
-            pic = []
-            try:
-                for pic_one in detail.findall('.//div[@class="detail"]'):
-                    if request.getHtmlNodeContent(pic_one.find('.//span[@class="name"]'), 'TEXT') == '商户介绍':
-                        pic.extend([request.getHtmlNodeContent(img, {'ATTR':'lazy-src-load'}) for img in pic_one.findall('.//img')])
-                        break
-            except:
-                pass
-            additions['pic'] = pic
-            gid = groupbuy.split('/')[-1]
-            url = 'http://t.dianping.com/ajax/dealGroupShopDetail?dealGroupId=%s&action=shops' % gid
+            sid = request.getHtmlNodeContent(one.find('.//div[@class="pic"]//a'), {'ATTR':'href'})
+            sid = sid.split('/')[-1]
+            url = 'http://www.dianping.com/ajax/json/shop/wizard/BasicHideInfoAjaxFP?shopId=%s' % sid
+            shopinfo = request.get(url, headers=headers, timeout=timeout, format='JSON')
+            shopinfo = shopinfo['msg']['shopInfo']
+            additions = dict(additions, **{})
+            additions['name'] = shopinfo['branchName'] if shopinfo['shopName'] in shopinfo['branchName'] else shopinfo['shopName'] + shopinfo['branchName']
+            additions['address'] = shopinfo['address']
+            additions['tel'] = shopinfo['phoneNo']
+            additions['longitude'] = shopinfo['glng']
+            additions['latitude'] = shopinfo['glat']
+            additions['pic'] = shopinfo['defaultPic']
+            additions['desc'] = (shopinfo['businessHours'] or '') + ',' + (shopinfo['crossRoad'] or '')
+            additions['average'] = shopinfo.get('avgPrice', 0)
             yield {'url': url, 'additions':additions}
 
 
@@ -202,8 +217,9 @@ class SpiderDianping(SpiderShopOrigin):
     @timelimit(20)
     @initflow('www')
     def fetchWWWFood(self, additions={}, timeout=TIMEOUT, implementor=None):
-        for one in food.find({"province_id" : "110000"}, {"name":1, "area_id":1, "city_id":1, "country_id":1, "province_id":1, "town_id":1}):
-            yield {'url': 'http://www.dianping.com/search/keyword/2/0_%s/p1' % one['name'], 
+        for one in food.find({"province_id" : "110000"}, {"name":1, "area_id":1, "city_id":1, "country_id":1, "province_id":1, "town_id":1}).limit(1):
+            name = one['name'].replace('北京', '')
+            yield {'url': 'http://www.dianping.com/search/keyword/2/0_%s/p1' % name, 
             'additions':{'food_id':str(one['_id']),
                 'country_id':one['country_id'],
                 'province_id':one['province_id'],
